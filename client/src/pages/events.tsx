@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -7,10 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import EditEventDialog from "@/components/EditEventDialog";
+import type { Event } from "@shared/schema";
 
 export default function Events() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
   // Fetch events from API
   const { data: events = [], isLoading: eventsLoading, error: eventsError } = useQuery({
@@ -208,6 +212,7 @@ export default function Events() {
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => setEditingEvent(event)}
                         className="text-western-brown border-western-brown hover:bg-western-brown hover:text-white"
                       >
                         <i className="fas fa-edit mr-1"></i>
@@ -252,6 +257,15 @@ export default function Events() {
           )}
         </div>
       </main>
+
+      {/* Edit Event Dialog */}
+      {editingEvent && (
+        <EditEventDialog
+          event={editingEvent}
+          isOpen={!!editingEvent}
+          onClose={() => setEditingEvent(null)}
+        />
+      )}
     </div>
   );
 }

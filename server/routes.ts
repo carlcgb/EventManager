@@ -411,10 +411,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         scope: scopes,
         state: (req.user as any).claims.sub, // ID utilisateur pour associer le token
         prompt: 'consent', // Force consent screen pour obtenir refresh token
+        include_granted_scopes: true, // For mobile compatibility
       });
 
       console.log("Redirecting to Google OAuth URL:", url);
-      res.redirect(url);
+      console.log("User-Agent:", req.get('User-Agent'));
+      
+      // Check if mobile device and handle accordingly
+      const userAgent = req.get('User-Agent') || '';
+      const isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+      
+      if (isMobile) {
+        // For mobile, we need to ensure the redirect works properly
+        res.writeHead(302, {
+          'Location': url,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        });
+        res.end();
+      } else {
+        res.redirect(url);
+      }
     } catch (error) {
       console.error("Erreur lors de l'initiation OAuth Google:", error);
       res.redirect('/calendar-integrations?error=oauth-init-failed');

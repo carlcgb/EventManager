@@ -253,9 +253,22 @@ export default function CalendarIntegrations() {
                   <p className="text-gray-600 text-sm">
                     Synchronisation automatique activée
                   </p>
-                  <Badge className="bg-green-100 text-green-800">
+                  <Badge className="bg-green-100 text-green-800 mb-4">
                     Connecté
                   </Badge>
+                  <Button 
+                    variant="outline"
+                    onClick={() => {
+                      const googleIntegration = integrations.find(i => i.provider === 'google' && i.isActive);
+                      if (googleIntegration && confirm('Êtes-vous sûr de vouloir déconnecter Google Calendar ?')) {
+                        deleteIntegrationMutation.mutate(googleIntegration.id);
+                      }
+                    }}
+                    disabled={deleteIntegrationMutation.isPending}
+                    className="w-full border-red-600 text-red-600 hover:bg-red-50"
+                  >
+                    Déconnecter
+                  </Button>
                 </>
               ) : (
                 <>

@@ -18,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { VenueInput } from "@/components/VenueInput";
 
 const eventFormSchema = z.object({
   title: z.string().min(1, "Le titre est requis"),
@@ -352,10 +353,10 @@ export default function Home() {
                             Lieu
                           </FormLabel>
                           <FormControl>
-                            <Input
+                            <VenueInput
+                              value={field.value}
+                              onChange={field.onChange}
                               placeholder="Ex: Théâtre Corona, Montréal"
-                              className="border-2 border-gray-200 focus:border-western-brown"
-                              {...field}
                             />
                           </FormControl>
                           <FormMessage />
