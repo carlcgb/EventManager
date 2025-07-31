@@ -29,13 +29,13 @@ export default function Landing() {
           </div>
           
           <div className="space-y-4">
-            <h1 className="text-5xl font-bold text-western-dark animate-slide-up">
+            <h1 className="text-5xl font-bold text-white animate-slide-up">
               Sam Hébert
             </h1>
-            <h2 className="text-2xl text-western-brown font-semibold animate-slide-up delay-200">
+            <h2 className="text-2xl text-white font-semibold animate-slide-up delay-200">
               Le Cowboy de l'Humour
             </h2>
-            <p className="text-xl text-gray-700 max-w-lg mx-auto animate-fade-in delay-400">
+            <p className="text-xl text-white max-w-lg mx-auto animate-fade-in delay-400">
               Gestionnaire d'événements personnel pour organiser vos spectacles, 
               gérer votre calendrier et publier sur votre site web.
             </p>
@@ -85,9 +85,9 @@ export default function Landing() {
         </div>
 
         {/* Footer */}
-        <div className="text-center text-gray-600">
+        <div className="text-center text-white">
           <p className="text-sm">
-            © 2025 Sam Hébert - Gestionnaire d'Événements
+            © 2025 CGB - Gestionnaire d'Événements
           </p>
         </div>
       </div>
