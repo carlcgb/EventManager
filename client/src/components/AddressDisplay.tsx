@@ -36,25 +36,14 @@ export function AddressDisplay({ address, className = "", showMapLink = true }: 
         <span>{address}</span>
       </div>
       
-      <div className="flex items-center space-x-2">
-        <Button
-          onClick={handleOpenInMaps}
-          variant="outline"
-          size="sm"
-          className="text-xs border-western-brown text-western-brown hover:bg-western-brown hover:text-white"
-        >
-          <MapPin className="h-3 w-3 mr-1" />
-          Voir sur la carte
-          <ExternalLink className="h-3 w-3 ml-1" />
-        </Button>
-        
+      <div className="flex items-center">
         <Button
           onClick={handleGetDirections}
           variant="outline"
           size="sm"
           className="text-xs border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white"
         >
-          <i className="fas fa-route mr-1"></i>
+          <MapPin className="h-3 w-3 mr-1" />
           Itinéraire
           <ExternalLink className="h-3 w-3 ml-1" />
         </Button>
