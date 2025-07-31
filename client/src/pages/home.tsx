@@ -19,6 +19,8 @@ import { z } from "zod";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { VenueInput } from "@/components/VenueInput";
+import { EventDetailsModal } from "@/components/EventDetailsModal";
+import EditEventDialog from "@/components/EditEventDialog";
 
 const eventFormSchema = z.object({
   title: z.string().min(1, "Le titre est requis"),
@@ -38,6 +40,9 @@ export default function Home() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema),
@@ -126,6 +131,16 @@ export default function Home() {
 
   const handleLogout = async () => {
     window.location.href = '/api/logout';
+  };
+
+  const handleEventClick = (event: Event) => {
+    setSelectedEvent(event);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleEditFromModal = (event: Event) => {
+    setEditingEvent(event);
+    setIsDetailsModalOpen(false);
   };
 
   if (isLoading) {
@@ -470,7 +485,11 @@ export default function Home() {
                       .sort((a: Event, b: Event) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                       .slice(0, 5)
                       .map((event: Event) => (
-                        <div key={event.id} className="p-4 hover:bg-gray-50 transition-colors duration-200">
+                        <div 
+                          key={event.id} 
+                          className="p-4 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
+                          onClick={() => handleEventClick(event)}
+                        >
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <h4 className="font-semibold text-gray-900 mb-1">{event.title}</h4>
@@ -539,6 +558,26 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+      {/* Event Details Modal */}
+      <EventDetailsModal
+        event={selectedEvent}
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        onEdit={handleEditFromModal}
+      />
+
+      {/* Edit Event Dialog */}
+      {editingEvent && (
+        <EditEventDialog
+          event={editingEvent}
+          isOpen={!!editingEvent}
+          onClose={() => setEditingEvent(null)}
+        />
+      )}
+
+      {/* Notification Center */}
+      <NotificationCenter />
     </div>
   );
 }
