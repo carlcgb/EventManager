@@ -108,7 +108,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(events)
       .where(and(eq(events.id, id), eq(events.userId, userId)));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   async getEventStats(userId: string): Promise<{
@@ -195,7 +195,7 @@ export class DatabaseStorage implements IStorage {
         eq(calendarIntegrations.id, id),
         eq(calendarIntegrations.userId, userId)
       ));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 }
 
