@@ -155,7 +155,7 @@ export default function Events() {
             events.map((event: any) => (
               <Card 
                 key={event.id} 
-                className="shadow-western hover:shadow-western-lg transition-all duration-200 cursor-pointer hover:scale-105"
+                className="shadow-western hover:shadow-western-lg transition-all duration-200 cursor-pointer hover:scale-105 card-blur"
                 onClick={() => handleEventClick(event)}
               >
                 <CardHeader className="pb-3">
@@ -256,7 +256,7 @@ export default function Events() {
             ))
           ) : (
             <div className="col-span-full">
-              <Card className="shadow-western">
+              <Card className="shadow-western card-blur">
                 <CardContent className="p-12 text-center">
                   <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
                     <i className="fas fa-calendar-plus text-gray-400 text-4xl"></i>

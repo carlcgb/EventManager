@@ -192,7 +192,7 @@ export default function Home() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Dashboard Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="border-l-4 border-western-brown shadow-western">
+          <Card className="border-l-4 border-western-brown shadow-western card-blur">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -212,7 +212,7 @@ export default function Home() {
             </CardContent>
           </Card>
           
-          <Card className="border-l-4 border-western-success shadow-western">
+          <Card className="border-l-4 border-western-success shadow-western card-blur">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -232,7 +232,7 @@ export default function Home() {
             </CardContent>
           </Card>
           
-          <Card className="border-l-4 border-western-warning shadow-western">
+          <Card className="border-l-4 border-western-warning shadow-western card-blur">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -257,7 +257,7 @@ export default function Home() {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           {/* Event Creation Form */}
           <div className="xl:col-span-2">
-            <Card className="shadow-western-lg overflow-hidden">
+            <Card className="shadow-western-lg overflow-hidden card-blur">
               <CardHeader className="bg-gradient-to-r from-western-brown to-western-chocolate text-white">
                 <CardTitle className="text-2xl font-bold flex items-center text-western-beige">
                   <i className="fas fa-plus-circle mr-3"></i>
@@ -465,7 +465,7 @@ export default function Home() {
 
           {/* Recent Events Sidebar */}
           <div className="space-y-6">
-            <Card className="shadow-western overflow-hidden">
+            <Card className="shadow-western overflow-hidden card-blur">
               <CardHeader className="bg-western-chocolate text-white">
                 <CardTitle className="text-lg font-semibold flex items-center">
                   <i className="fas fa-history mr-2"></i>
