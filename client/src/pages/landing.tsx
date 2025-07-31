@@ -60,7 +60,7 @@ export default function Landing() {
         </div>
 
         {/* Features Overview - With Animations */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="text-center space-y-3 bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-western-lg border border-western-sand hover:border-western-brown transition-all duration-300 transform hover:scale-105 animate-slide-up hover-western">
             <div className="w-16 h-16 bg-western-brown/10 rounded-full flex items-center justify-center mx-auto shadow-western animate-bounce">
               <i className="fas fa-calendar-plus text-western-brown text-2xl"></i>
