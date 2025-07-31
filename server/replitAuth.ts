@@ -39,6 +39,7 @@ export function getSession() {
     cookie: {
       httpOnly: true,
       secure: true,
+      sameSite: 'none',
       maxAge: sessionTtl,
     },
   });
@@ -102,16 +103,14 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
-    const domain = process.env.REPLIT_DOMAINS!.split(",")[0]; // Use first domain
-    passport.authenticate(`replitauth:${domain}`, {
+    passport.authenticate(`replitauth:${req.hostname}`, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
     })(req, res, next);
   });
 
   app.get("/api/callback", (req, res, next) => {
-    const domain = process.env.REPLIT_DOMAINS!.split(",")[0]; // Use first domain
-    passport.authenticate(`replitauth:${domain}`, {
+    passport.authenticate(`replitauth:${req.hostname}`, {
       successReturnToOrRedirect: "/",
       failureRedirect: "/api/login",
     })(req, res, next);
