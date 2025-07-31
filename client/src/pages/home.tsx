@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { isUnauthorizedError } from "@/lib/authUtils";
+import { Event } from "@shared/schema";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { logout } from "@/lib/firebase";
@@ -31,6 +34,7 @@ type EventFormData = z.infer<typeof eventFormSchema>;
 export default function Home() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<EventFormData>({
@@ -47,45 +51,55 @@ export default function Home() {
     },
   });
 
-  // Mock data for demonstration (replace with Firebase backend)
-  const stats = {
-    monthlyEvents: 3,
-    publishedEvents: 2,
-    pendingEvents: 1
-  };
+  // Fetch real events and stats from API
+  const { data: events = [], isLoading: eventsLoading } = useQuery({
+    queryKey: ["/api/events"],
+    retry: (failureCount, error) => {
+      if (isUnauthorizedError(error as Error)) return false;
+      return failureCount < 2;
+    },
+  });
 
-  const events = [
-    {
-      id: '1',
-      title: 'Spectacle d\'humour au Théâtre Corona',
-      date: new Date('2025-02-15T20:00:00'),
-      venue: 'Théâtre Corona, Montréal',
-      status: 'published',
-      createdAt: new Date('2025-01-01')
-    }
-  ];
+  const { data: stats = { monthlyEvents: 0, publishedEvents: 0, pendingEvents: 0 }, isLoading: statsLoading } = useQuery({
+    queryKey: ["/api/events/stats"],
+    retry: (failureCount, error) => {
+      if (isUnauthorizedError(error as Error)) return false;
+      return failureCount < 2;
+    },
+  });
 
-  // Create event mutation (Firebase implementation)
+  // Create event mutation with real API
   const createEventMutation = useMutation({
     mutationFn: async (data: EventFormData) => {
-      // Simulate event creation
-      console.log('Creating event:', data);
+      const eventData = {
+        ...data,
+        date: new Date(`${data.date}T${data.time}`).toISOString(),
+      };
       
-      // Here you would typically:
-      // 1. Send data to your Firebase backend
-      // 2. Add to Google Calendar if requested
-      // 3. Update your database
-      
-      return { message: "Événement créé avec succès!" };
+      return await apiRequest("/api/events", "POST", eventData);
     },
     onSuccess: (data) => {
       toast({
         title: "Événement créé !",
-        description: data.message,
+        description: data.message || "Événement créé avec succès",
       });
       form.reset();
+      // Refresh events and stats
+      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/events/stats"] });
     },
-    onError: () => {
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Non autorisé",
+          description: "Vous êtes déconnecté. Reconnexion en cours...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
       toast({
         title: "Erreur",
         description: "Impossible de créer l'événement. Veuillez réessayer.",
@@ -170,7 +184,11 @@ export default function Home() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Événements ce mois</p>
                   <p className="text-3xl font-bold text-western-brown">
-                    {stats.monthlyEvents}
+                    {statsLoading ? (
+                      <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                    ) : (
+                      stats.monthlyEvents
+                    )}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-western-brown/10 rounded-lg flex items-center justify-center">
@@ -186,7 +204,11 @@ export default function Home() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Événements publiés</p>
                   <p className="text-3xl font-bold text-western-success">
-                    {stats.publishedEvents}
+                    {statsLoading ? (
+                      <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                    ) : (
+                      stats.publishedEvents
+                    )}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-western-success/10 rounded-lg flex items-center justify-center">
@@ -202,7 +224,11 @@ export default function Home() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">En attente</p>
                   <p className="text-3xl font-bold text-western-warning">
-                    {stats.pendingEvents}
+                    {statsLoading ? (
+                      <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                    ) : (
+                      stats.pendingEvents
+                    )}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-western-warning/10 rounded-lg flex items-center justify-center">
@@ -434,40 +460,49 @@ export default function Home() {
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-gray-100">
-                  {events.length > 0 ? (
-                    events.slice(0, 5).map((event: any) => (
-                      <div key={event.id} className="p-4 hover:bg-gray-50 transition-colors duration-200">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-gray-900 mb-1">{event.title}</h4>
-                            <div className="flex items-center text-sm text-gray-600 space-x-3">
-                              <span className="flex items-center">
-                                <i className="fas fa-calendar text-western-brown mr-1"></i>
-                                {format(new Date(event.date), "d MMMM yyyy", { locale: fr })}
+                  {eventsLoading ? (
+                    <div className="p-4 animate-pulse space-y-4">
+                      <div className="h-16 bg-gray-200 rounded"></div>
+                      <div className="h-16 bg-gray-200 rounded"></div>
+                      <div className="h-16 bg-gray-200 rounded"></div>
+                    </div>
+                  ) : events.length > 0 ? (
+                    events
+                      .sort((a: Event, b: Event) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                      .slice(0, 5)
+                      .map((event: Event) => (
+                        <div key={event.id} className="p-4 hover:bg-gray-50 transition-colors duration-200">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-900 mb-1">{event.title}</h4>
+                              <div className="flex items-center text-sm text-gray-600 space-x-3">
+                                <span className="flex items-center">
+                                  <i className="fas fa-calendar text-western-brown mr-1"></i>
+                                  {format(new Date(event.date), "d MMMM yyyy", { locale: fr })}
+                                </span>
+                              </div>
+                              <div className="flex items-center text-sm text-gray-600 mt-1">
+                                <i className="fas fa-map-marker-alt text-western-brown mr-1"></i>
+                                {event.venue}
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  event.status === "published"
+                                    ? "bg-western-success/10 text-western-success"
+                                    : event.status === "pending"
+                                    ? "bg-western-warning/10 text-western-warning"
+                                    : "bg-gray-100 text-gray-600"
+                                }`}
+                              >
+                                {event.status === "published" ? "Publié" : 
+                                 event.status === "pending" ? "En attente" : "Brouillon"}
                               </span>
                             </div>
-                            <div className="flex items-center text-sm text-gray-600 mt-1">
-                              <i className="fas fa-map-marker-alt text-western-brown mr-1"></i>
-                              {event.venue}
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <span
-                              className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                event.status === "published"
-                                  ? "bg-western-success/10 text-western-success"
-                                  : event.status === "pending"
-                                  ? "bg-western-warning/10 text-western-warning"
-                                  : "bg-gray-100 text-gray-600"
-                              }`}
-                            >
-                              {event.status === "published" ? "Publié" : 
-                               event.status === "pending" ? "En attente" : "Brouillon"}
-                            </span>
                           </div>
                         </div>
-                      </div>
-                    ))
+                      ))
                   ) : (
                     <div className="p-8 text-center text-gray-500">
                       <i className="fas fa-calendar-plus text-4xl mb-4"></i>

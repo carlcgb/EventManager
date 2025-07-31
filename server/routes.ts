@@ -45,6 +45,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/events/stats", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const stats = await storage.getEventStats(userId);
+      res.json(stats);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des statistiques:", error);
+      res.status(500).json({ message: "Échec de la récupération des statistiques" });
+    }
+  });
+
   app.post("/api/events", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
