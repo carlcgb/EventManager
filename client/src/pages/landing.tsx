@@ -47,9 +47,13 @@ export default function Landing() {
           <div className="bg-white rounded-xl p-8 shadow-western-lg border-2 border-western-brown animate-fade-in delay-400">
             <a 
               href="/api/login"
-              className="inline-flex items-center bg-gradient-to-r from-western-brown to-western-chocolate hover:from-western-chocolate hover:to-western-brown text-white font-bold py-4 px-10 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-western-lg text-lg shadow-lg"
+              className="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-10 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-lg border-2 border-red-700"
+              style={{
+                backgroundColor: '#dc2626',
+                color: '#ffffff'
+              }}
             >
-              <i className="fab fa-google mr-3 text-xl text-white"></i>
+              <i className="fab fa-google mr-3 text-xl" style={{ color: '#ffffff' }}></i>
               Se connecter avec Google
             </a>
           </div>
