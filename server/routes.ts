@@ -376,7 +376,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Route pour initier l'authentification Google Calendar
   app.get("/api/auth/google", isAuthenticated, (req, res) => {
     try {
-      // Configuration OAuth2 avec URL de callback fixe pour le déploiement
+      // Configuration OAuth2 avec URL de callback pour Replit
       const callbackUrl = `https://evenements.replit.app/api/auth/google/callback`;
       
       console.log("Initiating Google OAuth with callback:", callbackUrl);
