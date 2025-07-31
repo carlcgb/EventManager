@@ -1,11 +1,14 @@
 import {
   users,
   events,
+  calendarIntegrations,
   type User,
   type UpsertUser,
   type Event,
   type InsertEvent,
   type UpdateEvent,
+  type CalendarIntegration,
+  type InsertCalendarIntegration,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
@@ -28,6 +31,13 @@ export interface IStorage {
     publishedEvents: number;
     pendingEvents: number;
   }>;
+
+  // Calendar integration operations
+  getUserCalendarIntegrations(userId: string): Promise<CalendarIntegration[]>;
+  getCalendarIntegration(id: string, userId: string): Promise<CalendarIntegration | undefined>;
+  createCalendarIntegration(integration: InsertCalendarIntegration & { userId: string }): Promise<CalendarIntegration>;
+  updateCalendarIntegration(id: string, userId: string, updates: Partial<InsertCalendarIntegration>): Promise<CalendarIntegration | undefined>;
+  deleteCalendarIntegration(id: string, userId: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -132,6 +142,60 @@ export class DatabaseStorage implements IStorage {
       publishedEvents,
       pendingEvents,
     };
+  }
+
+  // Calendar integration operations
+  async getUserCalendarIntegrations(userId: string): Promise<CalendarIntegration[]> {
+    return await db
+      .select()
+      .from(calendarIntegrations)
+      .where(eq(calendarIntegrations.userId, userId))
+      .orderBy(desc(calendarIntegrations.createdAt));
+  }
+
+  async getCalendarIntegration(id: string, userId: string): Promise<CalendarIntegration | undefined> {
+    const [integration] = await db
+      .select()
+      .from(calendarIntegrations)
+      .where(and(
+        eq(calendarIntegrations.id, id),
+        eq(calendarIntegrations.userId, userId)
+      ));
+    return integration;
+  }
+
+  async createCalendarIntegration(integration: InsertCalendarIntegration & { userId: string }): Promise<CalendarIntegration> {
+    const [newIntegration] = await db
+      .insert(calendarIntegrations)
+      .values(integration)
+      .returning();
+    return newIntegration;
+  }
+
+  async updateCalendarIntegration(
+    id: string, 
+    userId: string, 
+    updates: Partial<InsertCalendarIntegration>
+  ): Promise<CalendarIntegration | undefined> {
+    const [updatedIntegration] = await db
+      .update(calendarIntegrations)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(and(
+        eq(calendarIntegrations.id, id),
+        eq(calendarIntegrations.userId, userId)
+      ))
+      .returning();
+    return updatedIntegration;
+  }
+
+  async deleteCalendarIntegration(id: string, userId: string): Promise<boolean> {
+    const result = await db
+      .delete(calendarIntegrations)
+      .where(and(
+        eq(calendarIntegrations.id, id),
+        eq(calendarIntegrations.userId, userId)
+      ));
+    return result.rowCount > 0;
   }
 }
 

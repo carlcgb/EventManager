@@ -478,14 +478,24 @@ export default function Home() {
                 </div>
                 {events.length > 0 && (
                   <div className="p-4 border-t border-gray-100">
-                    <Button
-                      variant="ghost"
-                      className="w-full text-western-brown hover:text-western-chocolate font-medium text-sm"
-                      onClick={() => window.location.href = '/events'}
-                    >
-                      <span>Voir tous les événements</span>
-                      <i className="fas fa-arrow-right ml-2"></i>
-                    </Button>
+                    <div className="flex flex-col space-y-2">
+                      <Button
+                        variant="ghost"
+                        className="w-full text-western-brown hover:text-western-chocolate font-medium text-sm"
+                        onClick={() => window.location.href = '/events'}
+                      >
+                        <span>Voir tous les événements</span>
+                        <i className="fas fa-arrow-right ml-2"></i>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="w-full text-western-rust hover:text-western-dark font-medium text-sm"
+                        onClick={() => window.location.href = '/calendar-integrations'}
+                      >
+                        <span>Intégrations calendrier</span>
+                        <i className="fas fa-calendar-sync ml-2"></i>
+                      </Button>
+                    </div>
                   </div>
                 )}
               </CardContent>

@@ -49,6 +49,22 @@ export const events = pgTable("events", {
   sendNotification: boolean("send_notification").default(false),
   status: varchar("status", { enum: ["draft", "pending", "published"] }).default("draft"),
   calendarEventId: varchar("calendar_event_id"), // For Google Calendar integration
+  microsoftEventId: varchar("microsoft_event_id"), // For Outlook/Microsoft integration
+  appleEventId: varchar("apple_event_id"), // For Apple Calendar integration
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Calendar integrations table
+export const calendarIntegrations = pgTable("calendar_integrations", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  provider: varchar("provider", { enum: ["google", "microsoft", "apple"] }).notNull(),
+  accessToken: text("access_token").notNull(),
+  refreshToken: text("refresh_token"),
+  expiresAt: timestamp("expires_at"),
+  calendarId: varchar("calendar_id"), // Specific calendar ID for the provider
+  isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -60,10 +76,19 @@ export const insertUserSchema = createInsertSchema(users).pick({
   profileImageUrl: true,
 });
 
+export const insertCalendarIntegrationSchema = createInsertSchema(calendarIntegrations).omit({
+  id: true,
+  userId: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertEventSchema = createInsertSchema(events).omit({
   id: true,
   userId: true,
   calendarEventId: true,
+  microsoftEventId: true,
+  appleEventId: true,
   createdAt: true,
   updatedAt: true,
 }).extend({
@@ -77,3 +102,5 @@ export type User = typeof users.$inferSelect;
 export type Event = typeof events.$inferSelect;
 export type InsertEvent = z.infer<typeof insertEventSchema>;
 export type UpdateEvent = z.infer<typeof updateEventSchema>;
+export type InsertCalendarIntegration = z.infer<typeof insertCalendarIntegrationSchema>;
+export type CalendarIntegration = typeof calendarIntegrations.$inferSelect;
