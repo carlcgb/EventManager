@@ -1,6 +1,7 @@
 import { Client } from '@microsoft/microsoft-graph-client';
 import ical from 'ical-generator';
 import { v4 as uuidv4 } from 'uuid';
+import { google } from 'googleapis';
 import type { Event, CalendarIntegration } from '@shared/schema';
 
 // Calendar provider types
@@ -103,6 +104,108 @@ export class MicrosoftCalendarService {
   }
 }
 
+// Google Calendar Service
+export class GoogleCalendarService {
+  private oauth2Client: any;
+  private calendar: any;
+
+  constructor(accessToken?: string) {
+    this.oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      'http://localhost:5000/api/callback/google'
+    );
+
+    if (accessToken) {
+      this.oauth2Client.setCredentials({ access_token: accessToken });
+    }
+
+    this.calendar = google.calendar({ version: 'v3', auth: this.oauth2Client });
+  }
+
+  async createEvent(eventData: CalendarEventData): Promise<string> {
+    try {
+      const event = {
+        summary: eventData.title,
+        description: eventData.description || '',
+        location: eventData.location || '',
+        start: {
+          dateTime: eventData.startTime.toISOString(),
+          timeZone: 'America/Toronto',
+        },
+        end: {
+          dateTime: eventData.endTime.toISOString(),
+          timeZone: 'America/Toronto',
+        },
+      };
+
+      const response = await this.calendar.events.insert({
+        calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
+        resource: event,
+      });
+
+      console.log('Événement Google Calendar créé avec succès:', response.data.id);
+      return response.data.id;
+    } catch (error) {
+      console.error('Erreur création événement Google Calendar:', error);
+      throw error;
+    }
+  }
+
+  async updateEvent(eventId: string, eventData: CalendarEventData): Promise<void> {
+    try {
+      const event = {
+        summary: eventData.title,
+        description: eventData.description || '',
+        location: eventData.location || '',
+        start: {
+          dateTime: eventData.startTime.toISOString(),
+          timeZone: 'America/Toronto',
+        },
+        end: {
+          dateTime: eventData.endTime.toISOString(),
+          timeZone: 'America/Toronto',
+        },
+      };
+
+      await this.calendar.events.update({
+        calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
+        eventId: eventId,
+        resource: event,
+      });
+
+      console.log('Événement Google Calendar mis à jour avec succès');
+    } catch (error) {
+      console.error('Erreur mise à jour événement Google Calendar:', error);
+      throw error;
+    }
+  }
+
+  async deleteEvent(eventId: string): Promise<void> {
+    try {
+      await this.calendar.events.delete({
+        calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
+        eventId: eventId,
+      });
+
+      console.log('Événement Google Calendar supprimé avec succès');
+    } catch (error) {
+      console.error('Erreur suppression événement Google Calendar:', error);
+      throw error;
+    }
+  }
+
+  async getCalendars() {
+    try {
+      const response = await this.calendar.calendarList.list();
+      return response.data.items;
+    } catch (error) {
+      console.error('Erreur récupération calendriers Google:', error);
+      throw error;
+    }
+  }
+}
+
 // Apple Calendar Service (iCal generation)
 export class AppleCalendarService {
   generateICalEvent(eventData: CalendarEventData, eventId?: string): string {
@@ -146,10 +249,15 @@ export class AppleCalendarService {
 // Main Calendar Integration Service
 export class CalendarIntegrationService {
   private microsoftService?: MicrosoftCalendarService;
+  private googleService?: GoogleCalendarService;
   private appleService: AppleCalendarService;
 
   constructor() {
     this.appleService = new AppleCalendarService();
+  }
+
+  private initGoogleService(accessToken?: string) {
+    this.googleService = new GoogleCalendarService(accessToken);
   }
 
   private initMicrosoftService(accessToken: string) {
@@ -190,8 +298,9 @@ export class CalendarIntegrationService {
             break;
 
           case 'google':
-            // Google Calendar integration déjà implémentée
-            // On pourrait l'étendre ici
+            this.initGoogleService(integration.accessToken);
+            const googleEventId = await this.googleService!.createEvent(eventData);
+            results.google = googleEventId;
             break;
         }
       } catch (error) {

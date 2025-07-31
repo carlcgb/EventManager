@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { notificationService } from "./notificationService";
+import { GoogleCalendarService } from "./calendarService";
 import { insertEventSchema, updateEventSchema, insertCalendarIntegrationSchema } from "@shared/schema";
 import { CalendarIntegrationService } from "./calendarService";
 
@@ -11,19 +12,32 @@ async function addToGoogleCalendar(eventData: any): Promise<string | null> {
   try {
     console.log("Tentative d'ajout à Google Calendar:", eventData.title);
     
-    // Pour l'instant, simuler l'ajout réussi (placeholder)
-    // La vraie intégration nécessiterait un service account Google ou un flux OAuth complet
     console.log("Google Calendar API keys present:", {
       clientId: !!process.env.GOOGLE_CLIENT_ID,
       clientSecret: !!process.env.GOOGLE_CLIENT_SECRET,
       calendarId: !!process.env.GOOGLE_CALENDAR_ID
     });
+
+    // Créer le service Google Calendar
+    const googleCalendarService = new GoogleCalendarService();
     
-    // Simulation d'un ID d'événement Google Calendar
-    const simulatedEventId = `gcal_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Convertir les données d'événement au format requis
+    const startTime = new Date(eventData.date);
+    const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000); // 2 heures par défaut
     
-    console.log("Événement Google Calendar simulé avec ID:", simulatedEventId);
-    return simulatedEventId;
+    const calendarEventData = {
+      title: eventData.title,
+      description: eventData.description || '',
+      startTime: startTime,
+      endTime: endTime,
+      location: eventData.venue || ''
+    };
+
+    // Créer l'événement dans Google Calendar
+    const eventId = await googleCalendarService.createEvent(calendarEventData);
+    
+    console.log("Événement Google Calendar créé avec succès avec ID:", eventId);
+    return eventId;
   } catch (error) {
     console.error('Erreur Google Calendar:', error);
     return null;
@@ -176,7 +190,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         venue: "Test"
       };
       
-      const calendarEventId = await addToGoogleCalendar(testEvent);
+      const googleCalendarService = new GoogleCalendarService();
+      const startTime = new Date();
+      const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000);
+      
+      const calendarEventData = {
+        title: testEvent.title,
+        description: testEvent.description,
+        startTime: startTime,
+        endTime: endTime,
+        location: testEvent.venue
+      };
+      
+      const calendarEventId = await googleCalendarService.createEvent(calendarEventData);
       
       res.json({
         success: !!calendarEventId,
