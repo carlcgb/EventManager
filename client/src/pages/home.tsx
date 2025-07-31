@@ -5,7 +5,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { Event } from "@shared/schema";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { logout } from "@/lib/firebase";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -115,19 +115,7 @@ export default function Home() {
   };
 
   const handleLogout = async () => {
-    try {
-      await logout();
-      toast({
-        title: "Déconnexion réussie",
-        description: "À bientôt !",
-      });
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Erreur lors de la déconnexion",
-        variant: "destructive",
-      });
-    }
+    window.location.href = '/api/logout';
   };
 
   if (isLoading) {
