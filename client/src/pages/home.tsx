@@ -82,7 +82,7 @@ export default function Home() {
     onSuccess: (data) => {
       toast({
         title: "Événement créé !",
-        description: data.message || "Événement créé avec succès",
+        description: (data as any)?.message || "Événement créé avec succès",
       });
       form.reset();
       // Refresh events and stats
@@ -90,6 +90,7 @@ export default function Home() {
       queryClient.invalidateQueries({ queryKey: ["/api/events/stats"] });
     },
     onError: (error: Error) => {
+      console.error("Erreur complète:", error);
       if (isUnauthorizedError(error)) {
         toast({
           title: "Non autorisé",
@@ -103,7 +104,7 @@ export default function Home() {
       }
       toast({
         title: "Erreur",
-        description: "Impossible de créer l'événement. Veuillez réessayer.",
+        description: error.message || "Impossible de créer l'événement. Veuillez réessayer.",
         variant: "destructive",
       });
     },
@@ -111,8 +112,14 @@ export default function Home() {
 
   const onSubmit = async (data: EventFormData) => {
     setIsSubmitting(true);
-    await createEventMutation.mutateAsync(data);
-    setIsSubmitting(false);
+    try {
+      console.log("Données soumises:", data);
+      await createEventMutation.mutateAsync(data);
+    } catch (error) {
+      console.error("Erreur onSubmit:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleLogout = async () => {

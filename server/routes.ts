@@ -59,6 +59,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/events", isAuthenticated, async (req: any, res) => {
     try {
+      console.log("POST /api/events - req.user:", req.user);
+      console.log("POST /api/events - req.isAuthenticated():", req.isAuthenticated());
+      
       const userId = req.user.claims.sub;
       const eventData = insertEventSchema.parse(req.body);
       
