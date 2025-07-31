@@ -202,12 +202,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           const integration = await storage.getActiveCalendarIntegration(userId, 'google');
           if (integration) {
-            const googleCalendarService = new GoogleCalendarService();
+            const googleCalendarService = new GoogleCalendarService(integration.accessToken, integration.refreshToken);
             const startTime = new Date(event.date);
             const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000); // 2 hours duration
 
             const calendarEventData = {
-              title: `🤠 ${event.title}`,
+              title: event.title,
               description: event.description || '',
               startTime: startTime,
               endTime: endTime,
@@ -215,7 +215,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             };
 
             await googleCalendarService.updateEvent(
-              integration.accessToken,
               originalEvent.calendarEventId,
               calendarEventData
             );
@@ -233,12 +232,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           const integration = await storage.getActiveCalendarIntegration(userId, 'google');
           if (integration) {
-            const googleCalendarService = new GoogleCalendarService();
+            const googleCalendarService = new GoogleCalendarService(integration.accessToken, integration.refreshToken);
             const startTime = new Date(event.date);
             const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000);
 
             const calendarEventData = {
-              title: `🤠 ${event.title}`,
+              title: event.title,
               description: event.description || '',
               startTime: startTime,
               endTime: endTime,
@@ -246,7 +245,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             };
 
             const calendarEventId = await googleCalendarService.createEvent(
-              integration.accessToken,
               calendarEventData
             );
 

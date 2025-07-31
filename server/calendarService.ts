@@ -180,6 +180,46 @@ export class GoogleCalendarService {
     }
   }
 
+  async updateEvent(eventId: string, eventData: CalendarEventData): Promise<void> {
+    if (!this.calendar) {
+      throw new Error('Google Calendar non configuré - connectez votre compte Google d\'abord');
+    }
+
+    try {
+      const event = {
+        summary: `🤠 ${eventData.title}`,
+        description: eventData.description || '',
+        location: eventData.location || '',
+        start: {
+          dateTime: eventData.startTime.toISOString(),
+          timeZone: 'America/Toronto',
+        },
+        end: {
+          dateTime: eventData.endTime.toISOString(),
+          timeZone: 'America/Toronto',
+        },
+        reminders: {
+          useDefault: false,
+          overrides: [
+            { method: 'email', minutes: 24 * 60 }, // 1 jour avant
+            { method: 'popup', minutes: 60 }, // 1 heure avant
+          ],
+        },
+      };
+
+      await this.calendar.events.update({
+        calendarId: 'primary',
+        eventId: eventId,
+        resource: event,
+      });
+
+      console.log('Événement Google Calendar mis à jour avec succès:', eventId);
+    } catch (error) {
+      console.error('Erreur mise à jour événement Google Calendar:', error);
+      throw error;
+    }
+  }
+
   async updateEvent(accessToken: string, eventId: string, eventData: CalendarEventData): Promise<void> {
     try {
       const oauth2Client = new google.auth.OAuth2();

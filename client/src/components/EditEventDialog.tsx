@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertEventSchema } from "@shared/schema";
+import { updateEventSchema } from "@shared/schema";
 import type { Event } from "@shared/schema";
 import {
   Dialog,
@@ -37,7 +37,7 @@ export default function EditEventDialog({ event, isOpen, onClose }: EditEventDia
   const { toast } = useToast();
 
   const form = useForm({
-    resolver: zodResolver(insertEventSchema),
+    resolver: zodResolver(updateEventSchema),
     defaultValues: {
       title: event.title,
       description: event.description || "",
