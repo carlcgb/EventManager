@@ -41,15 +41,19 @@ Preferred communication style: Simple, everyday language.
 - **Calendar Integration**: Google OAuth for personal calendar access (separate from login)
 
 ### Event Management
-- **CRUD Operations**: Full create, read, update, delete functionality
+- **CRUD Operations**: Full create, read, update, delete functionality with modal editing dialog
 - **Event Properties**: Title, description, date, venue, publishing options
 - **Status Workflow**: Draft → Pending → Published status progression
 - **Statistics**: Event counts and status analytics
+- **Venue Input**: Google Maps integration for location suggestions with Quebec fallback data
+- **Calendar Integration**: Individual event synchronization with Google Calendar (includes emoji 🤠)
 
 ### UI Components
 - **Design System**: shadcn/ui with consistent theming
-- **Forms**: Validated forms with error handling
+- **Forms**: Validated forms with error handling and Google Maps venue suggestions
+- **Modal Dialogs**: Event editing with comprehensive form validation
 - **Notifications**: Toast notifications for user feedback
+- **Navigation**: Dashboard buttons across all pages for easy navigation
 - **Responsive Design**: Mobile-first approach with Tailwind breakpoints
 
 ## Data Flow
@@ -88,8 +92,10 @@ Preferred communication style: Simple, everyday language.
 - **Date Handling**: date-fns for date manipulation
 
 ### Third-party Integrations
-- **Google APIs**: Calendar integration capability (googleapis package)
+- **Google APIs**: Full Calendar integration with OAuth2 and event synchronization
+- **Google Maps**: Location suggestions for venue input (with Quebec-focused fallback)
 - **Session Storage**: PostgreSQL with connect-pg-simple
+- **Mobile OAuth**: Enhanced redirect handling for mobile devices
 - **CSS Framework**: Tailwind CSS with PostCSS
 
 ## Deployment Strategy
@@ -106,6 +112,9 @@ Preferred communication style: Simple, everyday language.
 - **Auth**: Replit Authentication with session storage
 - **Google Calendar**: Requires `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALENDAR_ID`
 - **OAuth Status**: Google Calendar OAuth functional (deployed at https://evenements.replit.app)
+- **Mobile Compatibility**: Enhanced OAuth flow for mobile devices
+- **Google Maps Integration**: Location suggestions with fallback for venue input
+- **Event Management**: Full CRUD operations including edit functionality
 
 ### File Structure
 ```

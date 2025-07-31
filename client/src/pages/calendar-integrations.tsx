@@ -189,13 +189,32 @@ export default function CalendarIntegrations() {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-western-dark">
-            Intégrations Calendrier
-          </h1>
-          <p className="text-gray-600 text-lg">
-            Synchronisez vos événements avec vos calendriers préférés
-          </p>
+        <div className="flex items-center justify-between">
+          <div className="text-center flex-1 space-y-4">
+            <h1 className="text-4xl font-bold text-western-dark">
+              Intégrations Calendrier
+            </h1>
+            <p className="text-gray-600 text-lg">
+              Synchronisez vos événements avec vos calendriers préférés
+            </p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Button
+              onClick={() => window.location.href = '/'}
+              className="bg-western-brown hover:bg-western-brown/90 text-white"
+            >
+              <i className="fas fa-tachometer-alt mr-2"></i>
+              Tableau de bord
+            </Button>
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              className="border-western-brown text-western-brown hover:bg-western-brown hover:text-white"
+            >
+              <i className="fas fa-sign-out-alt mr-2"></i>
+              Déconnexion
+            </Button>
+          </div>
         </div>
 
         {/* Quick Actions */}
