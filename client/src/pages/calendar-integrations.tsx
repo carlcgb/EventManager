@@ -203,8 +203,9 @@ export default function CalendarIntegrations() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className="min-h-screen bg-black/30 backdrop-blur-[1px] py-8">
+      <div className="container mx-auto px-4">
+        <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="text-center flex-1 space-y-4">
@@ -417,6 +418,7 @@ export default function CalendarIntegrations() {
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   );

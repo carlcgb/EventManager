@@ -51,7 +51,7 @@ export default function CalendarSettings() {
   };
 
   return (
-    <div className="min-h-screen bg-western-gradient">
+    <div className="min-h-screen bg-black/30 backdrop-blur-[1px]">
       {/* Navigation Header */}
       <header className="bg-western-dark shadow-western-lg border-b-4 border-western-brown">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

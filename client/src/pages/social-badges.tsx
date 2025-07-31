@@ -58,7 +58,7 @@ export default function SocialBadges() {
 
   if (isLoading || badgesLoading || allBadgesLoading || statsLoading) {
     return (
-      <div className="min-h-screen bg-western-gradient flex items-center justify-center">
+      <div className="min-h-screen bg-black/30 backdrop-blur-[1px] flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-western-brown"></div>
       </div>
     );
@@ -94,7 +94,7 @@ export default function SocialBadges() {
   };
 
   return (
-    <div className="min-h-screen bg-western-gradient">
+    <div className="min-h-screen bg-black/30 backdrop-blur-[1px]">
       {/* Header */}
       <header className="bg-western-dark shadow-western-lg border-b-4 border-western-brown">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

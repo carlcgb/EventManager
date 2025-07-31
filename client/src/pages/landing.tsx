@@ -2,7 +2,7 @@
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-western-gradient flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-black/30 backdrop-blur-[1px] flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 animate-bounce delay-1000">
