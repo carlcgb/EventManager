@@ -109,12 +109,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const googleIntegration = integrations.find(i => i.provider === 'google' && i.isActive);
           
           if (googleIntegration && googleIntegration.accessToken) {
-            const googleService = new GoogleCalendarService(googleIntegration.accessToken);
+            console.log("Found Google integration:", {
+              id: googleIntegration.id,
+              hasAccessToken: !!googleIntegration.accessToken,
+              hasRefreshToken: !!googleIntegration.refreshToken,
+              expiresAt: googleIntegration.expiresAt
+            });
+            
+            const googleService = new GoogleCalendarService(
+              googleIntegration.accessToken,
+              googleIntegration.refreshToken || undefined
+            );
+            // Parse the date correctly from the event data
+            const eventDate = new Date(eventData.date);
+            const endTime = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000); // 2 hours duration
+            
+            console.log("Event date parsed:", eventDate);
+            console.log("End time calculated:", endTime);
+            
             calendarEventId = await googleService.createEvent({
               title: eventData.title,
               description: eventData.description || '',
-              startTime: new Date(`${eventData.date}T${eventData.time}`),
-              endTime: new Date(new Date(`${eventData.date}T${eventData.time}`).getTime() + 2 * 60 * 60 * 1000),
+              startTime: eventDate,
+              endTime: endTime,
               location: eventData.venue || ''
             });
             console.log("Succès ajout Google Calendar, ID:", calendarEventId);
