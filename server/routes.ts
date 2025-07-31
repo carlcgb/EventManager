@@ -375,43 +375,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Route pour initier l'authentification Google Calendar
   app.get("/api/auth/google", isAuthenticated, (req, res) => {
-    // Configuration OAuth2 pour l'environnement de déploiement
-    const callbackUrl = process.env.NODE_ENV === 'production' 
-      ? `https://${req.get('host')}/api/auth/google/callback`
-      : `${req.protocol}://${req.get('host')}/api/auth/google/callback`;
-      
-    const oauth2Client = new google.auth.OAuth2(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-      callbackUrl
-    );
-
-    const scopes = ['https://www.googleapis.com/auth/calendar'];
-    const url = oauth2Client.generateAuthUrl({
-      access_type: 'offline',
-      scope: scopes,
-      state: (req.user as any).claims.sub, // ID utilisateur pour associer le token
-    });
-
-    res.redirect(url);
-  });
-
-  // Route de callback Google OAuth
-  app.get("/api/auth/google/callback", isAuthenticated, async (req: any, res) => {
     try {
-      const { code, state } = req.query;
-      const userId = state; // ID utilisateur depuis le state
-
+      // Configuration OAuth2 avec URL de callback fixe pour le déploiement
+      const callbackUrl = `https://evenements.replit.app/api/auth/google/callback`;
+      
+      console.log("Initiating Google OAuth with callback:", callbackUrl);
+      console.log("User ID:", (req.user as any).claims.sub);
+      
       const oauth2Client = new google.auth.OAuth2(
         process.env.GOOGLE_CLIENT_ID,
         process.env.GOOGLE_CLIENT_SECRET,
-        `${req.protocol}://${req.get('host')}/api/auth/google/callback`
+        callbackUrl
       );
 
+      const scopes = ['https://www.googleapis.com/auth/calendar'];
+      const url = oauth2Client.generateAuthUrl({
+        access_type: 'offline',
+        scope: scopes,
+        state: (req.user as any).claims.sub, // ID utilisateur pour associer le token
+        prompt: 'consent', // Force consent screen pour obtenir refresh token
+      });
+
+      console.log("Redirecting to Google OAuth URL:", url);
+      res.redirect(url);
+    } catch (error) {
+      console.error("Erreur lors de l'initiation OAuth Google:", error);
+      res.redirect('/calendar-integrations?error=oauth-init-failed');
+    }
+  });
+
+  // Route de callback Google OAuth
+  app.get("/api/auth/google/callback", async (req: any, res) => {
+    try {
+      const { code, state, error } = req.query;
+      
+      console.log("Google OAuth callback received:");
+      console.log("Code:", code ? "present" : "missing");
+      console.log("State (User ID):", state);
+      console.log("Error:", error);
+      
+      if (error) {
+        console.error("Google OAuth error:", error);
+        return res.redirect('/calendar-integrations?error=oauth-denied');
+      }
+      
+      if (!code) {
+        console.error("No authorization code received");
+        return res.redirect('/calendar-integrations?error=no-code');
+      }
+
+      const userId = state; // ID utilisateur depuis le state
+      if (!userId) {
+        console.error("No user ID in state");
+        return res.redirect('/calendar-integrations?error=no-user-id');
+      }
+
+      const callbackUrl = `https://evenements.replit.app/api/auth/google/callback`;
+      const oauth2Client = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        callbackUrl
+      );
+
+      console.log("Exchanging code for tokens...");
       const { tokens } = await oauth2Client.getToken(code as string);
+      console.log("Tokens received:", {
+        access_token: tokens.access_token ? "present" : "missing",
+        refresh_token: tokens.refresh_token ? "present" : "missing",
+        expiry_date: tokens.expiry_date
+      });
       
       // Sauvegarder l'intégration calendrier avec le token
-      await storage.createCalendarIntegration({
+      const integration = await storage.createCalendarIntegration({
         userId: userId,
         provider: 'google',
         accessToken: tokens.access_token!,
@@ -420,9 +455,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isActive: true,
       });
 
+      console.log("Calendar integration created:", integration.id);
       res.redirect('/calendar-integrations?success=google-connected');
     } catch (error) {
-      console.error('Erreur OAuth Google:', error);
+      console.error('Erreur OAuth Google callback:', error);
       res.redirect('/calendar-integrations?error=oauth-failed');
     }
   });
