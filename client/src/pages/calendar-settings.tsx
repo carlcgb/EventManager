@@ -129,6 +129,39 @@ export default function CalendarSettings() {
               </div>
             </div>
 
+            {/* Connexion Google Calendar */}
+            <div className="border-t pt-6">
+              <h3 className="font-semibold text-lg mb-3">Connexion Google Calendar</h3>
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                      <i className="fab fa-google text-red-600 text-lg"></i>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">Google Calendar</p>
+                      <p className="text-sm text-gray-500">Synchronisation automatique des événements</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Badge variant="outline" className="bg-gray-50">
+                      <i className="fas fa-times text-red-500 mr-1"></i>
+                      Non connecté
+                    </Badge>
+                    <Button 
+                      onClick={() => window.location.href = '/api/auth/google'}
+                      className="bg-red-600 text-white hover:bg-red-700 border-red-600"
+                      disabled={true}
+                    >
+                      <i className="fab fa-google mr-2"></i>
+                      Connecter Google
+                      <span className="ml-2 text-xs">(Déploiement requis)</span>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="border-t pt-6">
               <h3 className="font-semibold text-lg mb-3">Test de connexion</h3>
               <p className="text-gray-600 mb-4">
