@@ -102,7 +102,7 @@ Preferred communication style: Simple, everyday language.
 - **Development**: Uses tsx for TypeScript execution
 - **Production**: Compiled JavaScript with Node.js
 - **Database**: Requires `DATABASE_URL` environment variable
-- **Auth**: Requires `REPL_ID`, `SESSION_SECRET`, and OIDC configuration
+- **Auth**: Firebase Authentication with `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_APP_ID`
 
 ### File Structure
 ```

@@ -1,7 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { logout } from "@/lib/firebase";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
@@ -11,36 +12,32 @@ export default function Events() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
 
-  // Mock events data
-  const events = [
-    {
-      id: '1',
-      title: 'Spectacle d\'humour au Théâtre Corona',
-      date: new Date('2025-02-15T20:00:00'),
-      venue: 'Théâtre Corona, Montréal',
-      status: 'published',
-      createdAt: new Date('2025-01-01'),
-      description: 'Une soirée d\'humour avec le cowboy de l\'humour'
-    }
-  ];
+  // Fetch events from API
+  const { data: events = [], isLoading: eventsLoading, error: eventsError } = useQuery({
+    queryKey: ["/api/events"],
+    enabled: !!user, // Only fetch when user is authenticated
+  });
 
   // Delete event mutation
   const deleteEventMutation = useMutation({
     mutationFn: async (eventId: string) => {
-      console.log('Deleting event:', eventId);
-      // Simulate deletion
-      return Promise.resolve();
+      const response = await apiRequest("DELETE", `/api/events/${eventId}`);
+      return response;
     },
     onSuccess: () => {
       toast({
         title: "Événement supprimé",
         description: "L'événement a été supprimé avec succès.",
       });
+      // Invalidate and refetch events
+      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/events/stats"] });
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error('Delete error:', error);
       toast({
         title: "Erreur",
-        description: "Impossible de supprimer l'événement.",
+        description: error.message || "Impossible de supprimer l'événement.",
         variant: "destructive",
       });
     },
@@ -68,7 +65,7 @@ export default function Events() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || eventsLoading) {
     return (
       <div className="min-h-screen bg-western-gradient flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-western-brown"></div>
@@ -129,7 +126,14 @@ export default function Events() {
 
         {/* Events Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events.length > 0 ? (
+          {eventsError ? (
+            <div className="col-span-full text-center py-12">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-red-800 mb-2">Erreur de chargement</h3>
+                <p className="text-red-600">Impossible de charger les événements. Vérifiez votre connexion.</p>
+              </div>
+            </div>
+          ) : events.length > 0 ? (
             events.map((event: any) => (
               <Card key={event.id} className="shadow-western hover:shadow-western-lg transition-shadow duration-200">
                 <CardHeader className="pb-3">
