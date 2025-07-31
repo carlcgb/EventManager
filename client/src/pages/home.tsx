@@ -5,7 +5,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { Event } from "@shared/schema";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { NotificationCenter } from "@/components/NotificationCenter";
+
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -168,7 +168,6 @@ export default function Home() {
             </div>
             
             <div className="flex items-center space-x-4">
-              <NotificationCenter />
               <div className="hidden md:flex items-center space-x-2 bg-western-brown/20 px-4 py-2 rounded-lg">
                 <i className="fas fa-user-circle text-western-sand"></i>
                 <span className="text-western-beige font-medium">
