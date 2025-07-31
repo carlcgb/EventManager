@@ -15,7 +15,7 @@ export interface IStorage {
   // User operations
   // (IMPORTANT) these user operations are mandatory for Replit Auth.
   getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
+  upsertUser(user: UpsertUser & { id?: string }): Promise<User>;
   
   // Event operations
   getUserEvents(userId: string): Promise<Event[]>;
@@ -39,7 +39,7 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
+  async upsertUser(userData: UpsertUser & { id?: string }): Promise<User> {
     const [user] = await db
       .insert(users)
       .values(userData)

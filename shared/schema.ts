@@ -66,6 +66,8 @@ export const insertEventSchema = createInsertSchema(events).omit({
   calendarEventId: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  date: z.string().transform((str) => new Date(str)),
 });
 
 export const updateEventSchema = insertEventSchema.partial();
