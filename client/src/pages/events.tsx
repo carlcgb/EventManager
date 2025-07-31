@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import EditEventDialog from "@/components/EditEventDialog";
+import { AddressDisplay } from "@/components/AddressDisplay";
 import type { Event } from "@shared/schema";
 
 export default function Events() {
@@ -169,10 +170,7 @@ export default function Events() {
                       <i className="fas fa-calendar text-western-brown mr-2 w-4"></i>
                       <span>{format(new Date(event.date), "EEEE d MMMM yyyy à HH:mm", { locale: fr })}</span>
                     </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <i className="fas fa-map-marker-alt text-western-brown mr-2 w-4"></i>
-                      <span>{event.venue}</span>
-                    </div>
+                    <AddressDisplay address={event.venue} showMapLink={true} />
                     {event.description && (
                       <div className="flex items-start text-sm text-gray-600">
                         <i className="fas fa-align-left text-western-brown mr-2 w-4 mt-0.5"></i>

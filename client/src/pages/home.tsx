@@ -480,9 +480,11 @@ export default function Home() {
                                   {format(new Date(event.date), "d MMMM yyyy", { locale: fr })}
                                 </span>
                               </div>
-                              <div className="flex items-center text-sm text-gray-600 mt-1">
-                                <i className="fas fa-map-marker-alt text-western-brown mr-1"></i>
-                                {event.venue}
+                              <div className="text-sm text-gray-600 mt-1">
+                                <div className="flex items-center">
+                                  <i className="fas fa-map-marker-alt text-western-brown mr-1"></i>
+                                  {event.venue}
+                                </div>
                               </div>
                             </div>
                             <div className="flex items-center space-x-2">

@@ -2,6 +2,10 @@ import {
   users,
   events,
   calendarIntegrations,
+  badges,
+  userBadges,
+  eventShares,
+  userStats,
   type User,
   type UpsertUser,
   type Event,
@@ -9,9 +13,13 @@ import {
   type UpdateEvent,
   type CalendarIntegration,
   type InsertCalendarIntegration,
+  type Badge,
+  type UserBadge,
+  type EventShare,
+  type UserStats,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, count } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
@@ -22,6 +30,7 @@ export interface IStorage {
   
   // Event operations
   getUserEvents(userId: string): Promise<Event[]>;
+  getEvent(id: string, userId: string): Promise<Event | undefined>;
   getEventById(id: string, userId: string): Promise<Event | undefined>;
   createEvent(event: InsertEvent & { userId: string; calendarEventId?: string }): Promise<Event>;
   updateEvent(id: string, userId: string, event: UpdateEvent): Promise<Event | undefined>;
@@ -38,6 +47,15 @@ export interface IStorage {
   createCalendarIntegration(integration: InsertCalendarIntegration & { userId: string }): Promise<CalendarIntegration>;
   updateCalendarIntegration(id: string, userId: string, updates: Partial<InsertCalendarIntegration>): Promise<CalendarIntegration | undefined>;
   deleteCalendarIntegration(id: string, userId: string): Promise<boolean>;
+  getActiveCalendarIntegration(userId: string, provider: string): Promise<CalendarIntegration | undefined>;
+
+  // Social features operations
+  getUserBadges(userId: string): Promise<UserBadge[]>;
+  getAllBadges(): Promise<Badge[]>;
+  getUserStats(userId: string): Promise<UserStats>;
+  createEventShare(share: { eventId: string; userId: string; platform: string }): Promise<EventShare>;
+  updateUserStats(userId: string): Promise<void>;
+  checkAndAwardBadges(userId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -71,6 +89,14 @@ export class DatabaseStorage implements IStorage {
       .from(events)
       .where(eq(events.userId, userId))
       .orderBy(desc(events.createdAt));
+  }
+
+  async getEvent(id: string, userId: string): Promise<Event | undefined> {
+    const [event] = await db
+      .select()
+      .from(events)
+      .where(and(eq(events.id, id), eq(events.userId, userId)));
+    return event;
   }
 
   async getEventById(id: string, userId: string): Promise<Event | undefined> {
@@ -196,6 +222,141 @@ export class DatabaseStorage implements IStorage {
         eq(calendarIntegrations.userId, userId)
       ));
     return (result.rowCount ?? 0) > 0;
+  }
+
+  async getActiveCalendarIntegration(userId: string, provider: string): Promise<CalendarIntegration | undefined> {
+    const [integration] = await db
+      .select()
+      .from(calendarIntegrations)
+      .where(and(
+        eq(calendarIntegrations.userId, userId),
+        eq(calendarIntegrations.provider, provider),
+        eq(calendarIntegrations.isActive, true)
+      ));
+    return integration;
+  }
+
+  // Social features operations
+  async getUserBadges(userId: string): Promise<UserBadge[]> {
+    return await db
+      .select()
+      .from(userBadges)
+      .where(eq(userBadges.userId, userId));
+  }
+
+  async getAllBadges(): Promise<Badge[]> {
+    return await db.select().from(badges);
+  }
+
+  async getUserStats(userId: string): Promise<UserStats> {
+    const [stats] = await db
+      .select()
+      .from(userStats)
+      .where(eq(userStats.userId, userId));
+    
+    if (!stats) {
+      // Create initial stats if they don't exist
+      const newStats = {
+        userId,
+        eventsCreated: 0,
+        eventsShared: 0,
+        badgesEarned: 0,
+        socialScore: 0
+      };
+      
+      const [createdStats] = await db
+        .insert(userStats)
+        .values(newStats)
+        .returning();
+      
+      return createdStats;
+    }
+    
+    return stats;
+  }
+
+  async createEventShare(share: { eventId: string; userId: string; platform: string }): Promise<EventShare> {
+    const [newShare] = await db
+      .insert(eventShares)
+      .values(share)
+      .returning();
+    return newShare;
+  }
+
+  async updateUserStats(userId: string): Promise<void> {
+    // Get current counts
+    const eventsCreated = await db
+      .select({ count: count(events.id) })
+      .from(events)
+      .where(eq(events.userId, userId));
+
+    const eventsShared = await db
+      .select({ count: count(eventShares.id) })
+      .from(eventShares)
+      .where(eq(eventShares.userId, userId));
+
+    const badgesEarned = await db
+      .select({ count: count(userBadges.id) })
+      .from(userBadges)
+      .where(eq(userBadges.userId, userId));
+
+    const socialScore = eventsCreated[0].count * 10 + eventsShared[0].count * 5 + badgesEarned[0].count * 20;
+
+    // Update or insert stats
+    const existingStats = await db
+      .select()
+      .from(userStats)
+      .where(eq(userStats.userId, userId));
+
+    if (existingStats.length > 0) {
+      await db
+        .update(userStats)
+        .set({
+          eventsCreated: eventsCreated[0].count,
+          eventsShared: eventsShared[0].count,
+          badgesEarned: badgesEarned[0].count,
+          socialScore,
+          updatedAt: new Date()
+        })
+        .where(eq(userStats.userId, userId));
+    } else {
+      await db
+        .insert(userStats)
+        .values({
+          userId,
+          eventsCreated: eventsCreated[0].count,
+          eventsShared: eventsShared[0].count,
+          badgesEarned: badgesEarned[0].count,
+          socialScore
+        });
+    }
+  }
+
+  async checkAndAwardBadges(userId: string): Promise<void> {
+    const stats = await this.getUserStats(userId);
+    const currentBadges = await this.getUserBadges(userId);
+    const currentBadgeIds = currentBadges.map(b => b.badgeId);
+
+    // Define badge conditions
+    const badgeConditions = [
+      { id: 'first-event', condition: stats.eventsCreated >= 1 },
+      { id: 'event-master', condition: stats.eventsCreated >= 10 },
+      { id: 'social-butterfly', condition: stats.eventsShared >= 5 },
+      { id: 'influencer', condition: stats.socialScore >= 100 }
+    ];
+
+    // Award new badges
+    for (const { id, condition } of badgeConditions) {
+      if (condition && !currentBadgeIds.includes(id)) {
+        await db
+          .insert(userBadges)
+          .values({
+            userId,
+            badgeId: id,
+            earnedAt: new Date()
+          });
+      }
+    }
   }
 }
 

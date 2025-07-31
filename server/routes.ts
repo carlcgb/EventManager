@@ -183,10 +183,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const eventId = req.params.id;
       const eventData = updateEventSchema.parse(req.body);
 
+      // Get the original event to check if it has a calendar event ID
+      const originalEvent = await storage.getEvent(eventId, userId);
+      if (!originalEvent) {
+        return res.status(404).json({ message: "Événement non trouvé" });
+      }
+
       const event = await storage.updateEvent(eventId, userId, eventData);
       
       if (!event) {
         return res.status(404).json({ message: "Événement non trouvé" });
+      }
+
+      let calendarUpdateMessage = "";
+
+      // If the event was previously synced to Google Calendar, update it there too
+      if (originalEvent.calendarEventId && eventData.addToCalendar !== false) {
+        try {
+          const integration = await storage.getActiveCalendarIntegration(userId, 'google');
+          if (integration) {
+            const googleCalendarService = new GoogleCalendarService();
+            const startTime = new Date(event.date);
+            const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000); // 2 hours duration
+
+            const calendarEventData = {
+              title: `🤠 ${event.title}`,
+              description: event.description || '',
+              startTime: startTime,
+              endTime: endTime,
+              location: event.venue
+            };
+
+            await googleCalendarService.updateEvent(
+              integration.accessToken,
+              originalEvent.calendarEventId,
+              calendarEventData
+            );
+
+            calendarUpdateMessage = " et mis à jour dans Google Calendar";
+          }
+        } catch (calendarError) {
+          console.error("Erreur lors de la mise à jour Google Calendar:", calendarError);
+          calendarUpdateMessage = " (erreur lors de la mise à jour du calendrier)";
+        }
+      }
+
+      // If adding to calendar for the first time
+      if (eventData.addToCalendar && !originalEvent.calendarEventId) {
+        try {
+          const integration = await storage.getActiveCalendarIntegration(userId, 'google');
+          if (integration) {
+            const googleCalendarService = new GoogleCalendarService();
+            const startTime = new Date(event.date);
+            const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000);
+
+            const calendarEventData = {
+              title: `🤠 ${event.title}`,
+              description: event.description || '',
+              startTime: startTime,
+              endTime: endTime,
+              location: event.venue
+            };
+
+            const calendarEventId = await googleCalendarService.createEvent(
+              integration.accessToken,
+              calendarEventData
+            );
+
+            // Update event with calendar ID
+            await storage.updateEvent(eventId, userId, { calendarEventId });
+            calendarUpdateMessage = " et ajouté à Google Calendar";
+          }
+        } catch (calendarError) {
+          console.error("Erreur lors de l'ajout à Google Calendar:", calendarError);
+        }
       }
 
       // Envoyer notification en temps réel
@@ -194,7 +264,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({
         event,
-        message: "Événement mis à jour avec succès"
+        message: `Événement mis à jour avec succès${calendarUpdateMessage}`
       });
     } catch (error) {
       console.error("Erreur lors de la mise à jour de l'événement:", error);
@@ -503,5 +573,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Initialiser le service de notifications WebSocket
   notificationService.initialize(httpServer);
   
+  // Social sharing and badges API routes
+  app.get("/api/user/badges", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const badges = await storage.getUserBadges(userId);
+      res.json(badges);
+    } catch (error) {
+      console.error("Erreur récupération badges utilisateur:", error);
+      res.status(500).json({ message: "Erreur lors de la récupération des badges" });
+    }
+  });
+
+  app.get("/api/badges", isAuthenticated, async (req: any, res) => {
+    try {
+      const badges = await storage.getAllBadges();
+      res.json(badges);
+    } catch (error) {
+      console.error("Erreur récupération badges:", error);
+      res.status(500).json({ message: "Erreur lors de la récupération des badges" });
+    }
+  });
+
+  app.get("/api/user/stats", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const stats = await storage.getUserStats(userId);
+      res.json(stats);
+    } catch (error) {
+      console.error("Erreur récupération statistiques utilisateur:", error);
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques" });
+    }
+  });
+
+  app.post("/api/events/share", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { eventId, platform } = req.body;
+      
+      if (!eventId || !platform) {
+        return res.status(400).json({ message: "eventId et platform sont requis" });
+      }
+
+      // Verify event exists and belongs to user
+      const event = await storage.getEvent(eventId, userId);
+      if (!event) {
+        return res.status(404).json({ message: "Événement non trouvé" });
+      }
+
+      // Record the share
+      const share = await storage.createEventShare({
+        eventId,
+        userId,
+        platform
+      });
+
+      // Update user stats
+      await storage.updateUserStats(userId);
+
+      // Check and award badges
+      await storage.checkAndAwardBadges(userId);
+
+      res.json({ 
+        share,
+        message: "Partage enregistré avec succès" 
+      });
+    } catch (error) {
+      console.error("Erreur enregistrement partage:", error);
+      res.status(500).json({ message: "Erreur lors de l'enregistrement du partage" });
+    }
+  });
+
   return httpServer;
 }
