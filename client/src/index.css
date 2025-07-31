@@ -72,7 +72,82 @@
 
 /* Western theme utility classes */
 .bg-western-gradient {
-  background: linear-gradient(135deg, var(--western-sand), var(--western-beige));
+  background: 
+    /* Clouds */
+    radial-gradient(ellipse 300px 100px at 20% 10%, rgba(255, 255, 255, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse 200px 80px at 60% 15%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+    radial-gradient(ellipse 250px 90px at 85% 12%, rgba(255, 255, 255, 0.25) 0%, transparent 50%),
+    
+    /* Desert hills - far background */
+    radial-gradient(ellipse 800px 200px at 15% 85%, hsl(25, 40%, 55%) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 150px at 45% 88%, hsl(30, 35%, 50%) 0%, transparent 70%),
+    radial-gradient(ellipse 700px 180px at 75% 87%, hsl(25, 40%, 52%) 0%, transparent 70%),
+    radial-gradient(ellipse 500px 120px at 90% 90%, hsl(28, 38%, 48%) 0%, transparent 70%),
+    
+    /* Desert hills - mid background */
+    radial-gradient(ellipse 600px 150px at 25% 92%, hsl(20, 45%, 45%) 0%, transparent 65%),
+    radial-gradient(ellipse 500px 130px at 60% 94%, hsl(25, 42%, 42%) 0%, transparent 65%),
+    radial-gradient(ellipse 400px 110px at 85% 95%, hsl(22, 44%, 40%) 0%, transparent 65%),
+    
+    /* Sky gradient */
+    linear-gradient(
+      180deg,
+      hsl(200, 60%, 85%) 0%,    /* Light blue sky */
+      hsl(35, 70%, 75%) 30%,    /* Warm horizon */
+      hsl(40, 60%, 70%) 60%,    /* Desert transition */
+      hsl(35, 50%, 65%) 100%    /* Desert floor */
+    );
+  
+  background-size: 
+    300px 100px, 200px 80px, 250px 90px,     /* Clouds */
+    800px 200px, 600px 150px, 700px 180px, 500px 120px,  /* Far hills */
+    600px 150px, 500px 130px, 400px 110px,   /* Mid hills */
+    100% 100%;                                /* Sky gradient */
+  
+  background-position:
+    20% 10%, 60% 15%, 85% 12%,               /* Clouds */
+    15% 85%, 45% 88%, 75% 87%, 90% 90%,      /* Far hills */
+    25% 92%, 60% 94%, 85% 95%,               /* Mid hills */
+    center;                                   /* Sky gradient */
+  
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.bg-western-leather {
+  background: 
+    /* Leather grain texture */
+    radial-gradient(circle at 25% 25%, hsl(20, 50%, 35%) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, hsl(25, 45%, 40%) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, hsl(22, 48%, 32%) 0%, transparent 50%),
+    /* Base leather color with subtle variations */
+    linear-gradient(45deg, hsl(20, 50%, 35%) 0%, hsl(25, 45%, 40%) 25%, hsl(20, 50%, 35%) 50%, hsl(22, 48%, 32%) 75%, hsl(20, 50%, 35%) 100%);
+  background-size: 30px 30px, 25px 25px, 35px 35px, 100% 100%;
+}
+
+.bg-western-vintage-paper {
+  background: 
+    /* Paper stains and age marks */
+    radial-gradient(ellipse 400px 300px at 20% 30%, hsla(35, 60%, 70%, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse 300px 200px at 80% 70%, hsla(30, 50%, 65%, 0.2) 0%, transparent 50%),
+    radial-gradient(ellipse 200px 150px at 60% 20%, hsla(40, 55%, 75%, 0.25) 0%, transparent 50%),
+    /* Vintage paper base */
+    linear-gradient(180deg, hsl(48, 40%, 92%) 0%, hsl(45, 35%, 88%) 100%);
+}
+
+.bg-western-wood {
+  background: 
+    linear-gradient(90deg, transparent 50%, rgba(139, 69, 19, 0.1) 50%),
+    linear-gradient(
+      180deg,
+      hsl(25, 50%, 45%) 0%,
+      hsl(30, 40%, 35%) 20%,
+      hsl(25, 50%, 45%) 40%,
+      hsl(20, 60%, 40%) 60%,
+      hsl(25, 50%, 45%) 80%,
+      hsl(30, 40%, 35%) 100%
+    );
+  background-size: 8px 100%, 100% 100%;
 }
 
 .shadow-western {
