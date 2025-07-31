@@ -261,9 +261,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const integrations = await storage.getUserCalendarIntegrations(userId);
+      console.log(`Intégrations trouvées pour l'utilisateur ${userId}:`, integrations);
       res.json(integrations);
     } catch (error) {
       console.error("Erreur lors de la récupération des intégrations:", error);
+      res.status(500).json({ 
+        message: "Échec de la récupération des intégrations",
+        error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
+      });
+    }
+  });
+
+  // Alternative route for calendar-integrations page (legacy support)
+  app.get("/api/calendar-integrations", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(400).json({ message: "ID utilisateur manquant" });
+      }
+      
+      const integrations = await storage.getUserCalendarIntegrations(userId);
+      console.log(`Intégrations (legacy route) pour l'utilisateur ${userId}:`, integrations);
+      res.json(integrations);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des intégrations (legacy):", error);
       res.status(500).json({ 
         message: "Échec de la récupération des intégrations",
         error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
@@ -288,6 +309,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Erreur lors de la création de l'intégration:", error);
       res.status(400).json({ message: "Échec de la création de l'intégration" });
+    }
+  });
+
+  // Legacy support for calendar-integrations routes
+  app.post("/api/calendar-integrations", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const integrationData = insertCalendarIntegrationSchema.parse(req.body);
+
+      const integration = await storage.createCalendarIntegration({
+        ...integrationData,
+        userId,
+      });
+
+      res.json({
+        integration,
+        message: "Intégration calendrier créée avec succès"
+      });
+    } catch (error) {
+      console.error("Erreur lors de la création de l'intégration:", error);
+      res.status(400).json({ message: "Échec de la création de l'intégration" });
+    }
+  });
+
+  app.patch("/api/calendar-integrations/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const integrationId = req.params.id;
+      const updates = req.body;
+
+      const integration = await storage.updateCalendarIntegration(integrationId, userId, updates);
+      
+      if (!integration) {
+        return res.status(404).json({ message: "Intégration non trouvée" });
+      }
+
+      res.json({
+        integration,
+        message: "Intégration mise à jour avec succès"
+      });
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour de l'intégration:", error);
+      res.status(400).json({ message: "Échec de la mise à jour de l'intégration" });
+    }
+  });
+
+  app.delete("/api/calendar-integrations/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const integrationId = req.params.id;
+
+      const success = await storage.deleteCalendarIntegration(integrationId, userId);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Intégration non trouvée" });
+      }
+
+      res.json({ message: "Intégration supprimée avec succès" });
+    } catch (error) {
+      console.error("Erreur lors de la suppression de l'intégration:", error);
+      res.status(500).json({ message: "Échec de la suppression de l'intégration" });
     }
   });
 
@@ -338,10 +420,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isActive: true,
       });
 
-      res.redirect('/calendar-settings?success=google-connected');
+      res.redirect('/calendar-integrations?success=google-connected');
     } catch (error) {
       console.error('Erreur OAuth Google:', error);
-      res.redirect('/calendar-settings?error=oauth-failed');
+      res.redirect('/calendar-integrations?error=oauth-failed');
     }
   });
 

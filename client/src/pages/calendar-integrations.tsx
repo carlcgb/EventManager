@@ -248,12 +248,28 @@ export default function CalendarIntegrations() {
               <CardTitle className="text-xl">Google Calendar</CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-4">
-              <p className="text-gray-600 text-sm">
-                Déjà intégré dans la création d'événements
-              </p>
-              <Badge className="bg-green-100 text-green-800">
-                Actif
-              </Badge>
+              {integrations.find(i => i.provider === 'google' && i.isActive) ? (
+                <>
+                  <p className="text-gray-600 text-sm">
+                    Synchronisation automatique activée
+                  </p>
+                  <Badge className="bg-green-100 text-green-800">
+                    Connecté
+                  </Badge>
+                </>
+              ) : (
+                <>
+                  <p className="text-gray-600 text-sm">
+                    Connectez votre compte Google pour synchroniser automatiquement
+                  </p>
+                  <Button 
+                    onClick={() => window.location.href = '/api/auth/google'}
+                    className="w-full bg-red-600 hover:bg-red-700"
+                  >
+                    Connecter Google Calendar
+                  </Button>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>
