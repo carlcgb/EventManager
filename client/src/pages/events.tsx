@@ -10,12 +10,15 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import EditEventDialog from "@/components/EditEventDialog";
 import { AddressDisplay } from "@/components/AddressDisplay";
+import { EventDetailsModal } from "@/components/EventDetailsModal";
 import type { Event } from "@shared/schema";
 
 export default function Events() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   // Fetch events from API
   const { data: events = [], isLoading: eventsLoading, error: eventsError } = useQuery({
@@ -68,6 +71,16 @@ export default function Events() {
     if (confirm(`Êtes-vous sûr de vouloir supprimer l'événement "${eventTitle}" ?`)) {
       deleteEventMutation.mutate(eventId);
     }
+  };
+
+  const handleEventClick = (event: Event) => {
+    setSelectedEvent(event);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleEditFromModal = (event: Event) => {
+    setEditingEvent(event);
+    setIsDetailsModalOpen(false);
   };
 
   if (isLoading || eventsLoading) {
@@ -140,7 +153,11 @@ export default function Events() {
             </div>
           ) : events.length > 0 ? (
             events.map((event: any) => (
-              <Card key={event.id} className="shadow-western hover:shadow-western-lg transition-shadow duration-200">
+              <Card 
+                key={event.id} 
+                className="shadow-western hover:shadow-western-lg transition-all duration-200 cursor-pointer hover:scale-105"
+                onClick={() => handleEventClick(event)}
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-xl font-bold text-gray-900 line-clamp-2">
@@ -210,7 +227,10 @@ export default function Events() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setEditingEvent(event)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingEvent(event);
+                        }}
                         className="text-western-brown border-western-brown hover:bg-western-brown hover:text-white"
                       >
                         <i className="fas fa-edit mr-1"></i>
@@ -219,7 +239,10 @@ export default function Events() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleDeleteEvent(event.id, event.title)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteEvent(event.id, event.title);
+                        }}
                         disabled={deleteEventMutation.isPending}
                         className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white"
                       >
@@ -255,6 +278,14 @@ export default function Events() {
           )}
         </div>
       </main>
+
+      {/* Event Details Modal */}
+      <EventDetailsModal
+        event={selectedEvent}
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        onEdit={handleEditFromModal}
+      />
 
       {/* Edit Event Dialog */}
       {editingEvent && (
