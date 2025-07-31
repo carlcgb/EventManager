@@ -34,10 +34,11 @@ Preferred communication style: Simple, everyday language.
 ## Key Components
 
 ### Authentication System
-- **Provider**: Replit Auth with OpenID Connect
+- **User Login**: Replit Auth with OpenID Connect (primary authentication)
 - **Session Management**: Express sessions with PostgreSQL storage
 - **Strategy**: Passport.js with custom OIDC strategy
 - **Security**: HTTP-only cookies with secure flags
+- **Calendar Integration**: Google OAuth for personal calendar access (separate from login)
 
 ### Event Management
 - **CRUD Operations**: Full create, read, update, delete functionality

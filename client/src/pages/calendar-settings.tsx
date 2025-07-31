@@ -139,7 +139,7 @@ export default function CalendarSettings() {
 
             {/* Connexion Google Calendar */}
             <div className="border-t pt-6">
-              <h3 className="font-semibold text-lg mb-3">Authentification utilisateur Google Calendar</h3>
+              <h3 className="font-semibold text-lg mb-3">Accès à votre calendrier Google personnel</h3>
               
               {isLoading ? (
                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
@@ -166,11 +166,11 @@ export default function CalendarSettings() {
                           }`}></i>
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">Votre calendrier Google personnel</p>
+                          <p className="font-medium text-gray-900">Calendrier Google personnel</p>
                           <p className="text-sm text-gray-500">
                             {googleIntegration && googleIntegration.isActive 
-                              ? 'Connecté et synchronisé'
-                              : 'Synchronisation avec votre calendrier personnel'}
+                              ? 'Autorisé - synchronisation active'
+                              : 'Autorisation requise pour synchroniser vos événements'}
                           </p>
                         </div>
                       </div>
@@ -223,11 +223,11 @@ export default function CalendarSettings() {
                     <div className="flex items-start space-x-3">
                       <i className="fas fa-info-circle text-blue-600 mt-1"></i>
                       <div>
-                        <p className="font-semibold text-blue-900">Configuration technique vs Authentification utilisateur</p>
+                        <p className="font-semibold text-blue-900">Deux systèmes d'authentification distincts</p>
                         <p className="text-sm text-blue-700 mt-1">
-                          La configuration Google Calendar est active (clés API configurées), 
-                          mais vous devez connecter votre compte Google personnel pour synchroniser 
-                          vos événements avec votre propre calendrier.
+                          • <strong>Connexion à l'application</strong> : Replit Auth (déjà connecté)<br/>
+                          • <strong>Accès au calendrier</strong> : Google OAuth pour synchroniser avec votre calendrier personnel<br/>
+                          Ces deux systèmes sont indépendants et servent des fonctions différentes.
                         </p>
                       </div>
                     </div>
