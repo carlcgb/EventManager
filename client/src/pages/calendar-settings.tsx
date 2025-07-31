@@ -11,6 +11,14 @@ export default function CalendarSettings() {
   const { toast } = useToast();
   const [isTestingConnection, setIsTestingConnection] = useState(false);
 
+  // Récupérer les intégrations calendrier de l'utilisateur
+  const { data: integrations = [], isLoading } = useQuery({
+    queryKey: ['/api/calendar/integrations'],
+    refetchInterval: 2000, // Actualiser toutes les 2 secondes
+  });
+
+  const googleIntegration = integrations.find((int: any) => int.provider === 'google');
+
   // Test Google Calendar connection
   const testConnectionMutation = useMutation({
     mutationFn: async () => {
@@ -131,35 +139,101 @@ export default function CalendarSettings() {
 
             {/* Connexion Google Calendar */}
             <div className="border-t pt-6">
-              <h3 className="font-semibold text-lg mb-3">Connexion Google Calendar</h3>
-              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-lg mb-3">Authentification utilisateur Google Calendar</h3>
+              
+              {isLoading ? (
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                      <i className="fab fa-google text-red-600 text-lg"></i>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">Google Calendar</p>
-                      <p className="text-sm text-gray-500">Synchronisation automatique des événements</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Badge variant="outline" className="bg-gray-50">
-                      <i className="fas fa-times text-red-500 mr-1"></i>
-                      Non connecté
-                    </Badge>
-                    <Button 
-                      onClick={() => window.location.href = '/api/auth/google'}
-                      className="bg-red-600 text-white hover:bg-red-700 border-red-600"
-                      disabled={true}
-                    >
-                      <i className="fab fa-google mr-2"></i>
-                      Connecter Google
-                      <span className="ml-2 text-xs">(Déploiement requis)</span>
-                    </Button>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-500"></div>
+                    <span>Vérification du statut...</span>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Statut de connexion personnel */}
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          googleIntegration && googleIntegration.isActive 
+                            ? 'bg-green-100' 
+                            : 'bg-red-100'
+                        }`}>
+                          <i className={`fab fa-google text-lg ${
+                            googleIntegration && googleIntegration.isActive 
+                              ? 'text-green-600' 
+                              : 'text-red-600'
+                          }`}></i>
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">Votre calendrier Google personnel</p>
+                          <p className="text-sm text-gray-500">
+                            {googleIntegration && googleIntegration.isActive 
+                              ? 'Connecté et synchronisé'
+                              : 'Synchronisation avec votre calendrier personnel'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <Badge variant="outline" className={
+                          googleIntegration && googleIntegration.isActive 
+                            ? 'bg-green-50 text-green-700'
+                            : 'bg-red-50 text-red-700'
+                        }>
+                          <i className={`fas ${
+                            googleIntegration && googleIntegration.isActive 
+                              ? 'fa-check text-green-500' 
+                              : 'fa-times text-red-500'
+                          } mr-1`}></i>
+                          {googleIntegration && googleIntegration.isActive ? 'Connecté' : 'Non connecté'}
+                        </Badge>
+                        
+                        {googleIntegration && googleIntegration.isActive ? (
+                          <Button 
+                            onClick={() => {
+                              toast({
+                                title: "Déconnexion",
+                                description: "Fonctionnalité disponible après déploiement",
+                                variant: "default"
+                              });
+                            }}
+                            variant="outline"
+                            size="sm"
+                          >
+                            <i className="fas fa-unlink mr-2"></i>
+                            Déconnecter
+                          </Button>
+                        ) : (
+                          <Button 
+                            onClick={() => window.location.href = '/api/auth/google'}
+                            className="bg-red-600 text-white hover:bg-red-700"
+                            disabled={true}
+                          >
+                            <i className="fab fa-google mr-2"></i>
+                            Connecter
+                            <span className="ml-2 text-xs">(Déploiement requis)</span>
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Information distincte sur la configuration technique */}
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <div className="flex items-start space-x-3">
+                      <i className="fas fa-info-circle text-blue-600 mt-1"></i>
+                      <div>
+                        <p className="font-semibold text-blue-900">Configuration technique vs Authentification utilisateur</p>
+                        <p className="text-sm text-blue-700 mt-1">
+                          La configuration Google Calendar est active (clés API configurées), 
+                          mais vous devez connecter votre compte Google personnel pour synchroniser 
+                          vos événements avec votre propre calendrier.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="border-t pt-6">
@@ -212,10 +286,10 @@ export default function CalendarSettings() {
               <div className="flex items-start space-x-2">
                 <i className="fas fa-info-circle text-western-brown mt-1"></i>
                 <div>
-                  <p className="font-semibold text-western-dark">Note importante</p>
+                  <p className="font-semibold text-western-dark">Après connexion de votre compte</p>
                   <p className="text-sm text-gray-600">
-                    L'intégration Google Calendar utilise un compte de service. 
-                    Les événements seront créés dans le calendrier configuré avec l'ID de calendrier fourni.
+                    Une fois connecté, vos événements seront automatiquement ajoutés à votre calendrier Google personnel 
+                    avec l'emoji 🤠 et des rappels configurés (1 jour et 1 heure avant l'événement).
                   </p>
                 </div>
               </div>
