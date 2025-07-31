@@ -105,7 +105,7 @@ Preferred communication style: Simple, everyday language.
 - **Database**: Requires `DATABASE_URL` environment variable
 - **Auth**: Replit Authentication with session storage
 - **Google Calendar**: Requires `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALENDAR_ID`
-- **OAuth Limitation**: Google Calendar OAuth requires HTTPS URL (deployment needed)
+- **OAuth Status**: Google Calendar OAuth functional (deployed at https://evenements.replit.app)
 
 ### File Structure
 ```

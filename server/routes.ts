@@ -255,12 +255,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Calendar integration routes
   app.get("/api/calendar/integrations", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(400).json({ message: "ID utilisateur manquant" });
+      }
+      
       const integrations = await storage.getUserCalendarIntegrations(userId);
       res.json(integrations);
     } catch (error) {
       console.error("Erreur lors de la récupération des intégrations:", error);
-      res.status(500).json({ message: "Échec de la récupération des intégrations" });
+      res.status(500).json({ 
+        message: "Échec de la récupération des intégrations",
+        error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
+      });
     }
   });
 
@@ -286,10 +293,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Route pour initier l'authentification Google Calendar
   app.get("/api/auth/google", isAuthenticated, (req, res) => {
+    // Configuration OAuth2 pour l'environnement de déploiement
+    const callbackUrl = process.env.NODE_ENV === 'production' 
+      ? `https://${req.get('host')}/api/auth/google/callback`
+      : `${req.protocol}://${req.get('host')}/api/auth/google/callback`;
+      
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
-      `${req.protocol}://${req.get('host')}/api/auth/google/callback`
+      callbackUrl
     );
 
     const scopes = ['https://www.googleapis.com/auth/calendar'];

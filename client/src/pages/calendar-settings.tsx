@@ -193,7 +193,7 @@ export default function CalendarSettings() {
                             onClick={() => {
                               toast({
                                 title: "Déconnexion",
-                                description: "Fonctionnalité disponible après déploiement",
+                                description: "Fonctionnalité disponible en version finale",
                                 variant: "default"
                               });
                             }}
@@ -207,11 +207,10 @@ export default function CalendarSettings() {
                           <Button 
                             onClick={() => window.location.href = '/api/auth/google'}
                             className="bg-red-600 text-white hover:bg-red-700"
-                            disabled={true}
+                            disabled={false}
                           >
                             <i className="fab fa-google mr-2"></i>
-                            Connecter
-                            <span className="ml-2 text-xs">(Déploiement requis)</span>
+                            Connecter Google Calendar
                           </Button>
                         )}
                       </div>
