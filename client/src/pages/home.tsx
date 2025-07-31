@@ -77,7 +77,8 @@ export default function Home() {
         date: new Date(`${data.date}T${data.time}`).toISOString(),
       };
       
-      return await apiRequest("/api/events", "POST", eventData);
+      const response = await apiRequest("POST", "/api/events", eventData);
+      return await response.json();
     },
     onSuccess: (data) => {
       toast({
