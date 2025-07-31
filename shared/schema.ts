@@ -69,6 +69,48 @@ export const calendarIntegrations = pgTable("calendar_integrations", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Social sharing and badges system
+export const badges = pgTable("badges", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  icon: varchar("icon", { length: 50 }).notNull(), // Font Awesome icon class
+  color: varchar("color", { length: 50 }).default("gray"),
+  requirement: jsonb("requirement").notNull(), // JSON with badge requirements
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const userBadges = pgTable("user_badges", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  badgeId: uuid("badge_id").references(() => badges.id).notNull(),
+  earnedAt: timestamp("earned_at").defaultNow(),
+  progress: jsonb("progress"), // JSON with progress data for multi-step badges
+});
+
+export const eventShares = pgTable("event_shares", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  eventId: uuid("event_id").references(() => events.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  platform: varchar("platform", { enum: ["facebook", "twitter", "linkedin", "instagram", "whatsapp", "email"] }).notNull(),
+  sharedAt: timestamp("shared_at").defaultNow(),
+});
+
+export const userStats = pgTable("user_stats", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull().unique(),
+  eventsCreated: text("events_created").default("0"),
+  eventsPublished: text("events_published").default("0"),
+  eventsShared: text("events_shared").default("0"),
+  calendarIntegrations: text("calendar_integrations").default("0"),
+  totalShares: text("total_shares").default("0"),
+  streakDays: text("streak_days").default("0"),
+  lastActivityDate: timestamp("last_activity_date"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Schema types
 export const insertUserSchema = createInsertSchema(users).pick({
   email: true,
   firstName: true,
@@ -97,10 +139,36 @@ export const insertEventSchema = createInsertSchema(events).omit({
 
 export const updateEventSchema = insertEventSchema.partial();
 
+// Additional schema types for social features
+export const insertBadgeSchema = createInsertSchema(badges).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertUserBadgeSchema = createInsertSchema(userBadges).omit({
+  id: true,
+  earnedAt: true,
+});
+
+export const insertEventShareSchema = createInsertSchema(eventShares).omit({
+  id: true,
+  sharedAt: true,
+});
+
+export const insertUserStatsSchema = createInsertSchema(userStats).omit({
+  id: true,
+  updatedAt: true,
+});
+
 export type UpsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Event = typeof events.$inferSelect;
 export type InsertEvent = z.infer<typeof insertEventSchema>;
+export type Badge = typeof badges.$inferSelect;
+export type UserBadge = typeof userBadges.$inferSelect;
+export type EventShare = typeof eventShares.$inferSelect;
+export type UserStats = typeof userStats.$inferSelect;
+export type CalendarIntegration = typeof calendarIntegrations.$inferSelect;
 export type UpdateEvent = z.infer<typeof updateEventSchema>;
 export type InsertCalendarIntegration = z.infer<typeof insertCalendarIntegrationSchema>;
 export type CalendarIntegration = typeof calendarIntegrations.$inferSelect;
