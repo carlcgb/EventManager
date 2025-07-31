@@ -71,22 +71,27 @@ export default function CalendarSettings() {
 
       <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {/* Information importante */}
-        <Card className="bg-orange-50 border-2 border-orange-300 mb-6">
+        <Card className="bg-blue-50 border-2 border-blue-300 mb-6">
           <CardHeader>
-            <CardTitle className="flex items-center text-orange-800">
-              <i className="fas fa-info-circle mr-2"></i>
-              Configuration Google Calendar requise
+            <CardTitle className="flex items-center text-blue-800">
+              <i className="fas fa-rocket mr-2"></i>
+              Déploiement requis pour Google Calendar
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3 text-orange-700">
-              <p>Pour synchroniser automatiquement vos événements avec Google Calendar, vous devez :</p>
-              <ol className="list-decimal list-inside space-y-1 pl-4">
-                <li>Connecter votre compte Google personnel</li>
-                <li>Autoriser l'accès à votre calendrier</li>
-                <li>Configurer la synchronisation automatique</li>
-              </ol>
-              <p className="font-medium">En attendant, vos événements sont sauvegardés dans l'application.</p>
+            <div className="space-y-3 text-blue-700">
+              <p><strong>Google OAuth nécessite une URL HTTPS publique.</strong></p>
+              <p>En développement (localhost), l'authentification Google ne peut pas fonctionner.</p>
+              <div className="bg-blue-100 p-3 rounded-lg">
+                <p className="font-semibold">Solution :</p>
+                <ol className="list-decimal list-inside space-y-1 pl-4">
+                  <li>Déployez l'application sur Replit</li>
+                  <li>Utilisez l'URL HTTPS de déploiement</li>
+                  <li>Connectez votre Google Calendar</li>
+                  <li>Synchronisation automatique activée !</li>
+                </ol>
+              </div>
+              <p className="font-medium">Vos événements restent sauvegardés et prêts à synchroniser.</p>
             </div>
           </CardContent>
         </Card>

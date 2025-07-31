@@ -111,10 +111,15 @@ export class GoogleCalendarService {
 
   constructor(accessToken?: string) {
     // Configuration OAuth2 avec les variables d'environnement
+    // URL de callback dynamique selon l'environnement
+    const callbackUrl = process.env.NODE_ENV === 'production' 
+      ? `https://${process.env.REPLIT_DOMAIN || 'your-app.replit.app'}/api/auth/google/callback`
+      : 'http://localhost:5000/api/auth/google/callback';
+      
     this.oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
-      'http://localhost:5000/api/callback/google'
+      callbackUrl
     );
 
     if (accessToken) {

@@ -102,7 +102,9 @@ Preferred communication style: Simple, everyday language.
 - **Development**: Uses tsx for TypeScript execution
 - **Production**: Compiled JavaScript with Node.js
 - **Database**: Requires `DATABASE_URL` environment variable
-- **Auth**: Firebase Authentication with `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_APP_ID`
+- **Auth**: Replit Authentication with session storage
+- **Google Calendar**: Requires `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALENDAR_ID`
+- **OAuth Limitation**: Google Calendar OAuth requires HTTPS URL (deployment needed)
 
 ### File Structure
 ```
