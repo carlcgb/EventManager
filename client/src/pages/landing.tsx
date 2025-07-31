@@ -1,4 +1,4 @@
-import { RecaptchaLogin } from "@/components/RecaptchaLogin";
+import { SimpleLogin } from "@/components/SimpleLogin";
 
 export default function Landing() {
   return (
@@ -51,9 +51,9 @@ export default function Landing() {
           </div>
         </div>
 
-        {/* Login Form with reCAPTCHA */}
+        {/* Login Form */}
         <div className="flex justify-center">
-          <RecaptchaLogin />
+          <SimpleLogin />
         </div>
 
         {/* Footer */}
