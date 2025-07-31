@@ -172,4 +172,4 @@ Projet développé pour la gestion d'événements avec intégration calendrier e
 
 ---
 
-Développé avec ❤️ et le thème western de Sam Hébert
+Développé avec ❤️ par CGB
