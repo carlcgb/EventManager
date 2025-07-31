@@ -48,7 +48,7 @@ export function SimpleLogin({ onSuccess }: SimpleLoginProps) {
 
         {/* Security Notice */}
         <p className="text-xs text-gray-500 text-center">
-          🔒 Connexion sécurisée protégée par Google.
+          Connexion sécurisée protégée par Google.
           <br />
           <a 
             href="https://policies.google.com/privacy" 
