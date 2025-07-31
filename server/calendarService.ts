@@ -110,17 +110,30 @@ export class GoogleCalendarService {
   private calendar: any;
 
   constructor(accessToken?: string) {
+    // Utiliser les identifiants depuis les variables d'environnement
     this.oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
       'http://localhost:5000/api/callback/google'
     );
 
+    // Pour une utilisation avec service account ou clés API directes
+    // On va utiliser une approche différente si pas de token d'accès
     if (accessToken) {
       this.oauth2Client.setCredentials({ access_token: accessToken });
+      this.calendar = google.calendar({ version: 'v3', auth: this.oauth2Client });
+    } else {
+      // Utiliser une authentification basée sur les clés API
+      const auth = new google.auth.GoogleAuth({
+        credentials: {
+          client_id: process.env.GOOGLE_CLIENT_ID,
+          client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        },
+        scopes: ['https://www.googleapis.com/auth/calendar'],
+      });
+      
+      this.calendar = google.calendar({ version: 'v3', auth });
     }
-
-    this.calendar = google.calendar({ version: 'v3', auth: this.oauth2Client });
   }
 
   async createEvent(eventData: CalendarEventData): Promise<string> {

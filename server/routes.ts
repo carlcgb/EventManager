@@ -18,6 +18,11 @@ async function addToGoogleCalendar(eventData: any): Promise<string | null> {
       calendarId: !!process.env.GOOGLE_CALENDAR_ID
     });
 
+    // Vérifier que toutes les clés nécessaires sont présentes
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+      throw new Error("Clés Google API manquantes - GOOGLE_CLIENT_ID et GOOGLE_CLIENT_SECRET sont requis");
+    }
+
     // Créer le service Google Calendar
     const googleCalendarService = new GoogleCalendarService();
     
@@ -96,9 +101,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add to Google Calendar if requested
       if (eventData.addToCalendar) {
         try {
+          console.log("Tentative d'ajout à Google Calendar pour:", eventData.title);
           calendarEventId = await addToGoogleCalendar(eventData);
+          console.log("Succès ajout Google Calendar, ID:", calendarEventId);
         } catch (calendarError) {
-          console.error("Erreur lors de l'ajout au calendrier:", calendarError);
+          console.error("Erreur détaillée lors de l'ajout au calendrier:", calendarError);
+          console.error("Stack trace:", calendarError.stack);
           // Continue without calendar integration
         }
       }
