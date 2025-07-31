@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { isUnauthorizedError } from "@/lib/authUtils";
+import { logout } from "@/lib/firebase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,48 +47,36 @@ export default function Home() {
     },
   });
 
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!isLoading && !user) {
-      toast({
-        title: "Accès non autorisé",
-        description: "Vous devez être connecté. Redirection vers la connexion...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 500);
-      return;
+  // Mock data for demonstration (replace with Firebase backend)
+  const stats = {
+    monthlyEvents: 3,
+    publishedEvents: 2,
+    pendingEvents: 1
+  };
+
+  const events = [
+    {
+      id: '1',
+      title: 'Spectacle d\'humour au Théâtre Corona',
+      date: new Date('2025-02-15T20:00:00'),
+      venue: 'Théâtre Corona, Montréal',
+      status: 'published',
+      createdAt: new Date('2025-01-01')
     }
-  }, [user, isLoading, toast]);
+  ];
 
-  // Fetch event statistics
-  const { data: stats } = useQuery({
-    queryKey: ["/api/events/stats"],
-    retry: false,
-  });
-
-  // Fetch recent events
-  const { data: events } = useQuery({
-    queryKey: ["/api/events"],
-    retry: false,
-  });
-
-  // Create event mutation
+  // Create event mutation (Firebase implementation)
   const createEventMutation = useMutation({
     mutationFn: async (data: EventFormData) => {
-      const combinedDateTime = new Date(`${data.date}T${data.time}`);
+      // Simulate event creation
+      console.log('Creating event:', data);
       
-      const response = await apiRequest("POST", "/api/events", {
-        title: data.title,
-        description: data.description,
-        date: combinedDateTime.toISOString(),
-        venue: data.venue,
-        addToCalendar: data.addToCalendar,
-        publishToWebsite: data.publishToWebsite,
-        sendNotification: data.sendNotification,
-      });
-      return response.json();
+      // Here you would typically:
+      // 1. Send data to your Firebase backend
+      // 2. Add to Google Calendar if requested
+      // 3. Update your database
+      
+      return { message: "Événement créé avec succès!" };
     },
     onSuccess: (data) => {
       toast({
@@ -97,21 +84,8 @@ export default function Home() {
         description: data.message,
       });
       form.reset();
-      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/events/stats"] });
     },
-    onError: (error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Session expirée",
-          description: "Vous êtes déconnecté. Reconnexion en cours...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
+    onError: () => {
       toast({
         title: "Erreur",
         description: "Impossible de créer l'événement. Veuillez réessayer.",
@@ -126,8 +100,20 @@ export default function Home() {
     setIsSubmitting(false);
   };
 
-  const handleLogout = () => {
-    window.location.href = "/api/logout";
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: "Déconnexion réussie",
+        description: "À bientôt !",
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Erreur lors de la déconnexion",
+        variant: "destructive",
+      });
+    }
   };
 
   if (isLoading) {
@@ -158,7 +144,7 @@ export default function Home() {
               <div className="hidden md:flex items-center space-x-2 bg-western-brown/20 px-4 py-2 rounded-lg">
                 <i className="fas fa-user-circle text-western-sand"></i>
                 <span className="text-western-beige font-medium">
-                  {user?.firstName || user?.email}
+                  {user?.displayName || user?.email}
                 </span>
               </div>
               <Button 
@@ -184,7 +170,7 @@ export default function Home() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Événements ce mois</p>
                   <p className="text-3xl font-bold text-western-brown">
-                    {stats?.monthlyEvents || 0}
+                    {stats.monthlyEvents}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-western-brown/10 rounded-lg flex items-center justify-center">
@@ -200,7 +186,7 @@ export default function Home() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Événements publiés</p>
                   <p className="text-3xl font-bold text-western-success">
-                    {stats?.publishedEvents || 0}
+                    {stats.publishedEvents}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-western-success/10 rounded-lg flex items-center justify-center">
@@ -216,7 +202,7 @@ export default function Home() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">En attente</p>
                   <p className="text-3xl font-bold text-western-warning">
-                    {stats?.pendingEvents || 0}
+                    {stats.pendingEvents}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-western-warning/10 rounded-lg flex items-center justify-center">
@@ -448,7 +434,7 @@ export default function Home() {
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-gray-100">
-                  {events && events.length > 0 ? (
+                  {events.length > 0 ? (
                     events.slice(0, 5).map((event: any) => (
                       <div key={event.id} className="p-4 hover:bg-gray-50 transition-colors duration-200">
                         <div className="flex items-start justify-between">
@@ -490,7 +476,7 @@ export default function Home() {
                     </div>
                   )}
                 </div>
-                {events && events.length > 0 && (
+                {events.length > 0 && (
                   <div className="p-4 border-t border-gray-100">
                     <Button
                       variant="ghost"

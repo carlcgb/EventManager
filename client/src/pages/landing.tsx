@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { signInWithGoogle } from "@/lib/firebase";
 
 export default function Landing() {
   return (
@@ -64,10 +65,10 @@ export default function Landing() {
 
               <Button 
                 className="w-full bg-gradient-to-r from-western-brown to-western-chocolate hover:from-western-chocolate hover:to-western-brown text-white font-semibold py-4 text-lg shadow-western"
-                onClick={() => window.location.href = '/api/login'}
+                onClick={signInWithGoogle}
               >
-                <i className="fas fa-key mr-3"></i>
-                Se Connecter
+                <i className="fab fa-google mr-3"></i>
+                Se Connecter avec Google
               </Button>
             </div>
           </CardContent>
