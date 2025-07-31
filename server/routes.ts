@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { notificationService } from "./notificationService";
 import { GoogleCalendarService } from "./calendarService";
+import { google } from 'googleapis';
 import { insertEventSchema, updateEventSchema, insertCalendarIntegrationSchema } from "@shared/schema";
 import { CalendarIntegrationService } from "./calendarService";
 
@@ -102,8 +103,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (eventData.addToCalendar) {
         try {
           console.log("Tentative d'ajout à Google Calendar pour:", eventData.title);
-          calendarEventId = await addToGoogleCalendar(eventData);
-          console.log("Succès ajout Google Calendar, ID:", calendarEventId);
+          
+          // Vérifier si l'utilisateur a une intégration Google Calendar active
+          const integrations = await storage.getUserCalendarIntegrations(userId);
+          const googleIntegration = integrations.find(i => i.provider === 'google' && i.isActive);
+          
+          if (googleIntegration && googleIntegration.accessToken) {
+            const googleService = new GoogleCalendarService(googleIntegration.accessToken);
+            calendarEventId = await googleService.createEvent({
+              title: eventData.title,
+              description: eventData.description || '',
+              startTime: new Date(`${eventData.date}T${eventData.time}`),
+              endTime: new Date(new Date(`${eventData.date}T${eventData.time}`).getTime() + 2 * 60 * 60 * 1000),
+              location: eventData.venue || ''
+            });
+            console.log("Succès ajout Google Calendar, ID:", calendarEventId);
+          } else {
+            console.log("Aucune intégration Google Calendar active trouvée pour l'utilisateur");
+            calendarEventId = null;
+          }
         } catch (calendarError) {
           console.error("Erreur détaillée lors de l'ajout au calendrier:", calendarError);
           console.error("Stack trace:", calendarError.stack);
@@ -263,6 +281,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Erreur lors de la création de l'intégration:", error);
       res.status(400).json({ message: "Échec de la création de l'intégration" });
+    }
+  });
+
+  // Route pour initier l'authentification Google Calendar
+  app.get("/api/auth/google", isAuthenticated, (req, res) => {
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      `${req.protocol}://${req.get('host')}/api/auth/google/callback`
+    );
+
+    const scopes = ['https://www.googleapis.com/auth/calendar'];
+    const url = oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: scopes,
+      state: (req.user as any).claims.sub, // ID utilisateur pour associer le token
+    });
+
+    res.redirect(url);
+  });
+
+  // Route de callback Google OAuth
+  app.get("/api/auth/google/callback", isAuthenticated, async (req: any, res) => {
+    try {
+      const { code, state } = req.query;
+      const userId = state; // ID utilisateur depuis le state
+
+      const oauth2Client = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        `${req.protocol}://${req.get('host')}/api/auth/google/callback`
+      );
+
+      const { tokens } = await oauth2Client.getToken(code as string);
+      
+      // Sauvegarder l'intégration calendrier avec le token
+      await storage.createCalendarIntegration({
+        userId: userId,
+        provider: 'google',
+        accessToken: tokens.access_token!,
+        refreshToken: tokens.refresh_token || null,
+        expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : null,
+        isActive: true,
+      });
+
+      res.redirect('/calendar-settings?success=google-connected');
+    } catch (error) {
+      console.error('Erreur OAuth Google:', error);
+      res.redirect('/calendar-settings?error=oauth-failed');
     }
   });
 

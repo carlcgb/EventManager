@@ -117,29 +117,54 @@ export class GoogleCalendarService {
       'http://localhost:5000/api/callback/google'
     );
 
-    // Pour l'intégration avec un calendrier personnel, nous devons générer un token d'accès
-    // Pour l'instant, nous allons simuler un calendrier local jusqu'à ce qu'une authentification complète soit mise en place
-    this.calendar = google.calendar({ version: 'v3', auth: this.oauth2Client });
+    if (accessToken) {
+      // Utiliser le token d'accès utilisateur pour l'authentification
+      this.oauth2Client.setCredentials({ access_token: accessToken });
+      this.calendar = google.calendar({ version: 'v3', auth: this.oauth2Client });
+    } else {
+      // Pas de token d'accès - mode simulation
+      this.calendar = null;
+    }
   }
 
   async createEvent(eventData: CalendarEventData): Promise<string> {
-    // Pour l'instant, nous simulons la création d'événement jusqu'à ce qu'une authentification OAuth complète soit configurée
-    // L'utilisateur devrait aller dans les paramètres de calendrier pour connecter son compte Google
-    
-    console.log('Google Calendar: Simulation de création d\'événement');
-    console.log('Titre:', eventData.title);
-    console.log('Date:', eventData.startTime.toISOString());
-    console.log('Lieu:', eventData.location);
-    
-    // Générer un ID simulé pour la cohérence
-    const simulatedId = `sim_gcal_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    console.log('Pour connecter votre Google Calendar:');
-    console.log('1. Allez dans Paramètres > Intégrations calendrier');
-    console.log('2. Connectez votre compte Google');
-    console.log('3. Autorisez l\'accès à votre calendrier');
-    
-    return simulatedId;
+    if (!this.calendar) {
+      throw new Error('Google Calendar non configuré - connectez votre compte Google d\'abord');
+    }
+
+    try {
+      const event = {
+        summary: `🤠 ${eventData.title}`,
+        description: eventData.description || '',
+        location: eventData.location || '',
+        start: {
+          dateTime: eventData.startTime.toISOString(),
+          timeZone: 'America/Toronto',
+        },
+        end: {
+          dateTime: eventData.endTime.toISOString(),
+          timeZone: 'America/Toronto',
+        },
+        reminders: {
+          useDefault: false,
+          overrides: [
+            { method: 'email', minutes: 24 * 60 }, // 1 jour avant
+            { method: 'popup', minutes: 60 }, // 1 heure avant
+          ],
+        },
+      };
+
+      const response = await this.calendar.events.insert({
+        calendarId: 'primary',
+        resource: event,
+      });
+
+      console.log('Événement Google Calendar créé avec succès:', response.data.id);
+      return response.data.id!;
+    } catch (error) {
+      console.error('Erreur création événement Google Calendar:', error);
+      throw error;
+    }
   }
 
   async updateEvent(eventId: string, eventData: CalendarEventData): Promise<void> {
