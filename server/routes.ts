@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { notificationService } from "./notificationService";
 import { insertEventSchema, updateEventSchema, insertCalendarIntegrationSchema } from "@shared/schema";
 import { google } from "googleapis";
 import { CalendarIntegrationService } from "./calendarService";
@@ -79,6 +80,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         calendarEventId,
       });
 
+      // Envoyer notification en temps réel
+      notificationService.notifyEventCreated(userId, event.title, event);
+
       res.json({
         event,
         message: eventData.addToCalendar 
@@ -103,6 +107,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Événement non trouvé" });
       }
 
+      // Envoyer notification en temps réel
+      notificationService.notifyEventUpdated(userId, event.title, event);
+
       res.json({
         event,
         message: "Événement mis à jour avec succès"
@@ -118,10 +125,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const eventId = req.params.id;
 
+      // Récupérer l'événement avant suppression pour la notification
+      const event = await storage.getEventById(eventId, userId);
+      
       const deleted = await storage.deleteEvent(eventId, userId);
       
       if (!deleted) {
         return res.status(404).json({ message: "Événement non trouvé" });
+      }
+
+      // Envoyer notification en temps réel
+      if (event) {
+        notificationService.notifyEventDeleted(userId, event.title);
       }
 
       res.json({ message: "Événement supprimé avec succès" });
@@ -252,6 +267,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
+  
+  // Initialiser le service de notifications WebSocket
+  notificationService.initialize(httpServer);
+  
   return httpServer;
 }
 
