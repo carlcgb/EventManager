@@ -138,8 +138,8 @@ export default function Events() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-western-dark mb-2">Tous les Événements</h2>
-          <p className="text-gray-600">Gérez tous vos événements passés et à venir</p>
+          <h2 className="text-3xl font-bold text-western-beige mb-2 drop-shadow-lg">Tous les Événements</h2>
+          <p className="text-western-sand font-medium">Gérez tous vos événements passés et à venir</p>
         </div>
 
         {/* Events Grid */}

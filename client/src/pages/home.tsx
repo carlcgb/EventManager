@@ -244,11 +244,11 @@ export default function Home() {
           <div className="xl:col-span-2">
             <Card className="shadow-western-lg overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-western-brown to-western-chocolate text-white">
-                <CardTitle className="text-2xl font-bold flex items-center text-white">
+                <CardTitle className="text-2xl font-bold flex items-center text-western-beige">
                   <i className="fas fa-plus-circle mr-3"></i>
                   Créer un Nouvel Événement
                 </CardTitle>
-                <p className="text-white/90 mt-2">
+                <p className="text-western-sand mt-2">
                   Ajoutez un événement à votre calendrier et publiez-le sur votre site web
                 </p>
               </CardHeader>
