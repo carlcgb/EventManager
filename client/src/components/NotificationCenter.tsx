@@ -20,42 +20,7 @@ export function NotificationCenter() {
   const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (!isAuthenticated || !user) return;
-
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
-    
-    try {
-      const ws = new WebSocket(wsUrl);
-      wsRef.current = ws;
-
-      ws.onopen = () => {
-        setIsConnected(true);
-        ws.send(JSON.stringify({ type: 'auth', userId: user.id }));
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          const newNotification: SimpleNotification = {
-            id: Date.now().toString(),
-            title: data.title,
-            message: data.message,
-            type: data.type,
-            timestamp: new Date()
-          };
-          setNotifications(prev => [newNotification, ...prev.slice(0, 9)]);
-        } catch (error) {
-          console.error('Erreur parsing notification:', error);
-        }
-      };
-
-      ws.onclose = () => setIsConnected(false);
-      ws.onerror = () => setIsConnected(false);
-    } catch (error) {
-      console.error('Erreur connexion WebSocket:', error);
-    }
-
+    // WebSocket désactivé - système de notification supprimé
     return () => {
       if (wsRef.current) wsRef.current.close();
     };

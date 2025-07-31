@@ -18,67 +18,7 @@ export function useNotifications() {
   const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (!isAuthenticated || !user) {
-      return;
-    }
-
-    // Établir la connexion WebSocket
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
-    
-    try {
-      const ws = new WebSocket(wsUrl);
-      wsRef.current = ws;
-
-      ws.onopen = () => {
-        console.log('Connexion WebSocket établie');
-        setIsConnected(true);
-        
-        // S'authentifier avec l'ID utilisateur
-        ws.send(JSON.stringify({
-          type: 'auth',
-          userId: user.id
-        }));
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const notification = JSON.parse(event.data);
-          const newNotification: Notification = {
-            id: Date.now().toString(),
-            type: notification.type,
-            title: notification.title,
-            message: notification.message,
-            timestamp: new Date(notification.timestamp),
-            data: notification.data,
-            isRead: false
-          };
-
-          setNotifications(prev => [newNotification, ...prev]);
-          
-          // Jouer un son western pour certains types de notifications
-          playNotificationSound(notification.type);
-          
-        } catch (error) {
-          console.error('Erreur parsing notification:', error);
-        }
-      };
-
-      ws.onclose = () => {
-        console.log('Connexion WebSocket fermée');
-        setIsConnected(false);
-      };
-
-      ws.onerror = (error) => {
-        console.error('Erreur WebSocket:', error);
-        setIsConnected(false);
-      };
-
-    } catch (error) {
-      console.error('Erreur connexion WebSocket:', error);
-      setIsConnected(false);
-    }
-
+    // WebSocket désactivé - système de notification supprimé
     return () => {
       if (wsRef.current) {
         wsRef.current.close();
