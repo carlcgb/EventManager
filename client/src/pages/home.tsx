@@ -575,8 +575,7 @@ export default function Home() {
         />
       )}
 
-      {/* Notification Center */}
-      <NotificationCenter />
+
     </div>
   );
 }
