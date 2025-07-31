@@ -1,6 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { signInWithGoogle } from "@/lib/firebase";
+import { RecaptchaLogin } from "@/components/RecaptchaLogin";
 
 export default function Landing() {
   return (
@@ -28,51 +26,35 @@ export default function Landing() {
           </div>
         </div>
 
-        {/* Login Card */}
-        <Card className="shadow-western-lg border-2 border-western-brown">
-          <CardHeader className="text-center bg-western-brown text-white rounded-t-lg">
-            <CardTitle className="text-2xl font-bold">
-              <i className="fas fa-sign-in-alt mr-3"></i>
-              Accès Gestionnaire
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-8">
-            <div className="space-y-6">
-              <p className="text-center text-gray-600">
-                Connectez-vous pour accéder à votre tableau de bord de gestion d'événements.
-              </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                <div className="flex flex-col items-center space-y-2">
-                  <div className="w-12 h-12 bg-western-sand rounded-lg flex items-center justify-center">
-                    <i className="fas fa-calendar-plus text-western-brown text-xl"></i>
-                  </div>
-                  <p className="text-sm font-medium text-gray-700">Créer des événements</p>
-                </div>
-                <div className="flex flex-col items-center space-y-2">
-                  <div className="w-12 h-12 bg-western-sand rounded-lg flex items-center justify-center">
-                    <i className="fas fa-calendar-check text-western-brown text-xl"></i>
-                  </div>
-                  <p className="text-sm font-medium text-gray-700">Gérer le calendrier</p>
-                </div>
-                <div className="flex flex-col items-center space-y-2">
-                  <div className="w-12 h-12 bg-western-sand rounded-lg flex items-center justify-center">
-                    <i className="fas fa-globe text-western-brown text-xl"></i>
-                  </div>
-                  <p className="text-sm font-medium text-gray-700">Publier en ligne</p>
-                </div>
-              </div>
-
-              <Button 
-                className="w-full bg-gradient-to-r from-western-brown to-western-chocolate hover:from-western-chocolate hover:to-western-brown text-white font-semibold py-4 text-lg shadow-western"
-                onClick={signInWithGoogle}
-              >
-                <i className="fab fa-google mr-3"></i>
-                Se Connecter avec Google
-              </Button>
+        {/* Features Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="text-center space-y-3">
+            <div className="w-16 h-16 bg-western-sand rounded-lg flex items-center justify-center mx-auto shadow-western">
+              <i className="fas fa-calendar-plus text-western-brown text-2xl"></i>
             </div>
-          </CardContent>
-        </Card>
+            <h3 className="text-lg font-semibold text-western-dark">Créer des événements</h3>
+            <p className="text-gray-600 text-sm">Organisez facilement vos spectacles et événements</p>
+          </div>
+          <div className="text-center space-y-3">
+            <div className="w-16 h-16 bg-western-sand rounded-lg flex items-center justify-center mx-auto shadow-western">
+              <i className="fas fa-calendar-check text-western-brown text-2xl"></i>
+            </div>
+            <h3 className="text-lg font-semibold text-western-dark">Gérer le calendrier</h3>
+            <p className="text-gray-600 text-sm">Synchronisez avec votre calendrier personnel</p>
+          </div>
+          <div className="text-center space-y-3">
+            <div className="w-16 h-16 bg-western-sand rounded-lg flex items-center justify-center mx-auto shadow-western">
+              <i className="fas fa-globe text-western-brown text-2xl"></i>
+            </div>
+            <h3 className="text-lg font-semibold text-western-dark">Publier en ligne</h3>
+            <p className="text-gray-600 text-sm">Affichez vos événements sur votre site web</p>
+          </div>
+        </div>
+
+        {/* Login Form with reCAPTCHA */}
+        <div className="flex justify-center">
+          <RecaptchaLogin />
+        </div>
 
         {/* Footer */}
         <div className="text-center text-gray-600">
