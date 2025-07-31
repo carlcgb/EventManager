@@ -9,6 +9,7 @@ import Landing from "@/pages/landing";
 import Home from "@/pages/home";
 import Events from "@/pages/events";
 import CalendarIntegrations from "@/pages/calendar-integrations";
+import CalendarSettings from "@/pages/calendar-settings";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -22,6 +23,7 @@ function Router() {
           <Route path="/" component={Home} />
           <Route path="/events" component={Events} />
           <Route path="/calendar-integrations" component={CalendarIntegrations} />
+          <Route path="/calendar-settings" component={CalendarSettings} />
         </>
       )}
       <Route component={NotFound} />
