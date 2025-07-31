@@ -70,6 +70,27 @@ export default function CalendarSettings() {
       </header>
 
       <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        {/* Information importante */}
+        <Card className="bg-orange-50 border-2 border-orange-300 mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center text-orange-800">
+              <i className="fas fa-info-circle mr-2"></i>
+              Configuration Google Calendar requise
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3 text-orange-700">
+              <p>Pour synchroniser automatiquement vos événements avec Google Calendar, vous devez :</p>
+              <ol className="list-decimal list-inside space-y-1 pl-4">
+                <li>Connecter votre compte Google personnel</li>
+                <li>Autoriser l'accès à votre calendrier</li>
+                <li>Configurer la synchronisation automatique</li>
+              </ol>
+              <p className="font-medium">En attendant, vos événements sont sauvegardés dans l'application.</p>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Google Calendar Integration */}
         <Card className="bg-white shadow-western-lg border-2 border-western-brown">
           <CardHeader className="bg-western-sand/20">
