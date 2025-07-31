@@ -141,8 +141,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let message = "Événement créé avec succès";
       if (eventData.addToCalendar) {
         message = calendarEventId 
-          ? "Événement créé et ajouté à Google Calendar avec succès !"
-          : "Événement créé (connexion Google Calendar requise - allez dans Paramètres > Intégrations calendrier)";
+          ? "Événement créé et ajouté à Google Calendar avec succès 🤠!"
+          : "Événement créé. Pour l'ajouter à Google Calendar: allez dans Paramètres > Intégrations calendrier et connectez votre compte Google.";
       }
 
       res.json({
