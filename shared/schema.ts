@@ -45,6 +45,7 @@ export const events = pgTable("events", {
   description: text("description"),
   date: date("date").notNull(),
   venue: text("venue").notNull(),
+  ticketsUrl: text("tickets_url"),
   addToCalendar: boolean("add_to_calendar").default(false),
   publishToWebsite: boolean("publish_to_website").default(false),
   sendNotification: boolean("send_notification").default(false),

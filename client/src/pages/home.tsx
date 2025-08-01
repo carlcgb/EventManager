@@ -27,6 +27,7 @@ const eventFormSchema = z.object({
   description: z.string().optional(),
   date: z.string().min(1, "La date est requise"),
   venue: z.string().min(1, "Le lieu est requis"),
+  ticketsUrl: z.string().url("L'URL doit être valide").optional().or(z.literal("")),
   addToCalendar: z.boolean().default(true),
   publishToWebsite: z.boolean().default(true),
   sendNotification: z.boolean().default(false),
@@ -50,6 +51,7 @@ export default function Home() {
       description: "",
       date: "",
       venue: "",
+      ticketsUrl: "",
       addToCalendar: true,
       publishToWebsite: true,
       sendNotification: false,
@@ -346,6 +348,29 @@ export default function Home() {
                               value={field.value}
                               onChange={field.onChange}
                               placeholder="Ex: Théâtre Corona, Montréal"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="ticketsUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
+                            <i className="fas fa-ticket-alt text-western-brown mr-2"></i>
+                            URL des billets
+                            <span className="text-xs text-gray-500 ml-2">(optionnel)</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="url"
+                              placeholder="https://exemple.com/acheter-billets"
+                              className="border-2 border-gray-200 focus:border-western-brown"
                             />
                           </FormControl>
                           <FormMessage />
