@@ -30,13 +30,13 @@ export default function Landing() {
           
           <div className="space-y-4">
             <h1 className="text-5xl font-bold text-white animate-slide-up">
-              Sam Hébert
+              Booking.samhebert.ca
             </h1>
             <h2 className="text-2xl text-white font-semibold animate-slide-up delay-200">
-              Le Cowboy de l'Humour
+              Gestionnaire d'événements
             </h2>
             <p className="text-xl text-white max-w-lg mx-auto animate-fade-in delay-400">
-              Gestionnaire d'événements personnel pour organiser vos spectacles, 
+               personnel pour organiser vos spectacles, 
               gérer votre calendrier et publier sur votre site web.
             </p>
           </div>
@@ -50,7 +50,7 @@ export default function Landing() {
               className="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-10 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-lg border-2 border-red-700"
               style={{
                 backgroundColor: '#dc2626',
-                color: '#ffffff'
+                color: '#'
               }}
             >
               <i className="fab fa-google mr-3 text-xl" style={{ color: '#ffffff' }}></i>
