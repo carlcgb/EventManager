@@ -85,8 +85,13 @@ export async function setupAuth(app: Express) {
     verified(null, user);
   };
 
-  for (const domain of process.env
-    .REPLIT_DOMAINS!.split(",")) {
+  // Ajouter le domaine personnalisé aux domaines autorisés
+  const allowedDomains = process.env.REPLIT_DOMAINS!.split(",");
+  if (!allowedDomains.includes("booking.samhebert.ca")) {
+    allowedDomains.push("booking.samhebert.ca");
+  }
+  
+  for (const domain of allowedDomains) {
     const strategy = new Strategy(
       {
         name: `replitauth:${domain}`,
