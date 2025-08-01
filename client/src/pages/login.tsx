@@ -1,60 +1,14 @@
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useMutation } from "@tanstack/react-query";
-import { Link, useLocation } from "wouter";
-import { loginUserSchema } from "@shared/schema";
+import { queryClient } from "@/lib/queryClient";
+import { useLocation } from "wouter";
 import { signInWithGoogle } from "@/lib/firebase";
 
 export default function Login() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-
-  const form = useForm<z.infer<typeof loginUserSchema>>({
-    resolver: zodResolver(loginUserSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  const loginMutation = useMutation({
-    mutationFn: async (data: z.infer<typeof loginUserSchema>) => {
-      return await apiRequest("/api/auth/login", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
-      toast({
-        title: "Connexion réussie",
-        description: "Bienvenue !",
-      });
-      setLocation("/");
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erreur de connexion",
-        description: error.message || "Email ou mot de passe incorrect",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const onSubmit = (data: z.infer<typeof loginUserSchema>) => {
-    loginMutation.mutate(data);
-  };
 
   const handleGoogleSignIn = async () => {
     try {
@@ -91,72 +45,14 @@ export default function Login() {
             Connectez-vous à votre compte pour gérer vos événements
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-amber-800">Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="votre@email.com"
-                        className="border-amber-300 focus:border-amber-500"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-amber-800">Mot de passe</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="••••••••"
-                        className="border-amber-300 focus:border-amber-500"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button
-                type="submit"
-                className="w-full bg-amber-600 hover:bg-amber-700 text-white"
-                disabled={loginMutation.isPending}
-              >
-                {loginMutation.isPending ? "Connexion..." : "Se connecter"}
-              </Button>
-            </form>
-          </Form>
-
-          {/* Divider */}
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-amber-300" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-amber-600">Ou</span>
-            </div>
-          </div>
-
-          {/* Google Sign In */}
+        <CardContent className="space-y-6">
+          {/* Google Sign In - Now the primary method */}
           <Button
             type="button"
             onClick={handleGoogleSignIn}
-            className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 flex items-center justify-center gap-3"
+            className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 flex items-center justify-center gap-3 h-12 text-base font-medium"
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -164,12 +60,11 @@ export default function Login() {
             </svg>
             Connecter avec Google
           </Button>
-          <div className="mt-4 text-center">
-            <p className="text-sm text-amber-600">
-              Pas encore de compte ?{" "}
-              <Link href="/register" className="text-amber-800 hover:underline font-medium">
-                Créer un compte
-              </Link>
+
+          <div className="text-center text-sm text-amber-700 bg-amber-50 p-4 rounded-lg border border-amber-200">
+            <p className="font-medium">Connexion sécurisée avec Google</p>
+            <p className="text-amber-600 mt-1">
+              Utilisez votre compte Google pour accéder à vos événements en toute sécurité
             </p>
           </div>
         </CardContent>

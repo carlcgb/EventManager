@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Login from "@/pages/login";
-import Register from "@/pages/register";
+
 import Home from "@/pages/home";
 import Events from "@/pages/events";
 import CalendarIntegrations from "@/pages/calendar-integrations";
@@ -23,7 +23,7 @@ function Router() {
         <>
           <Route path="/" component={Landing} />
           <Route path="/login" component={Login} />
-          <Route path="/register" component={Register} />
+          <Route path="/register" component={Login} />
         </>
       ) : (
         <>

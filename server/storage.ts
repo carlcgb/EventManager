@@ -30,6 +30,7 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: RegisterUser): Promise<User>;
+  updateUser(id: string, updates: Partial<Pick<User, 'firstName' | 'lastName' | 'profileImageUrl'>>): Promise<User | undefined>;
   authenticateUser(credentials: LoginUser): Promise<User | null>;
   
   // Event operations
@@ -77,8 +78,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(userData: RegisterUser): Promise<User> {
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    // Hash the password only if provided (Google OAuth users don't need passwords)
+    const hashedPassword = userData.password ? await bcrypt.hash(userData.password, 10) : '';
     
     const [user] = await db
       .insert(users)
@@ -87,7 +88,20 @@ export class DatabaseStorage implements IStorage {
         password: hashedPassword,
         firstName: userData.firstName,
         lastName: userData.lastName,
+        profileImageUrl: userData.profileImageUrl || null,
       })
+      .returning();
+    return user;
+  }
+
+  async updateUser(id: string, updates: Partial<Pick<User, 'firstName' | 'lastName' | 'profileImageUrl'>>): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id))
       .returning();
     return user;
   }

@@ -17,7 +17,26 @@ const provider = new GoogleAuthProvider();
 export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, provider);
-    return result;
+    
+    // Get the ID token and send it to our backend
+    const idToken = await result.user.getIdToken();
+    
+    // Send token to backend for session creation
+    const response = await fetch('/api/auth/google', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ idToken }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur lors de l\'authentification avec le serveur');
+    }
+
+    const userData = await response.json();
+    return { result, userData };
   } catch (error: any) {
     console.error('Sign-in error:', error);
     throw error;

@@ -129,9 +129,17 @@ export const registerUserSchema = createInsertSchema(users).pick({
   password: true,
   firstName: true,
   lastName: true,
+  profileImageUrl: true,
 }).extend({
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
+  password: z.string().optional(), // Make password optional for Google OAuth
+  confirmPassword: z.string().optional(),
+}).refine((data) => {
+  // Only validate password confirmation if password is provided
+  if (data.password && data.confirmPassword) {
+    return data.password === data.confirmPassword;
+  }
+  return true;
+}, {
   message: "Les mots de passe ne correspondent pas",
   path: ["confirmPassword"],
 });

@@ -2,7 +2,7 @@ import type { Express, RequestHandler } from "express";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
-import { loginUserSchema, registerUserSchema } from "@shared/schema";
+import admin from "firebase-admin";
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
@@ -26,18 +26,65 @@ export function getSession() {
   });
 }
 
+// Initialize Firebase Admin SDK
+function initializeFirebaseAdmin() {
+  if (!admin.apps.length) {
+    try {
+      admin.initializeApp({
+        projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+      });
+    } catch (error) {
+      console.error("Firebase Admin initialization error:", error);
+    }
+  }
+}
+
 export function setupAuth(app: Express) {
   app.set("trust proxy", 1);
   app.use(getSession());
+  
+  // Initialize Firebase Admin
+  initializeFirebaseAdmin();
 
-  // Login route
-  app.post("/api/auth/login", async (req, res) => {
+  // Google OAuth login route
+  app.post("/api/auth/google", async (req, res) => {
     try {
-      const credentials = loginUserSchema.parse(req.body);
-      const user = await storage.authenticateUser(credentials);
+      const { idToken } = req.body;
+      
+      if (!idToken) {
+        return res.status(400).json({ message: "Token ID requis" });
+      }
+
+      // Verify the Firebase token
+      const decodedToken = await admin.auth().verifyIdToken(idToken);
+      const { email, name, picture } = decodedToken;
+
+      if (!email) {
+        return res.status(400).json({ message: "Email requis depuis Google" });
+      }
+
+      // Check if user exists, create if not
+      let user = await storage.getUserByEmail(email);
       
       if (!user) {
-        return res.status(401).json({ message: "Email ou mot de passe incorrect" });
+        // Extract first/last name from Google name
+        const nameParts = (name || email.split('@')[0]).split(' ');
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+
+        user = await storage.createUser({
+          email,
+          firstName,
+          lastName,
+          profileImageUrl: picture || null,
+          password: '', // Not used for Google auth
+        });
+      } else {
+        // Update user profile image if it changed
+        if (picture && user.profileImageUrl !== picture) {
+          await storage.updateUser(user.id, { profileImageUrl: picture });
+          user.profileImageUrl = picture;
+        }
       }
 
       // Store user in session
@@ -51,37 +98,8 @@ export function setupAuth(app: Express) {
         profileImageUrl: user.profileImageUrl
       });
     } catch (error) {
-      console.error("Login error:", error);
-      res.status(400).json({ message: "Données invalides" });
-    }
-  });
-
-  // Register route  
-  app.post("/api/auth/register", async (req, res) => {
-    try {
-      const userData = registerUserSchema.parse(req.body);
-      
-      // Check if user already exists
-      const existingUser = await storage.getUserByEmail(userData.email);
-      if (existingUser) {
-        return res.status(400).json({ message: "Un compte avec cet email existe déjà" });
-      }
-
-      const user = await storage.createUser(userData);
-      
-      // Store user in session
-      (req.session as any).userId = user.id;
-      
-      res.json({ 
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        profileImageUrl: user.profileImageUrl
-      });
-    } catch (error) {
-      console.error("Registration error:", error);
-      res.status(400).json({ message: "Erreur lors de la création du compte" });
+      console.error("Google auth error:", error);
+      res.status(401).json({ message: "Token Google invalide" });
     }
   });
 
@@ -98,7 +116,30 @@ export function setupAuth(app: Express) {
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
-  const userId = (req.session as any)?.userId;
+  let userId = (req.session as any)?.userId;
+  
+  // If no session user, check for Firebase token in Authorization header
+  if (!userId) {
+    const authHeader = req.headers.authorization;
+    if (authHeader?.startsWith('Bearer ')) {
+      try {
+        const idToken = authHeader.substring(7);
+        const decodedToken = await admin.auth().verifyIdToken(idToken);
+        const { email } = decodedToken;
+        
+        if (email) {
+          const user = await storage.getUserByEmail(email);
+          if (user) {
+            userId = user.id;
+            // Optionally store in session for subsequent requests
+            (req.session as any).userId = user.id;
+          }
+        }
+      } catch (error) {
+        console.error("Firebase token verification error:", error);
+      }
+    }
+  }
   
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
