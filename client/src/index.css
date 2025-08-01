@@ -4,43 +4,41 @@
 
 :root {
   --background: hsl(48, 50%, 95%);
-  --foreground: hsl(20, 14.3%, 4.1%);
-  --muted: hsl(48, 20%, 90%);
+  --foreground: rgb(248, 246, 236, 0.5);
+  --muted: hsl(49, 100%, 50%);
   --muted-foreground: hsl(25, 5.3%, 44.7%);
-  --popover: hsla(0, 0%, 100%, 0.9);
-  --popover-foreground: hsl(20, 14.3%, 4.1%);
-  --card: hsla(0, 0%, 100%, 0.6);
+  --popover: hsla(0, 0%, 100%, 0.7);
+
+  --card: hsla(0, 0%, 100%, 0.35);
   --card-foreground: hsl(20, 14.3%, 4.1%);
-  --border: hsl(27, 20%, 85%);
   --input: hsl(27, 20%, 85%);
-  --primary: hsl(35, 100%, 50%);
-  --primary-foreground: hsl(48, 50%, 95%);
+  --primary: hsl(58, 100%, 37%);
+  --primary-foreground: hsl(0, 73%, 72%);
   --secondary: hsl(33, 40%, 65%);
-  --secondary-foreground: hsl(20, 14.3%, 4.1%);
-  --accent: hsl(42, 50%, 75%);
-  --accent-foreground: hsl(20, 14.3%, 4.1%);
-  --destructive: hsl(0, 84.2%, 60.2%);
-  --destructive-foreground: hsl(0, 0%, 98%);
-  --ring: hsl(20, 60%, 45%);
+  --secondary-foreground: hsl(20, 14%, 4%);
+  --accent: rgb(174, 0, 255, 0.3);
+  --accent-foreground: hsl(20, 14%, 4%);
+  --destructive: hsl(0, 0%, 89%);
+  --destructive-foreground: hsl(0, 0%, 89%);
+
   --radius: 0.5rem;
 
   /* Western-themed colors */
-  --western-brown: hsl(20, 60%, 45%);
-  --western-chocolate: hsl(33, 60%, 55%);
-  --western-sand: hsl(42, 50%, 75%);
+  --western-brown: rgb(255, 255, 255, 0.5);
+  --western-chocolate: rgb(174, 0, 255, 0.3);
+  --western-sand: rgb(194, 194, 194);
   --western-burlywood: hsl(42, 40%, 80%);
   --western-peru: hsl(33, 50%, 60%);
-  --western-gold: hsl(45, 70%, 45%);
-  --western-dark: hsl(20, 60%, 15%);
-  --western-beige: hsl(48, 50%, 95%);
+  --western-gold: rgb(174, 0, 255, 0.3);
+  --western-dark: rgb(174, 0, 255, 0.3);
+  --western-beige: rgb(255, 255, 255);
   --western-success: hsl(120, 50%, 40%);
   --western-danger: hsl(0, 70%, 50%);
   --western-warning: hsl(35, 90%, 50%);
 }
 
 .dark {
-  --background: hsl(20, 60%, 8%);
-  --foreground: hsl(48, 50%, 95%);
+  --foreground: hsl(0, 0%, 100%);
   --muted: hsl(20, 40%, 15%);
   --muted-foreground: hsl(0, 0%, 100%);
   --popover: hsl(20, 60%, 8%);
@@ -48,25 +46,28 @@
   --card: hsl(20, 60%, 8%);
   --card-foreground: hsl(48, 50%, 95%);
   --border: hsl(20, 40%, 20%);
-  --input: hsl(20, 40%, 20%);
+  --input: hsl(0, 0%, 100%);
   --primary: hsl(33, 60%, 55%);
   --primary-foreground: hsl(20, 60%, 8%);
-  --secondary: hsl(20, 40%, 20%);
+  --secondary: hsl(0, 0%, 100%);
   --secondary-foreground: hsl(48, 50%, 95%);
   --accent: hsl(20, 40%, 20%);
   --accent-foreground: hsl(48, 50%, 95%);
   --destructive: hsl(0, 62.8%, 30.6%);
   --destructive-foreground: hsl(48, 50%, 95%);
-  --ring: hsl(33, 60%, 55%);
+  --ring: hsl(33, 100%, 50%);
 }
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
 
   body {
-    @apply font-sans antialiased text-foreground;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: hsl(var(--foreground));
     background-image: url('@assets/468095606_17944860977908622_342092249558358993_n.jpg');
     background-size: cover;
     background-position: center;
@@ -77,10 +78,10 @@
 
 @layer components {
   .card-blur {
-    background-color: rgba(255, 255, 255, 0.6);
+    background-color: rgb(0, 0, 0, 0.6);
     backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    -webkit-backdrop-filter: blur(30px);
+
   }
 }
 
@@ -88,7 +89,7 @@
 .bg-western-gradient {
   background:
     /* Clouds */
-    radial-gradient(ellipse 300px 100px at 20% 10%, rgba(255, 255, 255, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse 300px 100px at 20% 10%, rgb(219, 219, 219, 0.3) 0%, transparent 50%),
     radial-gradient(ellipse 200px 80px at 60% 15%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
     radial-gradient(ellipse 250px 90px at 85% 12%, rgba(255, 255, 255, 0.25) 0%, transparent 50%),
 
@@ -153,11 +154,10 @@
 .bg-western-vintage-paper {
   background:
     /* Paper stains and age marks */
-    radial-gradient(ellipse 400px 300px at 20% 30%, hsla(35, 60%, 70%, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse 400px 300px at 20% 30%,  hsl(22, 44%, 40%), transparent 50%),
     radial-gradient(ellipse 300px 200px at 80% 70%, hsla(30, 50%, 65%, 0.2) 0%, transparent 50%),
     radial-gradient(ellipse 200px 150px at 60% 20%, hsla(40, 55%, 75%, 0.25) 0%, transparent 50%),
     /* Vintage paper base */
-    linear-gradient(180deg, hsl(48, 40%, 92%) 0%, hsl(45, 35%, 88%) 100%);
 }
 
 .bg-western-wood {
@@ -174,11 +174,11 @@
 }
 
 .shadow-western {
-  box-shadow: 0 4px 6px -1px hsla(20, 60%, 45%, 0.3), 0 2px 4px -1px hsla(20, 60%, 45%, 0.2);
+  box-shadow: 0 10px 15px -3px hsl(0, 0%, 0%, 0.8);
 }
 
 .shadow-western-lg {
-  box-shadow: 0 10px 15px -3px hsla(20, 60%, 45%, 0.3), 0 4px 6px -2px hsla(20, 60%, 45%, 0.2);
+  box-shadow: 0 10px 15px -3px hsl(0, 0%, 0%, 0.5);
 }
 
 .text-western-brown {
@@ -256,7 +256,7 @@
 
 .hover-western:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(139, 69, 19, 0.2);
+  box-shadow: 0 10px 15px -3px hsl(0, 0%, 0%, 0.8), 0 4px 6px -2px hsla(20, 60%, 45%, 0.7);
 }
 
 .text-western-dark {
