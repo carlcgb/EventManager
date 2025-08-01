@@ -91,7 +91,12 @@ export async function setupAuth(app: Express) {
     allowedDomains.push("booking.samhebert.ca");
   }
   
+  console.log("🔧 Configuration des domaines d'authentification:");
+  console.log("REPLIT_DOMAINS:", process.env.REPLIT_DOMAINS);
+  console.log("Domaines autorisés:", allowedDomains);
+  
   for (const domain of allowedDomains) {
+    console.log(`📝 Création de la stratégie: replitauth:${domain}`);
     const strategy = new Strategy(
       {
         name: `replitauth:${domain}`,
@@ -108,6 +113,8 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
+    console.log(`🔐 Tentative de connexion pour le domaine: ${req.hostname}`);
+    console.log(`🔍 Recherche de la stratégie: replitauth:${req.hostname}`);
     passport.authenticate(`replitauth:${req.hostname}`, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
