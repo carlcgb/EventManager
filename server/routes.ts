@@ -566,10 +566,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  const httpServer = createServer(app);
-  
-  // Initialiser le service de notifications WebSocket
+  // Add logout route for compatibility
+  app.get("/api/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Logout error:", err);
+        return res.status(500).json({ message: "Erreur lors de la déconnexion" });
+      }
+      res.clearCookie("connect.sid");
+      res.redirect("/");
+    });
+  });
 
+  const httpServer = createServer(app);
   
   // Social sharing and badges API routes
   app.get("/api/user/badges", isAuthenticated, async (req: any, res) => {
