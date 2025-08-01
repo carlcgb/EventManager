@@ -1,0 +1,121 @@
+# Système de Gestion d'Événements
+
+## Overview
+
+This is a comprehensive event management web application built with a modern tech stack. The system allows users to create, manage, and publish events with advanced customization features and interactive social functionalities. Key features include Google Calendar integration, Google Maps location services, real-time notifications, user badge system, and social sharing capabilities. The application is designed with a Western theme and supports French localization.
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+## System Architecture
+
+### Frontend Architecture
+- **React 18** with TypeScript for type safety and modern component development
+- **Vite** as the build tool and development server for fast development experience
+- **Wouter** for lightweight client-side routing
+- **TanStack Query** for server state management and caching
+- **shadcn/ui** component library built on Radix UI primitives
+- **Tailwind CSS** with custom Western-themed color palette and styling
+- **React Hook Form** with Zod validation for form handling
+
+### Backend Architecture
+- **Express.js** server with TypeScript
+- **Session-based authentication** using express-session with PostgreSQL storage
+- **RESTful API** design with proper error handling and middleware
+- **Drizzle ORM** for database operations and schema management
+- **WebSocket integration** for real-time notifications (currently disabled)
+
+### Database Design
+- **PostgreSQL** as the primary database
+- **Drizzle migrations** for schema versioning
+- Core tables: users, events, calendar_integrations, badges, user_badges, event_shares, user_stats, sessions
+- **Session storage** table required for Replit Auth integration
+
+### Authentication Strategy
+- **Dual authentication system**: supports both Replit Auth (OpenID Connect) and custom email/password
+- **Firebase Auth** integration for Google authentication
+- **Session management** with secure HTTP-only cookies
+- **Route protection** implemented on both client and server sides
+
+### External Service Integrations
+- **Google Calendar API** for bidirectional calendar synchronization
+- **Google Maps API** for address autocomplete and location services
+- **Google Places API** for venue suggestions with Quebec-specific fallbacks
+- **Microsoft Graph API** for potential Microsoft Calendar integration
+
+### State Management
+- **TanStack Query** for server state with automatic caching and invalidation
+- **React Hook Form** for form state management
+- **React Context** for authentication state and notifications
+
+### UI/UX Design
+- **Western theme** with custom color variables and styling
+- **Responsive design** with mobile-first approach
+- **Accessibility** through Radix UI components
+- **Toast notifications** for user feedback
+- **Modal dialogs** for event details and editing
+
+### Development Environment
+- **Replit-optimized** with cartographer plugin for development
+- **Hot module replacement** via Vite
+- **TypeScript** strict mode enabled
+- **Path aliases** configured for clean imports
+
+### Build and Deployment
+- **Production build** via Vite with esbuild for server bundling
+- **Static asset serving** in production mode
+- **Environment variable** configuration for API keys and database connections
+
+## External Dependencies
+
+### Core Frameworks and Libraries
+- **React 18** - Frontend UI library
+- **Express.js** - Backend web framework
+- **TypeScript** - Type safety across the application
+- **Vite** - Build tool and development server
+- **Drizzle ORM** - Database ORM with PostgreSQL support
+
+### Database and Storage
+- **PostgreSQL** - Primary database (Neon serverless)
+- **express-session** - Session management
+- **connect-pg-simple** - PostgreSQL session store
+
+### Authentication Services
+- **Replit Auth** - OpenID Connect authentication
+- **Firebase Auth** - Google authentication
+- **Passport.js** - Authentication middleware
+- **bcryptjs** - Password hashing
+
+### External APIs
+- **Google Calendar API** - Calendar synchronization
+- **Google Maps API** - Location services and directions
+- **Google Places API** - Address autocomplete
+- **Microsoft Graph API** - Microsoft services integration
+
+### UI Component Libraries
+- **Radix UI** - Accessible component primitives
+- **shadcn/ui** - Pre-built component library
+- **Tailwind CSS** - Utility-first CSS framework
+- **Lucide React** - Icon library
+
+### Form and Validation
+- **React Hook Form** - Form state management
+- **Zod** - Schema validation
+- **@hookform/resolvers** - Form validation integration
+
+### Data Fetching and State
+- **TanStack Query** - Server state management
+- **date-fns** - Date manipulation and formatting
+
+### Development Tools
+- **@replit/vite-plugin-cartographer** - Replit development integration
+- **@replit/vite-plugin-runtime-error-modal** - Error handling in development
+
+### Real-time Communication
+- **WebSocket (ws)** - Real-time notifications (currently disabled)
+
+### Build and Bundling
+- **esbuild** - Fast JavaScript bundler for production
+- **PostCSS** - CSS processing
+- **Autoprefixer** - CSS vendor prefixing

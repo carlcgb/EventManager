@@ -59,7 +59,7 @@ export default function Home() {
   });
 
   // Fetch real events and stats from API
-  const { data: events = [], isLoading: eventsLoading } = useQuery({
+  const { data: events = [], isLoading: eventsLoading } = useQuery<Event[]>({
     queryKey: ["/api/events"],
     retry: (failureCount, error) => {
       if (isUnauthorizedError(error as Error)) return false;
@@ -481,7 +481,7 @@ export default function Home() {
                     </div>
                   ) : events.length > 0 ? (
                     events
-                      .sort((a: Event, b: Event) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                      .sort((a: Event, b: Event) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
                       .slice(0, 5)
                       .map((event: Event) => (
                         <div 

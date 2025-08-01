@@ -11,10 +11,10 @@ import java.time.format.DateTimeFormatter;
 public class EventDataPuller {
     
     // Database connection details - use your actual DATABASE_URL
-    private static final String DB_URL = "your_database_url_here";
-    private static final String DB_USER = "your_db_user";
-    private static final String DB_PASSWORD = "your_db_password";
-    
+    private static final String DB_URL = System.getenv("DATABASE_URL");
+    private static final String DB_USER = System.getenv("PGUSER");
+    private static final String DB_PASSWORD = System.getenv("PGPASSWORD");
+    private static final String DB_NAME = System.getenv("PGUSER");
     // French month names for Quebec format
     private static final Map<Integer, String> FRENCH_MONTHS = Map.of(
         1, "janvier", 2, "février", 3, "mars", 4, "avril",
