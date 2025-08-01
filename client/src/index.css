@@ -67,7 +67,7 @@
 
   body {
     @apply font-sans antialiased text-foreground;
-    background-image: url('@assets/ChatGPT Image Jul 31, 2025, 04_39_31 PM_1753994391939.png');
+    background-image: url('@assets/sam_bg.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
