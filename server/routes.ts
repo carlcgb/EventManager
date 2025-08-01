@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated } from "./auth";
 import { notificationService } from "./notificationService";
 import { GoogleCalendarService } from "./calendarService";
 import { google } from 'googleapis';
@@ -57,9 +57,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
+      const user = req.user;
+      res.json({
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        profileImageUrl: user.profileImageUrl
+      });
     } catch (error) {
       console.error("Erreur lors de la récupération de l'utilisateur:", error);
       res.status(500).json({ message: "Échec de la récupération de l'utilisateur" });
@@ -69,7 +74,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Event routes
   app.get("/api/events", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const events = await storage.getUserEvents(userId);
       res.json(events);
     } catch (error) {
@@ -80,7 +85,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/events/stats", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const stats = await storage.getEventStats(userId);
       res.json(stats);
     } catch (error) {
@@ -94,7 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("POST /api/events - req.user:", req.user);
       console.log("POST /api/events - req.isAuthenticated():", req.isAuthenticated());
       
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const eventData = insertEventSchema.parse(req.body);
       
       let calendarEventId = null;
@@ -179,7 +184,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/events/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const eventId = req.params.id;
       const eventData = updateEventSchema.parse(req.body);
 
@@ -272,7 +277,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/events/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const eventId = req.params.id;
 
       const success = await storage.deleteEvent(eventId, userId);
@@ -379,7 +384,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/calendar/integrations", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const integrationData = insertCalendarIntegrationSchema.parse(req.body);
 
       const integration = await storage.createCalendarIntegration({
@@ -400,7 +405,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Legacy support for calendar-integrations routes
   app.post("/api/calendar-integrations", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const integrationData = insertCalendarIntegrationSchema.parse(req.body);
 
       const integration = await storage.createCalendarIntegration({
@@ -420,7 +425,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/calendar-integrations/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const integrationId = req.params.id;
       const updates = req.body;
 
@@ -442,7 +447,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/calendar-integrations/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const integrationId = req.params.id;
 
       const success = await storage.deleteCalendarIntegration(integrationId, userId);
@@ -574,7 +579,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Social sharing and badges API routes
   app.get("/api/user/badges", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const badges = await storage.getUserBadges(userId);
       res.json(badges);
     } catch (error) {
@@ -595,7 +600,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/user/stats", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const stats = await storage.getUserStats(userId);
       res.json(stats);
     } catch (error) {
@@ -606,7 +611,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/events/share", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { eventId, platform } = req.body;
       
       if (!eventId || !platform) {

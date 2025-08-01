@@ -24,11 +24,11 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table.
-// (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
+// User storage table
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: varchar("email").unique(),
+  email: varchar("email").unique().notNull(),
+  password: varchar("password").notNull(), // Hashed password
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
@@ -113,9 +113,27 @@ export const userStats = pgTable("user_stats", {
 // Schema types
 export const insertUserSchema = createInsertSchema(users).pick({
   email: true,
+  password: true,
   firstName: true,
   lastName: true,
   profileImageUrl: true,
+});
+
+export const loginUserSchema = createInsertSchema(users).pick({
+  email: true,
+  password: true,
+});
+
+export const registerUserSchema = createInsertSchema(users).pick({
+  email: true,
+  password: true,
+  firstName: true,
+  lastName: true,
+}).extend({
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Les mots de passe ne correspondent pas",
+  path: ["confirmPassword"],
 });
 
 export const insertCalendarIntegrationSchema = createInsertSchema(calendarIntegrations).omit({
@@ -162,6 +180,8 @@ export const insertUserStatsSchema = createInsertSchema(userStats).omit({
 
 export type UpsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+export type LoginUser = z.infer<typeof loginUserSchema>;
+export type RegisterUser = z.infer<typeof registerUserSchema>;
 export type Event = typeof events.$inferSelect;
 export type InsertEvent = z.infer<typeof insertEventSchema>;
 export type Badge = typeof badges.$inferSelect;
@@ -171,4 +191,3 @@ export type UserStats = typeof userStats.$inferSelect;
 export type CalendarIntegration = typeof calendarIntegrations.$inferSelect;
 export type UpdateEvent = z.infer<typeof updateEventSchema>;
 export type InsertCalendarIntegration = z.infer<typeof insertCalendarIntegrationSchema>;
-export type CalendarIntegration = typeof calendarIntegrations.$inferSelect;

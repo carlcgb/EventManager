@@ -8,6 +8,8 @@ import {
   userStats,
   type User,
   type UpsertUser,
+  type LoginUser,
+  type RegisterUser,
   type Event,
   type InsertEvent,
   type UpdateEvent,
@@ -20,13 +22,15 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, count } from "drizzle-orm";
+import bcrypt from "bcryptjs";
 
 // Interface for storage operations
 export interface IStorage {
   // User operations
-  // (IMPORTANT) these user operations are mandatory for Replit Auth.
   getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser & { id?: string }): Promise<User>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: RegisterUser): Promise<User>;
+  authenticateUser(credentials: LoginUser): Promise<User | null>;
   
   // Event operations
   getUserEvents(userId: string): Promise<Event[]>;
@@ -60,25 +64,44 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   // User operations
-  // (IMPORTANT) these user operations are mandatory for Replit Auth.
 
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
-  async upsertUser(userData: UpsertUser & { id?: string }): Promise<User> {
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async createUser(userData: RegisterUser): Promise<User> {
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    
     const [user] = await db
       .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
+      .values({
+        email: userData.email,
+        password: hashedPassword,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
       })
       .returning();
+    return user;
+  }
+
+  async authenticateUser(credentials: LoginUser): Promise<User | null> {
+    const user = await this.getUserByEmail(credentials.email);
+    if (!user) {
+      return null;
+    }
+
+    const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+    if (!isPasswordValid) {
+      return null;
+    }
+
     return user;
   }
 
@@ -230,7 +253,7 @@ export class DatabaseStorage implements IStorage {
       .from(calendarIntegrations)
       .where(and(
         eq(calendarIntegrations.userId, userId),
-        eq(calendarIntegrations.provider, provider),
+        eq(calendarIntegrations.provider, provider as any),
         eq(calendarIntegrations.isActive, true)
       ));
     return integration;
@@ -258,10 +281,12 @@ export class DatabaseStorage implements IStorage {
       // Create initial stats if they don't exist
       const newStats = {
         userId,
-        eventsCreated: 0,
-        eventsShared: 0,
-        badgesEarned: 0,
-        socialScore: 0
+        eventsCreated: "0",
+        eventsPublished: "0",
+        eventsShared: "0",
+        calendarIntegrations: "0",
+        totalShares: "0",
+        streakDays: "0"
       };
       
       const [createdStats] = await db
@@ -278,7 +303,11 @@ export class DatabaseStorage implements IStorage {
   async createEventShare(share: { eventId: string; userId: string; platform: string }): Promise<EventShare> {
     const [newShare] = await db
       .insert(eventShares)
-      .values(share)
+      .values({
+        eventId: share.eventId,
+        userId: share.userId,
+        platform: share.platform as any
+      })
       .returning();
     return newShare;
   }
@@ -300,8 +329,6 @@ export class DatabaseStorage implements IStorage {
       .from(userBadges)
       .where(eq(userBadges.userId, userId));
 
-    const socialScore = eventsCreated[0].count * 10 + eventsShared[0].count * 5 + badgesEarned[0].count * 20;
-
     // Update or insert stats
     const existingStats = await db
       .select()
@@ -312,10 +339,9 @@ export class DatabaseStorage implements IStorage {
       await db
         .update(userStats)
         .set({
-          eventsCreated: eventsCreated[0].count,
-          eventsShared: eventsShared[0].count,
-          badgesEarned: badgesEarned[0].count,
-          socialScore,
+          eventsCreated: eventsCreated[0].count.toString(),
+          eventsShared: eventsShared[0].count.toString(),
+          totalShares: eventsShared[0].count.toString(),
           updatedAt: new Date()
         })
         .where(eq(userStats.userId, userId));
@@ -324,10 +350,9 @@ export class DatabaseStorage implements IStorage {
         .insert(userStats)
         .values({
           userId,
-          eventsCreated: eventsCreated[0].count,
-          eventsShared: eventsShared[0].count,
-          badgesEarned: badgesEarned[0].count,
-          socialScore
+          eventsCreated: eventsCreated[0].count.toString(),
+          eventsShared: eventsShared[0].count.toString(),
+          totalShares: eventsShared[0].count.toString()
         });
     }
   }
@@ -337,12 +362,14 @@ export class DatabaseStorage implements IStorage {
     const currentBadges = await this.getUserBadges(userId);
     const currentBadgeIds = currentBadges.map(b => b.badgeId);
 
+    const eventsCreated = parseInt(stats.eventsCreated || "0");
+    const eventsShared = parseInt(stats.eventsShared || "0");
+
     // Define badge conditions
     const badgeConditions = [
-      { id: 'first-event', condition: stats.eventsCreated >= 1 },
-      { id: 'event-master', condition: stats.eventsCreated >= 10 },
-      { id: 'social-butterfly', condition: stats.eventsShared >= 5 },
-      { id: 'influencer', condition: stats.socialScore >= 100 }
+      { id: 'first-event', condition: eventsCreated >= 1 },
+      { id: 'event-master', condition: eventsCreated >= 10 },
+      { id: 'social-butterfly', condition: eventsShared >= 5 }
     ];
 
     // Award new badges
@@ -352,8 +379,7 @@ export class DatabaseStorage implements IStorage {
           .insert(userBadges)
           .values({
             userId,
-            badgeId: id,
-            earnedAt: new Date()
+            badgeId: id
           });
       }
     }
