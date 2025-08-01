@@ -71,7 +71,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Event routes
+  // Public events endpoint (for external websites)
+  app.get("/api/public/events", async (req: any, res) => {
+    try {
+      // Add CORS headers for external access
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Methods', 'GET');
+      res.header('Access-Control-Allow-Headers', 'Content-Type');
+      
+      // Get all published events (not tied to specific user)
+      const events = await storage.getPublishedEvents();
+      res.json(events);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des événements publics:", error);
+      res.status(500).json({ message: "Échec de la récupération des événements" });
+    }
+  });
+
+  // Private events endpoint (requires authentication)
   app.get("/api/events", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;

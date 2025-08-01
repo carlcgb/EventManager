@@ -34,6 +34,7 @@ export interface IStorage {
   
   // Event operations
   getUserEvents(userId: string): Promise<Event[]>;
+  getPublishedEvents(): Promise<Event[]>;
   getEvent(id: string, userId: string): Promise<Event | undefined>;
   getEventById(id: string, userId: string): Promise<Event | undefined>;
   createEvent(event: InsertEvent & { userId: string; calendarEventId?: string }): Promise<Event>;
@@ -111,6 +112,14 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(events)
       .where(eq(events.userId, userId))
+      .orderBy(desc(events.createdAt));
+  }
+
+  async getPublishedEvents(): Promise<Event[]> {
+    return await db
+      .select()
+      .from(events)
+      .where(eq(events.status, "published"))
       .orderBy(desc(events.createdAt));
   }
 
