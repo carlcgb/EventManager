@@ -1,127 +1,175 @@
-# Event Management System
+# 🤠 Système de Gestion d'Événements
 
-## Overview
+Application web complète pour la création et la gestion d'événements avec personnalisation avancée et fonctionnalités sociales interactives.
 
-This is a comprehensive web application for event creation and management with advanced customization and interactive social features. The system allows users to create, manage, and publish events with a robust authentication system, bidirectional calendar integration, and social features including a badge system and real-time notifications.
+## 📋 Aperçu
 
-## User Preferences
+Cette application permet aux utilisateurs de créer, gérer et publier des événements avec un système d'authentification robuste, une intégration calendrier bidirectionnelle, et des fonctionnalités sociales gamifiées. Le tout dans un thème western/cowboy unique inspiré de Sam Hébert, humoriste.
 
-Preferred communication style: Simple, everyday language.
+## ✨ Fonctionnalités Principales
 
-## System Architecture
+### 🎫 Gestion d'Événements
+- **Création d'événements** avec titre, description, date, et lieu
+- **Modification en temps réel** avec formulaire de validation
+- **Statuts d'événements** : Brouillon → En attente → Publié
+- **Suppression sécurisée** avec confirmation
 
-### Frontend Architecture
-- **React 18** with TypeScript for type safety and modern React features
-- **Vite** for fast development builds and hot module replacement
-- **Wouter** for lightweight client-side routing
-- **TanStack Query** for server state management, caching, and synchronization
-- **shadcn/ui** components built on Radix UI primitives for accessibility
-- **Tailwind CSS** with custom western theme for styling
-- **React Hook Form** with Zod validation for form handling
+### 📅 Intégration Calendrier
+- **Google Calendar OAuth** avec synchronisation bidirectionnelle
+- **Ajout automatique** d'événements au calendrier personnel
+- **Mise à jour en temps réel** des modifications
+- **Emoji cowboy** (🤠) dans les titres d'événements synchronisés
 
-### Backend Architecture
-- **Express.js** server with TypeScript
-- **Replit Auth** using OpenID Connect for authentication
-- **Session management** with PostgreSQL-based session storage
-- **RESTful API** design with protected routes
-- **WebSocket** integration for real-time notifications (currently disabled)
+### 🗺️ Intégration Géographique
+- **Google Maps** pour les suggestions d'adresses
+- **Données de fallback** spécialisées pour le Québec
+- **Bouton "Itinéraire"** direct vers Google Maps
+- **Géolocalisation automatique** des lieux
 
-### Database Architecture
-- **PostgreSQL** with Neon serverless hosting
-- **Drizzle ORM** for type-safe database operations
-- **Schema-driven** approach with shared types between frontend and backend
+### 👥 Fonctionnalités Sociales
+- **Système de badges** avec récompenses d'engagement
+- **Partage social** sur différentes plateformes
+- **Statistiques utilisateur** (événements créés, partages, score social)
+- **Notifications en temps réel** via WebSocket
 
-Key database tables:
-- `users` - User accounts and profiles
-- `events` - Event data with status workflow (draft → pending → published)
-- `calendar_integrations` - Third-party calendar connections
-- `badges` and `user_badges` - Gamification system
-- `event_shares` - Social sharing tracking
-- `user_stats` - User engagement metrics
-- `sessions` - Secure session storage
+### 🔐 Authentification
+- **Replit Auth** avec OpenID Connect
+- **Sessions sécurisées** avec PostgreSQL
+- **Gestion des tokens** avec rafraîchissement automatique
+- **Protection des routes** côté serveur et client
 
-### Authentication & Authorization
-- **Replit Auth** with OpenID Connect flow
-- **Session-based** authentication with secure HTTP-only cookies
-- **Route protection** on both client and server sides
-- **Token management** with automatic refresh handling
+## 🛠️ Architecture Technique
 
-### Calendar Integration
-- **Google Calendar API** with OAuth2 flow
-- **Bidirectional synchronization** - events sync both ways
-- **Automatic event creation** with cowboy emoji branding
-- **Fallback data** for Quebec-specific locations when Google APIs are unavailable
+### Frontend
+- **React 18** avec TypeScript
+- **Vite** pour le développement et la compilation
+- **Wouter** pour le routage côté client
+- **TanStack Query** pour la gestion d'état serveur
+- **shadcn/ui** avec composants Radix UI
+- **Tailwind CSS** avec thème western personnalisé
 
-### Geographic Features
-- **Google Maps API** integration for address suggestions
-- **Quebec-focused** fallback data for location services
-- **Direct navigation** links to Google Maps for directions
-- **Geocoding** support for venue locations
+### Backend
+- **Node.js** avec Express.js
+- **TypeScript** avec modules ES
+- **API REST** avec validation Zod
+- **WebSocket** pour les notifications temps réel
 
-### Social Features
-- **Badge system** with achievement tracking
-- **Social sharing** across multiple platforms (Facebook, Twitter, LinkedIn, etc.)
-- **User statistics** tracking events created, shares, and social score
-- **Real-time notifications** via WebSocket (infrastructure ready, currently disabled)
+### Base de Données
+- **PostgreSQL** (Neon serverless)
+- **Drizzle ORM** avec schémas TypeScript
+- **Migrations automatisées** via Drizzle Kit
+- **Pool de connexions** optimisé
 
-### State Management
-- **TanStack Query** for server state with caching and background updates
-- **React Hook Form** for form state management
-- **React Context** for global UI state (auth, notifications)
-- **Local storage** for user preferences and session persistence
+### Externes Intégrations
+- **Google Calendar API** avec OAuth2
+- **Google Maps API** pour géolocalisation
+- **Replit Authentication** pour l'authentification utilisateur
 
-### Error Handling & Validation
-- **Zod schemas** for runtime type validation shared between client and server
-- **Comprehensive error boundaries** for graceful failure handling
-- **Form validation** with real-time feedback
-- **API error handling** with user-friendly messages
+## 🚀 Installation et Déploiement
 
-### Development & Build System
-- **TypeScript** with strict configuration for type safety
-- **ESBuild** for production builds
-- **Path aliases** for clean imports
-- **Hot reload** in development with Vite
-- **Runtime error overlay** for development debugging
+### Prérequis
+- Node.js 18+
+- Base de données PostgreSQL
+- Comptes Google Cloud Platform et Replit
 
-## External Dependencies
+### Variables d'Environnement
+```bash
+# Base de données
+DATABASE_URL=postgresql://...
 
-### Authentication Services
-- **Replit Auth** - Primary authentication provider using OpenID Connect
-- Session storage via PostgreSQL with `connect-pg-simple`
+# Google Calendar
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_CALENDAR_ID=your_calendar_id
 
-### Database Services
-- **Neon** - Serverless PostgreSQL hosting with connection pooling
-- **Drizzle Kit** - Database migrations and schema management
+# Firebase (optionnel)
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_APP_ID=your_app_id
+```
 
-### Calendar Services
-- **Google Calendar API** - Bidirectional event synchronization
-- **Microsoft Graph API** - Alternative calendar integration (infrastructure ready)
-- OAuth2 flows for secure calendar access
+### Commandes de Développement
+```bash
+# Installation des dépendances
+npm install
 
-### Mapping & Location Services
-- **Google Maps API** - Address suggestions and geocoding
-- **Google Places API** - Location search and validation
-- Fallback location data for Quebec regions
+# Démarrage en développement
+npm run dev
 
-### UI & Component Libraries
-- **Radix UI** - Accessible, unstyled component primitives
-- **Tailwind CSS** - Utility-first CSS framework
-- **Lucide React** - Icon library
-- **shadcn/ui** - Pre-built component system
+# Synchronisation base de données
+npm run db:push
 
-### Development Tools
-- **Vite** - Build tool and development server
-- **TypeScript** - Type checking and compilation
-- **ESLint/Prettier** - Code formatting and linting
-- **Drizzle Kit** - Database schema management
+# Compilation pour production
+npm run build
+```
 
-### Third-party Integrations
-- **Social media platforms** - Direct sharing links for Facebook, Twitter, LinkedIn, WhatsApp
-- **Email sharing** - Mailto links for event sharing
-- **WebSocket** infrastructure for real-time features (ready for activation)
+### Structure du Projet
+```
+├── client/          # Application React frontend
+├── server/          # Serveur Express backend  
+├── shared/          # Schémas et types partagés
+├── components.json  # Configuration shadcn/ui
+├── drizzle.config.ts# Configuration Drizzle ORM
+└── README.md        # Documentation
+```
 
-### Runtime Dependencies
-- **bcryptjs** - Password hashing for local authentication fallback
-- **date-fns** - Date manipulation and formatting with French locale
-- **nanoid** - Unique ID generation
-- **memoizee** - Function memoization for performance optimization
+## 🎨 Design et UX
+
+### Thème Western
+- **Palette de couleurs** terre et cuir
+- **Typographie** inspirée du Far West
+- **Animations** fluides avec Framer Motion
+- **Interface responsive** mobile-first
+
+### Expérience Utilisateur
+- **Formulaires intuitifs** avec validation en temps réel
+- **Notifications toast** pour les actions utilisateur
+- **États de chargement** avec squelettes
+- **Navigation cohérente** avec boutons d'action
+
+## 📊 Fonctionnalités Avancées
+
+### Système de Badges
+- **Premier Événement** : Créer votre premier événement
+- **Maître des Événements** : Créer 10+ événements
+- **Papillon Social** : Partager 5+ événements
+- **Influenceur** : Atteindre 100+ points sociaux
+
+### Analytics
+- **Statistiques mensuelles** des événements
+- **Taux de publication** des événements
+- **Métriques d'engagement** social
+- **Suivi des performances** utilisateur
+
+## 🔧 Configuration Google Calendar
+
+1. Créer un projet Google Cloud Platform
+2. Activer l'API Google Calendar
+3. Configurer l'écran de consentement OAuth
+4. Créer des identifiants OAuth 2.0
+5. Ajouter les domaines autorisés (replit.app)
+
+## 🌐 Déploiement
+
+L'application est optimisée pour le déploiement sur Replit :
+- **Build automatisé** avec Vite et ESBuild
+- **Variables d'environnement** sécurisées
+- **Base de données** PostgreSQL hébergée
+- **SSL/TLS** automatique
+- **Domaine personnalisé** supporté
+
+## 🤝 Contribution
+
+Cette application a été développée avec une attention particulière aux bonnes pratiques :
+- **Code TypeScript** entièrement typé
+- **Architecture modulaire** et maintenable
+- **Tests de validation** des schémas
+- **Documentation** complète du code
+
+## 📝 Licence
+
+Projet développé pour la gestion d'événements avec intégration calendrier et fonctionnalités sociales.
+
+---
+
+Développé avec ❤️ par CGB
