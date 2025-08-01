@@ -12,7 +12,7 @@
   --card: hsla(0, 0%, 100%, 0.35);
   --card-foreground: hsl(20, 14.3%, 4.1%);
   --input: hsl(27, 20%, 85%);
-  --primary: hsl(58, 100%, 37%);
+  --primary: rgb(51, 153, 52);
   --primary-foreground: hsl(0, 73%, 72%);
   --secondary: hsl(33, 40%, 65%);
   --secondary-foreground: hsl(20, 14%, 4%);
@@ -60,14 +60,11 @@
 
 @layer base {
   * {
-    border-color: hsl(var(--border));
+    @apply border-border;
   }
 
   body {
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    color: hsl(var(--foreground));
+    @apply font-sans antialiased text-foreground;
     background-image: url('@assets/468095606_17944860977908622_342092249558358993_n.jpg');
     background-size: cover;
     background-position: center;
