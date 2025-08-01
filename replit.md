@@ -114,6 +114,7 @@ Preferred communication style: Simple, everyday language.
 - **@replit/vite-plugin-runtime-error-modal** - Error handling in development
 
 ### Recent Changes
+- **Modern color scheme** - Updated to purple/violet theme with improved contrast and readability
 - **French date format** - Updated to display dates as "17 NOVEMBRE 2025" throughout the application
 - **Date-only format** - Changed from timestamp to date-only for simplified user experience
 - **Automatic Google Calendar integration** - No manual connection required, integrated on login
