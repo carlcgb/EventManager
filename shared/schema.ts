@@ -178,17 +178,16 @@ export const insertUserStatsSchema = createInsertSchema(userStats).omit({
   updatedAt: true,
 });
 
-// Types
 export type UpsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type LoginUser = z.infer<typeof loginUserSchema>;
 export type RegisterUser = z.infer<typeof registerUserSchema>;
 export type Event = typeof events.$inferSelect;
 export type InsertEvent = z.infer<typeof insertEventSchema>;
-export type UpdateEvent = z.infer<typeof updateEventSchema>;
-export type CalendarIntegration = typeof calendarIntegrations.$inferSelect;
-export type InsertCalendarIntegration = z.infer<typeof insertCalendarIntegrationSchema>;
 export type Badge = typeof badges.$inferSelect;
 export type UserBadge = typeof userBadges.$inferSelect;
 export type EventShare = typeof eventShares.$inferSelect;
 export type UserStats = typeof userStats.$inferSelect;
+export type CalendarIntegration = typeof calendarIntegrations.$inferSelect;
+export type UpdateEvent = z.infer<typeof updateEventSchema>;
+export type InsertCalendarIntegration = z.infer<typeof insertCalendarIntegrationSchema>;
