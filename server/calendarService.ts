@@ -141,11 +141,11 @@ export class GoogleCalendarService {
         description: eventData.description || '',
         location: eventData.location || '',
         start: {
-          dateTime: eventData.startTime.toISOString(),
+          date: eventData.startTime.toISOString().split('T')[0], // All-day event format YYYY-MM-DD
           timeZone: 'America/Toronto',
         },
         end: {
-          dateTime: eventData.endTime.toISOString(),
+          date: eventData.endTime.toISOString().split('T')[0], // All-day event format YYYY-MM-DD
           timeZone: 'America/Toronto',
         },
         reminders: {
@@ -181,11 +181,11 @@ export class GoogleCalendarService {
         description: eventData.description || '',
         location: eventData.location || '',
         start: {
-          dateTime: eventData.startTime.toISOString(),
+          date: eventData.startTime.toISOString().split('T')[0], // All-day event format YYYY-MM-DD
           timeZone: 'America/Toronto',
         },
         end: {
-          dateTime: eventData.endTime.toISOString(),
+          date: eventData.endTime.toISOString().split('T')[0], // All-day event format YYYY-MM-DD
           timeZone: 'America/Toronto',
         },
         reminders: {

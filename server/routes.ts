@@ -163,9 +163,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
               googleIntegration.accessToken,
               googleIntegration.refreshToken || undefined
             );
-            // Parse the date correctly from the event data
-            const eventDate = new Date(eventData.date);
-            const endTime = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000); // 2 hours duration
+            // Parse the date as date-only and set as all-day event
+            const eventDate = new Date(eventData.date + 'T00:00:00'); // Start of day
+            const endTime = new Date(eventData.date + 'T23:59:59'); // End of day
             
             console.log("Event date parsed:", eventDate);
             console.log("End time calculated:", endTime);

@@ -186,7 +186,7 @@ export default function Events() {
                   <div className="space-y-2">
                     <div className="flex items-center text-sm text-gray-600">
                       <i className="fas fa-calendar text-western-brown mr-2 w-4"></i>
-                      <span>{format(new Date(event.date), "EEEE d MMMM yyyy à HH:mm", { locale: fr })}</span>
+                      <span>{format(new Date(event.date), "EEEE d MMMM yyyy", { locale: fr })}</span>
                     </div>
                     <AddressDisplay address={event.venue} showMapLink={true} />
                     {event.description && (

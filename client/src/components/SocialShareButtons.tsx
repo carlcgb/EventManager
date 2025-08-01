@@ -11,7 +11,7 @@ interface SocialShareButtonsProps {
 
 export function SocialShareButtons({ event, variant = "default" }: SocialShareButtonsProps) {
   const eventUrl = `${window.location.origin}/event/${event.id}`;
-  const eventDate = format(new Date(event.date), "d MMMM yyyy à HH:mm", { locale: fr });
+  const eventDate = format(new Date(event.date), "d MMMM yyyy", { locale: fr });
   
   // Texte de partage personnalisé pour chaque plateforme
   const shareTexts = {

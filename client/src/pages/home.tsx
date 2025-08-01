@@ -26,7 +26,6 @@ const eventFormSchema = z.object({
   title: z.string().min(1, "Le titre est requis"),
   description: z.string().optional(),
   date: z.string().min(1, "La date est requise"),
-  time: z.string().min(1, "L'heure est requise"),
   venue: z.string().min(1, "Le lieu est requis"),
   addToCalendar: z.boolean().default(true),
   publishToWebsite: z.boolean().default(true),
@@ -50,7 +49,6 @@ export default function Home() {
       title: "",
       description: "",
       date: "",
-      time: "",
       venue: "",
       addToCalendar: true,
       publishToWebsite: true,
@@ -80,7 +78,7 @@ export default function Home() {
     mutationFn: async (data: EventFormData) => {
       const eventData = {
         ...data,
-        date: new Date(`${data.date}T${data.time}`).toISOString(),
+        date: data.date, // Send date as-is since it's now date-only
       };
       
       const response = await apiRequest("POST", "/api/events", eventData);
@@ -313,49 +311,26 @@ export default function Home() {
                       )}
                     />
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="date"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
-                              <i className="fas fa-calendar text-western-brown mr-2"></i>
-                              Date
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                type="date"
-                                className="border-2 border-gray-200 focus:border-western-brown"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="time"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
-                              <i className="fas fa-clock text-western-brown mr-2"></i>
-                              Heure
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                type="time"
-                                className="border-2 border-gray-200 focus:border-western-brown"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                    <FormField
+                      control={form.control}
+                      name="date"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
+                            <i className="fas fa-calendar text-western-brown mr-2"></i>
+                            Date
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="date"
+                              className="border-2 border-gray-200 focus:border-western-brown"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
                     <FormField
                       control={form.control}

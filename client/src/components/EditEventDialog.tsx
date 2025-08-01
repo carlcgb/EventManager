@@ -41,7 +41,7 @@ export default function EditEventDialog({ event, isOpen, onClose }: EditEventDia
     defaultValues: {
       title: event.title,
       description: event.description || "",
-      date: new Date(event.date).toISOString().slice(0, 16),
+      date: event.date, // Date is already in YYYY-MM-DD format
       venue: event.venue,
       addToCalendar: event.addToCalendar || false,
       publishToWebsite: event.publishToWebsite || false,
@@ -134,11 +134,11 @@ export default function EditEventDialog({ event, isOpen, onClose }: EditEventDia
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-western-dark font-semibold">
-                      Date et heure *
+                      Date *
                     </FormLabel>
                     <FormControl>
                       <Input 
-                        type="datetime-local" 
+                        type="date" 
                         className="focus:ring-western-brown focus:border-western-brown"
                         {...field} 
                       />

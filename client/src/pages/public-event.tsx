@@ -109,16 +109,16 @@ export default function PublicEvent() {
           </CardHeader>
 
           <CardContent className="p-8 space-y-8">
-            {/* Date et heure */}
+            {/* Date */}
             <div className="bg-western-sand/20 rounded-lg p-6">
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-16 bg-western-brown rounded-full flex items-center justify-center">
                   <i className="fas fa-calendar-alt text-white text-2xl"></i>
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-western-dark">Date et heure</h3>
+                  <h3 className="text-xl font-semibold text-western-dark">Date</h3>
                   <p className="text-lg text-gray-700 mt-1">
-                    {format(new Date(event.date), 'EEEE d MMMM yyyy à H:mm', { locale: fr })}
+                    {format(new Date(event.date), 'EEEE d MMMM yyyy', { locale: fr })}
                   </p>
                 </div>
               </div>
