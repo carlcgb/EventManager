@@ -6,6 +6,7 @@ import { logout } from "@/lib/firebase";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { formatFrenchDate } from "@/lib/utils";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import EditEventDialog from "@/components/EditEventDialog";
@@ -186,7 +187,7 @@ export default function Events() {
                   <div className="space-y-2">
                     <div className="flex items-center text-sm text-gray-600">
                       <i className="fas fa-calendar text-western-brown mr-2 w-4"></i>
-                      <span>{format(new Date(event.date), "EEEE d MMMM yyyy", { locale: fr })}</span>
+                      <span>{formatFrenchDate(event.date)}</span>
                     </div>
                     <AddressDisplay address={event.venue} showMapLink={true} />
                     {event.description && (
@@ -222,7 +223,7 @@ export default function Events() {
                   {/* Action Buttons */}
                   <div className="flex justify-between items-center pt-4 border-t border-gray-200">
                     <span className="text-xs text-gray-500">
-                      Créé le {format(new Date(event.createdAt), "d/MM/yyyy", { locale: fr })}
+                      Créé le {formatFrenchDate(event.createdAt)}
                     </span>
                     <div className="flex items-center space-x-2">
                       <SocialShareButtons event={event} variant="minimal" />

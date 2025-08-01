@@ -3,10 +3,9 @@ import { useRoute } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
 import { AddressDisplay } from "@/components/AddressDisplay";
 import { SocialShareButtons } from "@/components/SocialShareButtons";
+import { formatFrenchDate } from "@/lib/utils";
 import type { Event } from "@shared/schema";
 
 export default function PublicEvent() {
@@ -117,8 +116,8 @@ export default function PublicEvent() {
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold text-western-dark">Date</h3>
-                  <p className="text-lg text-gray-700 mt-1">
-                    {format(new Date(event.date), 'EEEE d MMMM yyyy', { locale: fr })}
+                  <p className="text-lg text-gray-700 mt-1 font-semibold">
+                    {formatFrenchDate(event.date)}
                   </p>
                 </div>
               </div>
@@ -147,7 +146,7 @@ export default function PublicEvent() {
               <h3 className="text-lg font-semibold text-gray-700 mb-4">Informations sur l'événement</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
                 <div>
-                  <p><strong>Publié le :</strong> {format(new Date(event.createdAt), 'd MMMM yyyy', { locale: fr })}</p>
+                  <p><strong>Publié le :</strong> {formatFrenchDate(event.createdAt)}</p>
                 </div>
                 <div>
                   <p><strong>Statut :</strong> {event.status === 'published' ? 'Publié' : event.status === 'pending' ? 'En attente' : 'Brouillon'}</p>

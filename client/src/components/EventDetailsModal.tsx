@@ -1,10 +1,9 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
 import { AddressDisplay } from "./AddressDisplay";
 import { SocialShareButtons } from "./SocialShareButtons";
+import { formatFrenchDate } from "@/lib/utils";
 import type { Event } from "@shared/schema";
 
 interface EventDetailsModalProps {
@@ -62,8 +61,8 @@ export function EventDetailsModal({ event, isOpen, onClose, onEdit }: EventDetai
               </div>
               <div>
                 <h3 className="font-semibold text-western-dark">Date</h3>
-                <p className="text-gray-700">
-                  {format(new Date(event.date), 'EEEE d MMMM yyyy', { locale: fr })}
+                <p className="text-gray-700 font-semibold">
+                  {formatFrenchDate(event.date)}
                 </p>
               </div>
             </div>
@@ -110,8 +109,8 @@ export function EventDetailsModal({ event, isOpen, onClose, onEdit }: EventDetai
           <div className="bg-gray-50 rounded-lg p-4">
             <h3 className="font-semibold text-gray-700 mb-2">Informations</h3>
             <div className="text-sm text-gray-600 space-y-1">
-              <p><strong>Créé le :</strong> {format(new Date(event.createdAt), 'd MMMM yyyy', { locale: fr })}</p>
-              <p><strong>Modifié le :</strong> {format(new Date(event.updatedAt), 'd MMMM yyyy', { locale: fr })}</p>
+              <p><strong>Créé le :</strong> {formatFrenchDate(event.createdAt)}</p>
+              <p><strong>Modifié le :</strong> {formatFrenchDate(event.updatedAt)}</p>
               <p><strong>ID :</strong> <code className="bg-gray-200 px-1 rounded text-xs">{event.id}</code></p>
             </div>
           </div>

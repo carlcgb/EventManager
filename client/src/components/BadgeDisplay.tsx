@@ -1,8 +1,7 @@
 import { Badge as BadgeType, UserBadge } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { formatFrenchDate } from "@/lib/utils";
 
 interface BadgeDisplayProps {
   badge: BadgeType;
@@ -44,7 +43,7 @@ export function BadgeDisplay({ badge, userBadge, size = "md", showDescription = 
             ${isEarned ? '' : 'opacity-30 grayscale'}
             transform transition-transform hover:scale-110
           `}
-          title={`${badge.name}${isEarned ? ` - Obtenu le ${format(new Date(userBadge!.earnedAt), 'dd MMMM yyyy', { locale: fr })}` : ' - Non obtenu'}`}
+          title={`${badge.name}${isEarned ? ` - Obtenu le ${formatFrenchDate(userBadge!.earnedAt)}` : ' - Non obtenu'}`}
         >
           <i className={badge.icon}></i>
         </div>
@@ -54,7 +53,7 @@ export function BadgeDisplay({ badge, userBadge, size = "md", showDescription = 
           <div className="font-semibold">{badge.name}</div>
           {isEarned && userBadge && (
             <div className="text-gray-300">
-              {format(new Date(userBadge.earnedAt), 'dd MMM yyyy', { locale: fr })}
+              {formatFrenchDate(userBadge.earnedAt)}
             </div>
           )}
           <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black"></div>
@@ -91,7 +90,7 @@ export function BadgeDisplay({ badge, userBadge, size = "md", showDescription = 
           {isEarned && userBadge ? (
             <Badge className="bg-western-success text-white">
               <i className="fas fa-check mr-1"></i>
-              Obtenu le {format(new Date(userBadge.earnedAt), 'dd/MM/yyyy', { locale: fr })}
+              Obtenu le {formatFrenchDate(userBadge.earnedAt)}
             </Badge>
           ) : (
             <Badge variant="outline" className="text-gray-500 border-gray-300">

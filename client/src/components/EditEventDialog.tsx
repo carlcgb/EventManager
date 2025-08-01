@@ -42,6 +42,7 @@ export default function EditEventDialog({ event, isOpen, onClose }: EditEventDia
       title: event.title,
       description: event.description || "",
       date: event.date, // Date is already in YYYY-MM-DD format
+      dateFormat: "DD MMMM YYYY", // Ensure the date format is correct for display and editing
       venue: event.venue,
       addToCalendar: event.addToCalendar || false,
       publishToWebsite: event.publishToWebsite || false,
