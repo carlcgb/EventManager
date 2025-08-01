@@ -136,6 +136,30 @@ export default function PublicEvent() {
               </div>
             </div>
 
+            {/* Billets */}
+            {event.ticketsUrl && (
+              <div className="bg-western-sand/20 rounded-lg p-6">
+                <div className="flex items-start space-x-4">
+                  <div className="w-16 h-16 bg-western-brown rounded-full flex items-center justify-center">
+                    <i className="fas fa-ticket-alt text-white text-2xl"></i>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold text-western-dark mb-4">Billets</h3>
+                    <a
+                      href={event.ticketsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-western-brown to-western-chocolate hover:from-western-chocolate hover:to-western-brown text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                    >
+                      <i className="fas fa-ticket-alt mr-3"></i>
+                      Acheter des billets
+                      <i className="fas fa-external-link-alt ml-2"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Partage sur les réseaux sociaux */}
             <div className="bg-western-sand/20 rounded-lg p-6">
               <SocialShareButtons event={event} />

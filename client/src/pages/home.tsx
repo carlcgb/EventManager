@@ -29,7 +29,6 @@ const eventFormSchema = z.object({
   venue: z.string().min(1, "Le lieu est requis"),
   ticketsUrl: z.string().url("L'URL doit être valide").optional().or(z.literal("")),
   addToCalendar: z.boolean().default(true),
-  publishToWebsite: z.boolean().default(true),
   sendNotification: z.boolean().default(false),
 });
 
@@ -53,7 +52,6 @@ export default function Home() {
       venue: "",
       ticketsUrl: "",
       addToCalendar: true,
-      publishToWebsite: true,
       sendNotification: false,
     },
   });
@@ -379,7 +377,7 @@ export default function Home() {
                     />
 
                     <div className="bg-gray-50 rounded-lg p-4">
-                      <h3 className="font-semibold text-gray-700 mb-3">Options de publication</h3>
+                      <h3 className="font-semibold text-gray-700 mb-3">Options</h3>
                       <div className="space-y-3">
                         <FormField
                           control={form.control}
@@ -390,42 +388,54 @@ export default function Home() {
                                 <Checkbox
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
-                                  className="data-[state=checked]:bg-western-brown data-[state=checked]:border-western-brown"
+                                  className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
                                 />
                               </FormControl>
-                              <div className="flex flex-col">
-                                <FormLabel className="text-sm text-gray-700 flex items-center">
-                                  <i className="fas fa-calendar-plus text-western-brown mr-2"></i>
-                                  Ajouter à mon calendrier Google
-                                  <span className="ml-2 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
-                                    Auto-connecté
+                              <div className="flex flex-col flex-1">
+                                <FormLabel className="text-sm text-gray-700 flex items-center justify-between">
+                                  <span className="flex items-center">
+                                    <i className="fas fa-calendar-plus text-green-600 mr-2"></i>
+                                    Synchroniser avec Google Calendar
+                                  </span>
+                                  <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+                                    Connecté
                                   </span>
                                 </FormLabel>
                                 <p className="text-xs text-gray-600 mt-1">
-                                  Votre compte Google est connecté. Décochez pour ne pas synchroniser cet événement.
+                                  Votre compte Google est connecté automatiquement. Décochez pour ne pas synchroniser cet événement.
                                 </p>
                               </div>
                             </FormItem>
                           )}
                         />
 
-                        <FormField
-                          control={form.control}
-                          name="publishToWebsite"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </FormControl>
-                              <FormLabel className="text-sm text-gray-700">
-                                Publier sur le site web
-                              </FormLabel>
-                            </FormItem>
-                          )}
-                        />
+                        <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center">
+                              <i className="fas fa-link text-blue-600 mr-2"></i>
+                              <span className="text-sm font-medium text-gray-700">Intégration Google Calendar</span>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="text-xs h-8"
+                              onClick={() => {
+                                // Add disconnect/reconnect functionality
+                                toast({
+                                  title: "Intégration Google",
+                                  description: "Pour modifier la connexion, reconnectez-vous à votre compte.",
+                                });
+                              }}
+                            >
+                              <i className="fas fa-cog mr-1"></i>
+                              Gérer
+                            </Button>
+                          </div>
+                          <p className="text-xs text-gray-600 mt-1">
+                            Connecté comme {(user as any)?.email}
+                          </p>
+                        </div>
 
                         <FormField
                           control={form.control}
@@ -436,9 +446,11 @@ export default function Home() {
                                 <Checkbox
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
+                                  className="data-[state=checked]:bg-western-brown data-[state=checked]:border-western-brown"
                                 />
                               </FormControl>
-                              <FormLabel className="text-sm text-gray-700">
+                              <FormLabel className="text-sm text-gray-700 flex items-center">
+                                <i className="fas fa-bell text-western-brown mr-2"></i>
                                 Envoyer une notification
                               </FormLabel>
                             </FormItem>

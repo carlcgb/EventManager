@@ -44,8 +44,8 @@ export default function EditEventDialog({ event, isOpen, onClose }: EditEventDia
       date: event.date, // Date is already in YYYY-MM-DD format
       dateFormat: "DD MMMM YYYY", // Ensure the date format is correct for display and editing
       venue: event.venue,
+      ticketsUrl: event.ticketsUrl || "",
       addToCalendar: event.addToCalendar || false,
-      publishToWebsite: event.publishToWebsite || false,
       sendNotification: event.sendNotification || false,
       status: event.status || "draft",
     },
@@ -170,6 +170,28 @@ export default function EditEventDialog({ event, isOpen, onClose }: EditEventDia
               />
             </div>
 
+            <FormField
+              control={form.control}
+              name="ticketsUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-western-dark font-semibold">
+                    URL des billets
+                    <span className="text-sm text-gray-500 ml-2">(optionnel)</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="url"
+                      placeholder="https://exemple.com/acheter-billets" 
+                      className="focus:ring-western-brown focus:border-western-brown"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-western-dark">Options</h3>
               
@@ -198,29 +220,7 @@ export default function EditEventDialog({ event, isOpen, onClose }: EditEventDia
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="publishToWebsite"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          className="data-[state=checked]:bg-western-brown data-[state=checked]:border-western-brown"
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel className="text-western-dark font-medium">
-                          Publier sur le site web
-                        </FormLabel>
-                        <p className="text-sm text-gray-600">
-                          Visible dans la liste publique des événements
-                        </p>
-                      </div>
-                    </FormItem>
-                  )}
-                />
+
 
                 <FormField
                   control={form.control}

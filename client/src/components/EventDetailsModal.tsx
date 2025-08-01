@@ -81,6 +81,29 @@ export function EventDetailsModal({ event, isOpen, onClose, onEdit }: EventDetai
             </div>
           </div>
 
+          {/* Billets */}
+          {event.ticketsUrl && (
+            <div className="bg-western-sand/20 rounded-lg p-4">
+              <div className="flex items-start space-x-3">
+                <div className="w-12 h-12 bg-western-brown rounded-full flex items-center justify-center">
+                  <i className="fas fa-ticket-alt text-white text-lg"></i>
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-western-dark mb-2">Billets</h3>
+                  <a
+                    href={event.ticketsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 bg-western-brown text-white rounded-lg hover:bg-western-brown/90 transition-colors"
+                  >
+                    <i className="fas fa-external-link-alt mr-2"></i>
+                    Acheter des billets
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Options */}
           <div className="bg-western-sand/20 rounded-lg p-4">
             <h3 className="font-semibold text-western-dark mb-3">Options configurées</h3>
@@ -89,10 +112,7 @@ export function EventDetailsModal({ event, isOpen, onClose, onEdit }: EventDetai
                 <i className={`fas ${event.addToCalendar ? 'fa-check-circle' : 'fa-times-circle'}`}></i>
                 <span className="text-sm">Calendrier</span>
               </div>
-              <div className={`flex items-center space-x-2 p-2 rounded ${event.publishToWebsite ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
-                <i className={`fas ${event.publishToWebsite ? 'fa-check-circle' : 'fa-times-circle'}`}></i>
-                <span className="text-sm">Site web</span>
-              </div>
+
               <div className={`flex items-center space-x-2 p-2 rounded ${event.sendNotification ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
                 <i className={`fas ${event.sendNotification ? 'fa-check-circle' : 'fa-times-circle'}`}></i>
                 <span className="text-sm">Notification</span>
