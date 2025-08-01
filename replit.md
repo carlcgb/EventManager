@@ -120,6 +120,10 @@ Preferred communication style: Simple, everyday language.
 - **Automatic Google Calendar integration** - No manual connection required, integrated on login
 - **Simplified event creation** - Removed time component, events are now date-only
 - **All-day calendar events** - Google Calendar events created as all-day events
+- **Direct Google authentication** - Removed intermediate login page, authentication now happens directly from landing page
+- **Tickets URL functionality** - Added tickets URL field to events with validation and display on event pages
+- **Removed "Publier sur le site web"** - Simplified form by removing website publishing checkbox
+- **Enhanced Google Calendar UI** - Improved integration display with management options
 - **CSS fixes** - Resolved @apply directive issues in Tailwind CSS configuration
 
 ### Build and Bundling
