@@ -112,8 +112,10 @@ Preferred communication style: Simple, everyday language.
 - **@replit/vite-plugin-cartographer** - Replit development integration
 - **@replit/vite-plugin-runtime-error-modal** - Error handling in development
 
-### Real-time Communication
-- **WebSocket (ws)** - Real-time notifications (currently disabled)
+### Removed Components
+- **WebSocket notifications** - Removed unused real-time notification system
+- **Social sharing components** - Removed unused social media integration
+- **Notification center** - Removed unused notification UI components
 
 ### Build and Bundling
 - **esbuild** - Fast JavaScript bundler for production

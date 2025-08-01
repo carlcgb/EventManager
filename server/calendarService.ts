@@ -220,75 +220,7 @@ export class GoogleCalendarService {
     }
   }
 
-  async updateEvent(accessToken: string, eventId: string, eventData: CalendarEventData): Promise<void> {
-    try {
-      const oauth2Client = new google.auth.OAuth2();
-      oauth2Client.setCredentials({ access_token: accessToken });
 
-      const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
-
-      const event = {
-        summary: eventData.title,
-        description: eventData.description || '',
-        start: {
-          dateTime: eventData.startTime.toISOString(),
-          timeZone: 'America/Toronto',
-        },
-        end: {
-          dateTime: eventData.endTime.toISOString(),
-          timeZone: 'America/Toronto',
-        },
-        location: eventData.location || '',
-        reminders: {
-          useDefault: false,
-          overrides: [
-            { method: 'popup', minutes: 24 * 60 }, // 1 day before
-            { method: 'popup', minutes: 60 }, // 1 hour before
-          ],
-        },
-      };
-
-      await calendar.events.update({
-        calendarId: 'primary',
-        eventId: eventId,
-        requestBody: event,
-      });
-
-      console.log(`Événement Google Calendar mis à jour: ${eventId}`);
-    } catch (error) {
-      console.error('Erreur mise à jour événement Google Calendar:', error);
-      throw error;
-    }
-  }
-
-  async updateEvent(eventId: string, eventData: CalendarEventData): Promise<void> {
-    try {
-      const event = {
-        summary: eventData.title,
-        description: eventData.description || '',
-        location: eventData.location || '',
-        start: {
-          dateTime: eventData.startTime.toISOString(),
-          timeZone: 'America/Toronto',
-        },
-        end: {
-          dateTime: eventData.endTime.toISOString(),
-          timeZone: 'America/Toronto',
-        },
-      };
-
-      await this.calendar.events.update({
-        calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
-        eventId: eventId,
-        resource: event,
-      });
-
-      console.log('Événement Google Calendar mis à jour avec succès');
-    } catch (error) {
-      console.error('Erreur mise à jour événement Google Calendar:', error);
-      throw error;
-    }
-  }
 
   async deleteEvent(eventId: string): Promise<void> {
     try {

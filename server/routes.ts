@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./auth";
-import { notificationService } from "./notificationService";
+
 import { GoogleCalendarService } from "./calendarService";
 import { google } from 'googleapis';
 import { insertEventSchema, updateEventSchema, insertCalendarIntegrationSchema } from "@shared/schema";
@@ -156,8 +156,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         calendarEventId: calendarEventId || undefined,
       });
 
-      // Envoyer notification en temps réel
-      notificationService.notifyEventCreated(userId, event.title, event);
+
 
       let message = "Événement créé avec succès";
       if (eventData.addToCalendar) {
@@ -260,8 +259,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Envoyer notification en temps réel
-      notificationService.notifyEventUpdated(userId, event.title, event);
+
 
       res.json({
         event,
@@ -284,8 +282,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Événement non trouvé" });
       }
 
-      // Envoyer notification en temps réel
-      notificationService.notifyEventDeleted(userId, "Événement supprimé");
+
 
       res.json({ message: "Événement supprimé avec succès" });
     } catch (error) {
@@ -572,7 +569,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   
   // Initialiser le service de notifications WebSocket
-  notificationService.initialize(httpServer);
+
   
   // Social sharing and badges API routes
   app.get("/api/user/badges", isAuthenticated, async (req: any, res) => {
