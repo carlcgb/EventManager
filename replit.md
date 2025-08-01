@@ -34,10 +34,11 @@ Preferred communication style: Simple, everyday language.
 ## Key Components
 
 ### Authentication System
-- **User Login**: Replit Auth with OpenID Connect (primary authentication)
+- **User Login**: Custom email/password authentication (replaced Replit Auth)
 - **Session Management**: Express sessions with PostgreSQL storage
-- **Strategy**: Passport.js with custom OIDC strategy
+- **Password Security**: bcryptjs hashing with salt rounds
 - **Security**: HTTP-only cookies with secure flags
+- **Database**: User credentials stored in PostgreSQL users table
 - **Calendar Integration**: Google OAuth for personal calendar access (separate from login)
 
 ### Event Management
@@ -59,10 +60,10 @@ Preferred communication style: Simple, everyday language.
 ## Data Flow
 
 1. **Authentication Flow**:
-   - User initiates login through Replit Auth
-   - OIDC strategy validates credentials
+   - User registers with email/password or logs in with existing credentials
+   - Password hashed with bcryptjs for security
    - Session created and stored in PostgreSQL
-   - User data synchronized with local database
+   - User data stored and managed in local database
 
 2. **Event Management Flow**:
    - Form submission with client-side validation
@@ -86,7 +87,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Runtime Dependencies
 - **Database**: Neon PostgreSQL serverless
-- **Authentication**: Replit OIDC service
+- **Authentication**: Custom email/password system with bcryptjs
 - **UI Library**: Radix UI primitives
 - **Validation**: Zod schema validation
 - **Date Handling**: date-fns for date manipulation
@@ -109,7 +110,7 @@ Preferred communication style: Simple, everyday language.
 - **Development**: Uses tsx for TypeScript execution
 - **Production**: Compiled JavaScript with Node.js
 - **Database**: Requires `DATABASE_URL` environment variable
-- **Auth**: Replit Authentication with session storage
+- **Auth**: Custom email/password authentication with PostgreSQL session storage
 - **Google Calendar**: Requires `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALENDAR_ID`
 - **OAuth Status**: Google Calendar OAuth functional (deployed at https://evenements.replit.app)
 - **Mobile Compatibility**: Enhanced OAuth flow for mobile devices
@@ -126,3 +127,12 @@ Preferred communication style: Simple, everyday language.
 ```
 
 The application follows a monorepo structure with clear separation between frontend, backend, and shared code. The build process creates a single deployable artifact with both static assets and server code.
+
+## Recent Changes (August 1, 2025)
+
+- **Authentication System Overhaul**: Completely replaced Replit Auth with custom email/password authentication
+- **Database Migration**: All tables dropped and recreated to support new authentication schema
+- **User Registration/Login**: New pages created with western-themed design for user registration and login
+- **Password Security**: Implemented bcryptjs hashing for secure password storage
+- **Session Management**: Updated to work with custom authentication system
+- **API Routes**: Modified all protected routes to work with new user ID system
