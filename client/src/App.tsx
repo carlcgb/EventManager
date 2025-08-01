@@ -13,6 +13,7 @@ import Events from "@/pages/events";
 import CalendarIntegrations from "@/pages/calendar-integrations";
 import CalendarSettings from "@/pages/calendar-settings";
 import SocialBadges from "@/pages/social-badges";
+import PublicEvent from "@/pages/public-event";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -24,6 +25,7 @@ function Router() {
           <Route path="/" component={Landing} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Login} />
+          <Route path="/event/:id" component={PublicEvent} />
         </>
       ) : (
         <>
@@ -32,6 +34,7 @@ function Router() {
           <Route path="/calendar-integrations" component={CalendarIntegrations} />
           <Route path="/calendar-settings" component={CalendarSettings} />
           <Route path="/badges" component={SocialBadges} />
+          <Route path="/event/:id" component={PublicEvent} />
         </>
       )}
       <Route component={NotFound} />

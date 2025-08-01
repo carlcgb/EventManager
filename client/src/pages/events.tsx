@@ -11,6 +11,7 @@ import { fr } from "date-fns/locale";
 import EditEventDialog from "@/components/EditEventDialog";
 import { AddressDisplay } from "@/components/AddressDisplay";
 import { EventDetailsModal } from "@/components/EventDetailsModal";
+import { SocialShareButtons } from "@/components/SocialShareButtons";
 import type { Event } from "@shared/schema";
 
 export default function Events() {
@@ -224,6 +225,7 @@ export default function Events() {
                       Créé le {format(new Date(event.createdAt), "d/MM/yyyy", { locale: fr })}
                     </span>
                     <div className="flex items-center space-x-2">
+                      <SocialShareButtons event={event} variant="minimal" />
                       <Button
                         variant="outline"
                         size="sm"

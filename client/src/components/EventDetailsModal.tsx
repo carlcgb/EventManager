@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { AddressDisplay } from "./AddressDisplay";
+import { SocialShareButtons } from "./SocialShareButtons";
 import type { Event } from "@shared/schema";
 
 interface EventDetailsModalProps {
@@ -98,6 +99,11 @@ export function EventDetailsModal({ event, isOpen, onClose, onEdit }: EventDetai
                 <span className="text-sm">Notification</span>
               </div>
             </div>
+          </div>
+
+          {/* Partage sur les réseaux sociaux */}
+          <div className="bg-western-sand/20 rounded-lg p-4">
+            <SocialShareButtons event={event} />
           </div>
 
           {/* Informations système */}

@@ -153,6 +153,14 @@ export class DatabaseStorage implements IStorage {
     return event;
   }
 
+  async getPublicEvent(id: string): Promise<Event | undefined> {
+    const [event] = await db
+      .select()
+      .from(events)
+      .where(eq(events.id, id));
+    return event;
+  }
+
   async createEvent(eventData: InsertEvent & { userId: string; calendarEventId?: string }): Promise<Event> {
     const [event] = await db
       .insert(events)

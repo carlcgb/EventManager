@@ -89,6 +89,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Private events endpoint (requires authentication)
+  // Public event route (no authentication required)
+  app.get("/api/events/public/:id", async (req, res) => {
+    try {
+      const eventId = req.params.id;
+      const event = await storage.getPublicEvent(eventId);
+      
+      if (!event) {
+        return res.status(404).json({ message: "Événement non trouvé" });
+      }
+      
+      // Only return published events to public
+      if (event.status !== 'published') {
+        return res.status(404).json({ message: "Événement non disponible" });
+      }
+
+      res.json(event);
+    } catch (error) {
+      console.error("Erreur lors de la récupération de l'événement public:", error);
+      res.status(500).json({ message: "Erreur serveur" });
+    }
+  });
+
   app.get("/api/events", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
