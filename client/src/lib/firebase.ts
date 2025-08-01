@@ -13,6 +13,8 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth();
 
 const provider = new GoogleAuthProvider();
+// Add Google Calendar scope to get calendar access
+provider.addScope('https://www.googleapis.com/auth/calendar');
 
 export const signInWithGoogle = async () => {
   try {
@@ -21,14 +23,21 @@ export const signInWithGoogle = async () => {
     // Get the ID token and send it to our backend
     const idToken = await result.user.getIdToken();
     
-    // Send token to backend for session creation
+    // Get the OAuth access token for Google Calendar API
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    const accessToken = credential?.accessToken;
+    
+    // Send tokens to backend for session creation and calendar integration
     const response = await fetch('/api/auth/google', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       credentials: 'include',
-      body: JSON.stringify({ idToken }),
+      body: JSON.stringify({ 
+        idToken,
+        accessToken: accessToken || null 
+      }),
     });
 
     if (!response.ok) {

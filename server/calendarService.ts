@@ -110,31 +110,21 @@ export class GoogleCalendarService {
   private calendar: any;
 
   constructor(accessToken?: string, refreshToken?: string) {
-    // Configuration OAuth2 avec URL fixe pour le déploiement
-    const callbackUrl = `https://evenements.replit.app/api/auth/google/callback`;
-      
-    this.oauth2Client = new google.auth.OAuth2(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-      callbackUrl
-    );
-
     if (accessToken) {
-      // Utiliser le token d'accès utilisateur pour l'authentification
-      const credentials: any = { access_token: accessToken };
-      if (refreshToken) {
-        credentials.refresh_token = refreshToken;
-      }
+      // Use Firebase access token directly for Google Calendar API
+      this.oauth2Client = new google.auth.OAuth2();
+      this.oauth2Client.setCredentials({
+        access_token: accessToken,
+        refresh_token: refreshToken
+      });
       
-      console.log("Setting Google Calendar credentials with tokens:", {
+      console.log("Setting Google Calendar credentials with Firebase tokens:", {
         access_token: accessToken ? "present" : "missing",
         refresh_token: refreshToken ? "present" : "missing"
       });
       
-      this.oauth2Client.setCredentials(credentials);
       this.calendar = google.calendar({ version: 'v3', auth: this.oauth2Client });
     } else {
-      // Pas de token d'accès - mode simulation
       console.log("No access token provided for Google Calendar service");
       this.calendar = null;
     }

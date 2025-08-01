@@ -49,7 +49,7 @@ export function setupAuth(app: Express) {
   // Google OAuth login route
   app.post("/api/auth/google", async (req, res) => {
     try {
-      const { idToken } = req.body;
+      const { idToken, accessToken } = req.body;
       
       if (!idToken) {
         return res.status(400).json({ message: "Token ID requis" });
@@ -89,13 +89,49 @@ export function setupAuth(app: Express) {
 
       // Store user in session
       (req.session as any).userId = user.id;
+
+      // Create or update Google Calendar integration if accessToken is provided
+      if (accessToken) {
+        try {
+          console.log("Creating/updating Google Calendar integration for user:", user.email);
+          
+          // Check if user already has a Google Calendar integration
+          const existingIntegration = await storage.getActiveCalendarIntegration(user.id, 'google');
+          
+          if (existingIntegration) {
+            // Update existing integration with new token
+            await storage.updateCalendarIntegration(existingIntegration.id, user.id, {
+              accessToken: accessToken,
+              isActive: true,
+              expiresAt: new Date(Date.now() + 3600 * 1000) // 1 hour from now
+            });
+            console.log("Updated existing Google Calendar integration");
+          } else {
+            // Create new integration
+            await storage.createCalendarIntegration({
+              userId: user.id,
+              provider: 'google',
+              accessToken: accessToken,
+              refreshToken: null,
+              expiresAt: new Date(Date.now() + 3600 * 1000), // 1 hour from now
+              calendarId: 'primary',
+              isActive: true
+            });
+            console.log("Created new Google Calendar integration");
+          }
+        } catch (calendarError) {
+          console.error("Error setting up Google Calendar integration:", calendarError);
+          // Don't fail the login if calendar integration fails
+        }
+      }
       
       res.json({ 
         id: user.id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        profileImageUrl: user.profileImageUrl
+        profileImageUrl: user.profileImageUrl,
+        calendarIntegration: !!accessToken
       });
     } catch (error) {
       console.error("Google auth error:", error);
