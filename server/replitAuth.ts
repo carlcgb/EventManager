@@ -122,6 +122,8 @@ export async function setupAuth(app: Express) {
   });
 
   app.get("/api/callback", (req, res, next) => {
+    console.log(`🔄 Callback reçu pour le domaine: ${req.hostname}`);
+    console.log(`🔍 Recherche de la stratégie callback: replitauth:${req.hostname}`);
     passport.authenticate(`replitauth:${req.hostname}`, {
       successReturnToOrRedirect: "/",
       failureRedirect: "/api/login",
