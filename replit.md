@@ -33,10 +33,11 @@ Preferred communication style: Simple, everyday language.
 - **Session storage** table required for Replit Auth integration
 
 ### Authentication Strategy
-- **Dual authentication system**: supports both Replit Auth (OpenID Connect) and custom email/password
-- **Firebase Auth** integration for Google authentication
-- **Session management** with secure HTTP-only cookies
+- **Google-only authentication** via Firebase Auth for simplified user experience
+- **Automatic Google Calendar integration** - calendar permissions requested during login
+- **Session management** with secure HTTP-only cookies and PostgreSQL storage
 - **Route protection** implemented on both client and server sides
+- **Auto-calendar setup** - Google Calendar integration created automatically on login
 
 ### External Service Integrations
 - **Google Calendar API** for bidirectional calendar synchronization
@@ -112,10 +113,11 @@ Preferred communication style: Simple, everyday language.
 - **@replit/vite-plugin-cartographer** - Replit development integration
 - **@replit/vite-plugin-runtime-error-modal** - Error handling in development
 
-### Removed Components
-- **WebSocket notifications** - Removed unused real-time notification system
-- **Social sharing components** - Removed unused social media integration
-- **Notification center** - Removed unused notification UI components
+### Recent Changes
+- **Date-only format** - Changed from timestamp to date-only for simplified user experience
+- **Automatic Google Calendar integration** - No manual connection required, integrated on login
+- **Simplified event creation** - Removed time component, events are now date-only
+- **All-day calendar events** - Google Calendar events created as all-day events
 
 ### Build and Bundling
 - **esbuild** - Fast JavaScript bundler for production

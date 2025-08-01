@@ -213,7 +213,7 @@ export default function CalendarIntegrations() {
               Intégrations Calendrier
             </h1>
             <p className="text-gray-600 text-lg">
-              Synchronisez vos événements avec vos calendriers préférés
+              Synchronisez vos événements avec vos calendriers préférés. Google Calendar est automatiquement connecté !
             </p>
           </div>
           <div className="flex items-center space-x-4">
@@ -277,49 +277,27 @@ export default function CalendarIntegrations() {
             </CardContent>
           </Card>
 
-          <Card className="shadow-western">
+          <Card className="shadow-western border-green-200">
             <CardHeader className="text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-3xl">📅</span>
               </div>
-              <CardTitle className="text-xl">Google Calendar</CardTitle>
+              <CardTitle className="text-xl text-green-700">Google Calendar</CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-4">
-              {integrations.find(i => i.provider === 'google' && i.isActive) ? (
-                <>
-                  <p className="text-gray-600 text-sm">
-                    Synchronisation automatique activée
-                  </p>
-                  <Badge className="bg-green-100 text-green-800 mb-4">
-                    Connecté
-                  </Badge>
-                  <Button 
-                    variant="outline"
-                    onClick={() => {
-                      const googleIntegration = integrations.find(i => i.provider === 'google' && i.isActive);
-                      if (googleIntegration && confirm('Êtes-vous sûr de vouloir déconnecter Google Calendar ?')) {
-                        deleteIntegrationMutation.mutate(googleIntegration.id);
-                      }
-                    }}
-                    disabled={deleteIntegrationMutation.isPending}
-                    className="w-full border-red-600 text-red-600 hover:bg-red-50"
-                  >
-                    Déconnecter
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <p className="text-gray-600 text-sm">
-                    Connectez votre compte Google pour synchroniser automatiquement
-                  </p>
-                  <Button 
-                    onClick={() => window.location.href = '/api/auth/google'}
-                    className="w-full bg-red-600 hover:bg-red-700"
-                  >
-                    Connecter Google Calendar
-                  </Button>
-                </>
-              )}
+              <div className="bg-green-50 p-4 rounded-lg">
+                <p className="text-green-800 font-medium mb-2">
+                  <i className="fas fa-check-circle mr-2"></i>
+                  Connecté automatiquement
+                </p>
+                <p className="text-green-600 text-sm">
+                  Votre compte Google est connecté lors de votre connexion. 
+                  Les événements avec l'option "Ajouter à mon calendrier" seront automatiquement synchronisés.
+                </p>
+              </div>
+              <p className="text-gray-600 text-sm">
+                Pour désactiver temporairement, décochez simplement l'option lors de la création d'événements.
+              </p>
             </CardContent>
           </Card>
         </div>

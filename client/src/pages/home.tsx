@@ -360,16 +360,26 @@ export default function Home() {
                           control={form.control}
                           name="addToCalendar"
                           render={({ field }) => (
-                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-3 bg-green-50 rounded-lg border border-green-200">
                               <FormControl>
                                 <Checkbox
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
+                                  className="data-[state=checked]:bg-western-brown data-[state=checked]:border-western-brown"
                                 />
                               </FormControl>
-                              <FormLabel className="text-sm text-gray-700">
-                                Ajouter à mon calendrier
-                              </FormLabel>
+                              <div className="flex flex-col">
+                                <FormLabel className="text-sm text-gray-700 flex items-center">
+                                  <i className="fas fa-calendar-plus text-western-brown mr-2"></i>
+                                  Ajouter à mon calendrier Google
+                                  <span className="ml-2 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+                                    Auto-connecté
+                                  </span>
+                                </FormLabel>
+                                <p className="text-xs text-gray-600 mt-1">
+                                  Votre compte Google est connecté. Décochez pour ne pas synchroniser cet événement.
+                                </p>
+                              </div>
                             </FormItem>
                           )}
                         />
