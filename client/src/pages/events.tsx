@@ -121,7 +121,7 @@ export default function Events() {
               <div className="hidden md:flex items-center space-x-2 bg-western-brown/20 px-4 py-2 rounded-lg">
                 <i className="fas fa-user-circle text-western-sand"></i>
                 <span className="text-western-beige font-medium">
-                  {user?.displayName || user?.email}
+                  {(user as any)?.displayName || (user as any)?.email || 'Utilisateur'}
                 </span>
               </div>
               <Button 
@@ -153,8 +153,8 @@ export default function Events() {
                 <p className="text-red-600">Impossible de charger les événements. Vérifiez votre connexion.</p>
               </div>
             </div>
-          ) : events.length > 0 ? (
-            events.map((event: any) => (
+          ) : (events as Event[]).length > 0 ? (
+            (events as Event[]).map((event: Event) => (
               <Card 
                 key={event.id} 
                 className="shadow-western hover:shadow-western-lg transition-all duration-200 cursor-pointer hover:scale-105 card-blur"

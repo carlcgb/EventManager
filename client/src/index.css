@@ -151,7 +151,7 @@
 .bg-western-vintage-paper {
   background:
     /* Paper stains and age marks */
-    radial-gradient(ellipse 400px 300px at 20% 30%,  hsl(22, 44%, 40%), transparent 50%),
+    radial-gradient(ellipse 400px 300px at 20% 30%, hsl(22, 44%, 40%), transparent 50%),
     radial-gradient(ellipse 300px 200px at 80% 70%, hsla(30, 50%, 65%, 0.2) 0%, transparent 50%),
     radial-gradient(ellipse 200px 150px at 60% 20%, hsla(40, 55%, 75%, 0.25) 0%, transparent 50%),
     /* Vintage paper base */

@@ -62,7 +62,7 @@ export function EventDetailsModal({ event, isOpen, onClose, onEdit }: EventDetai
               <div>
                 <h3 className="font-semibold text-western-dark">Date</h3>
                 <p className="text-gray-700 font-semibold">
-                  {formatFrenchDate(event.date)}
+                  {formatFrenchDate(event.date || '')}
                 </p>
               </div>
             </div>
