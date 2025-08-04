@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -43,6 +44,11 @@ export default function Home() {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [isSearchingFacebook, setIsSearchingFacebook] = useState(false);
+  const [venueOptions, setVenueOptions] = useState<{
+    facebookUrl?: string;
+    websiteUrl?: string;
+    placeName?: string;
+  }>({});
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema),
@@ -130,35 +136,31 @@ export default function Home() {
       
       console.log('Venue details response:', data);
       
+      // Store the venue options for the dropdown
+      setVenueOptions({
+        facebookUrl: data.facebookUrl && !data.facebookUrl.includes('/search/') ? data.facebookUrl : undefined,
+        websiteUrl: data.websiteUrl,
+        placeName: data.placeName || venueName
+      });
+      
+      // Auto-select the best URL option
+      let selectedUrl = '';
+      let urlType = '';
+      
       if (data.facebookUrl && !data.facebookUrl.includes('/search/')) {
-        const currentTicketsUrl = form.getValues('ticketsUrl');
-        if (!currentTicketsUrl) {
-          form.setValue('ticketsUrl', data.facebookUrl);
-          toast({
-            title: "Page Facebook trouvée",
-            description: `Lien Facebook ajouté automatiquement pour ${data.placeName || venueName}`,
-          });
-        } else if (currentTicketsUrl !== data.facebookUrl) {
-          if (confirm(`Remplacer le lien actuel par la page Facebook de ${data.placeName || venueName} ?\n\n${data.facebookUrl}`)) {
-            form.setValue('ticketsUrl', data.facebookUrl);
-          }
-        }
+        selectedUrl = data.facebookUrl;
+        urlType = 'Facebook';
       } else if (data.websiteUrl) {
-        const currentTicketsUrl = form.getValues('ticketsUrl');
-        if (!currentTicketsUrl) {
-          form.setValue('ticketsUrl', data.websiteUrl);
-          toast({
-            title: "Site web trouvé",
-            description: `Site web ajouté automatiquement pour ${data.placeName || venueName}`,
-          });
-        }
-      } else if (data.facebookUrl && data.facebookUrl.includes('/search/')) {
-        const currentTicketsUrl = form.getValues('ticketsUrl');
-        if (!currentTicketsUrl) {
-          if (confirm(`Aucune page Facebook officielle trouvée pour "${venueName}". Voulez-vous utiliser le lien de recherche Facebook ?\n\n${data.facebookUrl}`)) {
-            form.setValue('ticketsUrl', data.facebookUrl);
-          }
-        }
+        selectedUrl = data.websiteUrl;
+        urlType = 'Site web';
+      }
+      
+      if (selectedUrl) {
+        form.setValue('ticketsUrl', selectedUrl);
+        toast({
+          title: `${urlType} trouvé`,
+          description: `Lien ajouté automatiquement pour ${data.placeName || venueName}`,
+        });
       }
     } catch (error) {
       console.log('Could not fetch venue details:', error);
@@ -364,19 +366,10 @@ export default function Home() {
                               onChange={field.onChange}
                               placeholder="Ex: Théâtre Corona, Montréal"
                               onVenueNameExtracted={(extractedName) => {
-                                // Auto-fill venue name if it's empty, otherwise ask for confirmation
-                                const currentVenueName = form.getValues('venueName');
-                                if (!currentVenueName) {
-                                  form.setValue('venueName', extractedName);
-                                  // Search for Facebook page with the extracted venue name
-                                  searchVenueDetails(extractedName, field.value);
-                                } else if (currentVenueName !== extractedName) {
-                                  if (confirm(`Remplacer "${currentVenueName}" par "${extractedName}" ?`)) {
-                                    form.setValue('venueName', extractedName);
-                                    // Search for Facebook page with the new venue name
-                                    searchVenueDetails(extractedName, field.value);
-                                  }
-                                }
+                                // Always replace the venue name when address changes
+                                form.setValue('venueName', extractedName);
+                                // Search for Facebook page with the extracted venue name
+                                searchVenueDetails(extractedName, field.value);
                               }}
                             />
                           </FormControl>
@@ -451,12 +444,59 @@ export default function Home() {
                             )}
                           </FormLabel>
                           <FormControl>
-                            <Input
-                              {...field}
-                              type="url"
-                              placeholder="https://exemple.com/acheter-billets"
-                              className="border-2 border-gray-200 focus:border-western-brown"
-                            />
+                            <div className="space-y-2">
+                              <Input
+                                {...field}
+                                type="url"
+                                placeholder="https://exemple.com/acheter-billets"
+                                className="border-2 border-gray-200 focus:border-western-brown"
+                              />
+                              {(venueOptions.facebookUrl || venueOptions.websiteUrl) && (
+                                <div className="space-y-2">
+                                  <p className="text-xs text-gray-600">
+                                    Options trouvées pour {venueOptions.placeName}:
+                                  </p>
+                                  <div className="flex gap-2">
+                                    {venueOptions.facebookUrl && (
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-xs h-8 flex items-center"
+                                        onClick={() => {
+                                          form.setValue('ticketsUrl', venueOptions.facebookUrl!);
+                                          toast({
+                                            title: "Facebook sélectionné",
+                                            description: "Lien Facebook ajouté au champ URL des billets"
+                                          });
+                                        }}
+                                      >
+                                        <i className="fab fa-facebook mr-1"></i>
+                                        Facebook
+                                      </Button>
+                                    )}
+                                    {venueOptions.websiteUrl && (
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-xs h-8 flex items-center"
+                                        onClick={() => {
+                                          form.setValue('ticketsUrl', venueOptions.websiteUrl!);
+                                          toast({
+                                            title: "Site web sélectionné",
+                                            description: "Lien du site web ajouté au champ URL des billets"
+                                          });
+                                        }}
+                                      >
+                                        <i className="fas fa-globe mr-1"></i>
+                                        Site web
+                                      </Button>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
