@@ -79,7 +79,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Google Places API proxy endpoint
   // New endpoint to search for venue social media links
-  // Facebook Pages search endpoint
+  // Facebook Pages search endpoint - searches for real Facebook pages
   app.get('/api/facebook/search', async (req, res) => {
     try {
       const { q } = req.query;
@@ -88,53 +88,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Query parameter "q" is required and must be at least 2 characters' });
       }
 
-      // Generate intelligent Facebook page suggestions for venues
-      const cleanQuery = q.toLowerCase().trim().replace(/[^a-z0-9]/g, '');
-      const originalQuery = q.trim();
+      const query = q.trim();
       
-      const suggestions = [
-        {
-          id: `${cleanQuery}`,
-          name: originalQuery,
-          url: `https://www.facebook.com/${cleanQuery}`,
-          verified: false
-        },
-        {
-          id: `${cleanQuery}official`,
-          name: `${originalQuery} (Officiel)`,
-          url: `https://www.facebook.com/${cleanQuery}official`,
-          verified: false
-        },
-        {
-          id: `${cleanQuery}bar`,
-          name: `${originalQuery} Bar`,
-          url: `https://www.facebook.com/${cleanQuery}bar`,
-          verified: false
-        },
-        {
-          id: `${cleanQuery}venue`,
-          name: `${originalQuery} Venue`,
-          url: `https://www.facebook.com/${cleanQuery}venue`,
-          verified: false
-        },
-        {
-          id: `${cleanQuery}mtl`,
-          name: `${originalQuery} Montréal`,
-          url: `https://www.facebook.com/${cleanQuery}mtl`,
-          verified: false
-        },
-        {
-          id: `${cleanQuery}comedy`,
-          name: `${originalQuery} Comedy`,
-          url: `https://www.facebook.com/${cleanQuery}comedy`,
-          verified: false
-        }
+      // Use Facebook Graph API search (requires app token)
+      // For now, we'll simulate a search by trying common Facebook page formats
+      // and checking if they exist by trying to fetch their profile picture
+      
+      const potentialIds = [
+        query.toLowerCase().replace(/[^a-z0-9]/g, ''),
+        query.toLowerCase().replace(/[^a-z0-9]/g, '') + 'official',
+        query.toLowerCase().replace(/[^a-z0-9]/g, '') + 'bar',
+        query.toLowerCase().replace(/[^a-z0-9]/g, '') + 'venue',
+        query.toLowerCase().replace(/[^a-z0-9]/g, '') + 'mtl',
+        query.toLowerCase().replace(/[^a-z0-9]/g, '') + 'comedy'
       ];
 
+      const results = [];
+      
+      // Check each potential ID to see if it's a valid Facebook page
+      for (const id of potentialIds) {
+        try {
+          // Try to fetch the profile picture to verify the page exists
+          const picUrl = `https://graph.facebook.com/${id}/picture?type=large&redirect=false`;
+          const picResponse = await fetch(picUrl);
+          
+          if (picResponse.ok) {
+            const picData = await picResponse.json();
+            
+            // If we get a real profile picture URL (not the default), the page likely exists
+            if (picData.data && picData.data.url && !picData.data.is_silhouette) {
+              results.push({
+                id: id,
+                name: query + (id !== potentialIds[0] ? ` (${id.replace(potentialIds[0], '')})` : ''),
+                url: `https://www.facebook.com/${id}`,
+                profilePicture: picData.data.url,
+                verified: true,
+                exists: true
+              });
+            }
+          }
+        } catch (error) {
+          // Continue to next ID if this one fails
+          console.log(`Failed to check Facebook ID: ${id}`);
+        }
+      }
+
+      // If no verified pages found, still return potential suggestions
+      if (results.length === 0) {
+        results.push({
+          id: potentialIds[0],
+          name: query,
+          url: `https://www.facebook.com/${potentialIds[0]}`,
+          profilePicture: `https://graph.facebook.com/${potentialIds[0]}/picture?type=large`,
+          verified: false,
+          exists: false
+        });
+      }
+
       res.json({
-        data: suggestions,
-        query: originalQuery,
-        message: "Suggestions de pages Facebook. Cliquez pour vérifier l'existence de la page."
+        data: results,
+        query: query,
+        message: results.some(r => r.verified) ? "Pages Facebook trouvées" : "Suggestions de pages Facebook"
       });
       
     } catch (error) {
