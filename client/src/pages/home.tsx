@@ -320,34 +320,6 @@ export default function Home() {
 
                     <FormField
                       control={form.control}
-                      name="date"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-semibold text-gray-700 flex items-center justify-between">
-                            <span className="flex items-center">
-                              <i className="fas fa-calendar text-western-brown mr-2"></i>
-                              Date
-                            </span>
-                            {field.value && (
-                              <span className="text-xs text-western-brown font-medium">
-                                {formatFrenchDate(field.value)}
-                              </span>
-                            )}
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              type="date"
-                              className="border-2 border-gray-200 focus:border-western-brown"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
                       name="venue"
                       render={({ field }) => (
                         <FormItem>
@@ -371,6 +343,34 @@ export default function Home() {
                                   }
                                 }
                               }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="date"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-semibold text-gray-700 flex items-center justify-between">
+                            <span className="flex items-center">
+                              <i className="fas fa-calendar text-western-brown mr-2"></i>
+                              Date
+                            </span>
+                            {field.value && (
+                              <span className="text-xs text-western-brown font-medium">
+                                {formatFrenchDate(field.value)}
+                              </span>
+                            )}
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="date"
+                              className="border-2 border-gray-200 focus:border-western-brown"
+                              {...field}
                             />
                           </FormControl>
                           <FormMessage />
