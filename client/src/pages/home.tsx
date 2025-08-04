@@ -50,6 +50,7 @@ export default function Home() {
     websiteUrl?: string;
     placeName?: string;
   }>({});
+  const [previewUrl, setPreviewUrl] = useState<string>('');
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema),
@@ -467,6 +468,7 @@ export default function Home() {
                                         className="text-xs h-8 flex items-center"
                                         onClick={() => {
                                           form.setValue('ticketsUrl', venueOptions.facebookUrl!);
+                                          setPreviewUrl(venueOptions.facebookUrl!);
                                           toast({
                                             title: "Facebook sélectionné",
                                             description: "Lien Facebook ajouté au champ URL des billets"
@@ -485,6 +487,7 @@ export default function Home() {
                                         className="text-xs h-8 flex items-center"
                                         onClick={() => {
                                           form.setValue('ticketsUrl', venueOptions.websiteUrl!);
+                                          setPreviewUrl(venueOptions.websiteUrl!);
                                           toast({
                                             title: "Site web sélectionné",
                                             description: "Lien du site web ajouté au champ URL des billets"
@@ -522,6 +525,9 @@ export default function Home() {
                                             if (facebookId && facebookId.length > 2) {
                                               const facebookUrl = `https://www.facebook.com/${facebookId}`;
                                               form.setValue('ticketsUrl', facebookUrl);
+                                              setPreviewUrl(facebookUrl);
+                                            } else {
+                                              setPreviewUrl('');
                                             }
                                           }}
                                         />
@@ -534,6 +540,55 @@ export default function Home() {
                                   )}
                                 />
                               </div>
+                              
+                              {/* URL Preview */}
+                              {previewUrl && (
+                                <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <p className="text-xs font-medium text-gray-700">Aperçu de la page :</p>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-xs h-6 px-2"
+                                      onClick={() => setPreviewUrl('')}
+                                    >
+                                      <i className="fas fa-times"></i>
+                                    </Button>
+                                  </div>
+                                  <div className="bg-white rounded border overflow-hidden">
+                                    <iframe
+                                      src={previewUrl}
+                                      className="w-full h-48 border-0"
+                                      title="Aperçu de la page"
+                                      sandbox="allow-scripts allow-same-origin"
+                                      loading="lazy"
+                                      onError={() => {
+                                        // If iframe fails, show a link instead
+                                        setPreviewUrl('');
+                                        toast({
+                                          title: "Aperçu non disponible",
+                                          description: "La page ne peut pas être affichée en aperçu",
+                                          variant: "destructive"
+                                        });
+                                      }}
+                                    />
+                                  </div>
+                                  <div className="mt-2 flex items-center justify-between">
+                                    <p className="text-xs text-gray-600 truncate flex-1">{previewUrl}</p>
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      className="text-xs h-6 px-2 ml-2"
+                                      onClick={() => window.open(previewUrl, '_blank')}
+                                    >
+                                      <i className="fas fa-external-link-alt mr-1"></i>
+                                      Ouvrir
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </FormControl>
                           <FormMessage />
