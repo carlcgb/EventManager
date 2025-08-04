@@ -117,7 +117,7 @@ export default function PublicEvent() {
                 <div>
                   <h3 className="text-xl font-semibold text-western-dark">Date</h3>
                   <p className="text-lg text-gray-700 mt-1 font-semibold">
-                    {formatFrenchDate(event.date || '')}
+                    {(event as any).displayDate || formatFrenchDate(event.date || '')}
                   </p>
                 </div>
               </div>

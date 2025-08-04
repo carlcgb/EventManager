@@ -7,6 +7,15 @@ import { GoogleCalendarService } from "./calendarService";
 import { google } from 'googleapis';
 import { insertEventSchema, updateEventSchema, insertCalendarIntegrationSchema } from "@shared/schema";
 import { CalendarIntegrationService } from "./calendarService";
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+
+// Helper function to format dates in French
+function formatFrenchDate(date: Date | string | null): string {
+  if (!date) return 'Date non disponible';
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  return format(dateObj, 'dd MMMM yyyy', { locale: fr }).toUpperCase();
+}
 
 // Google Calendar integration function
 async function addToGoogleCalendar(eventData: any): Promise<string | null> {
@@ -120,7 +129,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get all published events (not tied to specific user)
       const events = await storage.getPublishedEvents();
-      res.json(events);
+      
+      // Transform dates to French format for display
+      const eventsWithFrenchDates = events.map(event => ({
+        ...event,
+        displayDate: formatFrenchDate(event.date),
+        displayCreatedAt: formatFrenchDate(event.createdAt),
+        displayUpdatedAt: formatFrenchDate(event.updatedAt)
+      }));
+      
+      res.json(eventsWithFrenchDates);
     } catch (error) {
       console.error("Erreur lors de la récupération des événements publics:", error);
       res.status(500).json({ message: "Échec de la récupération des événements" });
@@ -154,7 +172,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.id;
       const events = await storage.getUserEvents(userId);
-      res.json(events);
+      
+      // Transform dates to French format for display
+      const eventsWithFrenchDates = events.map(event => ({
+        ...event,
+        displayDate: formatFrenchDate(event.date),
+        displayCreatedAt: formatFrenchDate(event.createdAt),
+        displayUpdatedAt: formatFrenchDate(event.updatedAt)
+      }));
+      
+      res.json(eventsWithFrenchDates);
     } catch (error) {
       console.error("Erreur lors de la récupération des événements:", error);
       res.status(500).json({ message: "Échec de la récupération des événements" });

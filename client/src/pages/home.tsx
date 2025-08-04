@@ -523,7 +523,7 @@ export default function Home() {
                               <div className="flex items-center text-sm text-gray-600 space-x-3">
                                 <span className="flex items-center">
                                   <i className="fas fa-calendar text-western-brown mr-1"></i>
-                                  {formatFrenchDate(event.date)}
+                                  {(event as any).displayDate || formatFrenchDate(event.date)}
                                 </span>
                               </div>
                               <div className="text-sm text-gray-600 mt-1">

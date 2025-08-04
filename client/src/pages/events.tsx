@@ -187,7 +187,7 @@ export default function Events() {
                   <div className="space-y-2">
                     <div className="flex items-center text-sm text-gray-600">
                       <i className="fas fa-calendar text-western-brown mr-2 w-4"></i>
-                      <span>{formatFrenchDate(event.date)}</span>
+                      <span>{(event as any).displayDate || formatFrenchDate(event.date)}</span>
                     </div>
                     <AddressDisplay address={event.venue} showMapLink={true} />
                     {event.description && (
