@@ -51,6 +51,8 @@ export default function Home() {
     placeName?: string;
   }>({});
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [facebookSearchSuggestions, setFacebookSearchSuggestions] = useState<string[]>([]);
+  const [showFacebookSuggestions, setShowFacebookSuggestions] = useState(false);
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema),
@@ -186,6 +188,30 @@ export default function Home() {
     } finally {
       setIsSearchingFacebook(false);
     }
+  };
+
+  // Function to search Facebook pages suggestions
+  const searchFacebookPages = async (query: string) => {
+    if (query.length < 2) {
+      setFacebookSearchSuggestions([]);
+      return;
+    }
+    
+    // Generate intelligent Facebook page suggestions based on venue name
+    const suggestions = [
+      query,
+      `${query}official`,
+      `${query}bar`,
+      `${query}venue`,
+      `${query}mtl`,
+      `${query}quebec`,
+      `${query}club`,
+      `${query}theatre`,
+      `${query}show`,
+      `${query}comedy`
+    ].filter((s, i, arr) => arr.indexOf(s) === i); // Remove duplicates
+    
+    setFacebookSearchSuggestions(suggestions.slice(0, 6));
   };
 
   const onSubmit = async (data: EventFormData) => {
@@ -546,28 +572,82 @@ export default function Home() {
                                         <i className="fab fa-facebook text-blue-600 mr-2"></i>
                                         ID Facebook personnalisé (optionnel)
                                       </FormLabel>
-                                      <div className="flex gap-2 items-center">
-                                        <span className="text-xs text-gray-500">facebook.com/</span>
-                                        <Input
-                                          {...field}
-                                          placeholder="nom-du-lieu"
-                                          className="text-xs h-8 border-gray-300"
-                                          autoComplete="off"
-                                          autoCorrect="off"
-                                          autoCapitalize="off"
-                                          spellCheck="false"
-                                          onChange={(e) => {
-                                            field.onChange(e);
-                                            const facebookId = e.target.value;
-                                            if (facebookId && facebookId.length > 2) {
-                                              const facebookUrl = `https://www.facebook.com/${facebookId}`;
-                                              form.setValue('ticketsUrl', facebookUrl);
-                                              setPreviewUrl(facebookUrl);
-                                            } else {
-                                              setPreviewUrl('');
-                                            }
-                                          }}
-                                        />
+                                      <div className="relative">
+                                        <div className="flex gap-2 items-center">
+                                          <span className="text-xs text-gray-500">facebook.com/</span>
+                                          <Input
+                                            {...field}
+                                            placeholder="nom-du-lieu"
+                                            className="text-xs h-8 border-gray-300"
+                                            autoComplete="off"
+                                            autoCorrect="off"
+                                            autoCapitalize="off"
+                                            spellCheck="false"
+                                            onChange={(e) => {
+                                              field.onChange(e);
+                                              const facebookId = e.target.value;
+                                              
+                                              // Search for suggestions
+                                              searchFacebookPages(facebookId);
+                                              setShowFacebookSuggestions(true);
+                                              
+                                              if (facebookId && facebookId.length > 2) {
+                                                const facebookUrl = `https://www.facebook.com/${facebookId}`;
+                                                form.setValue('ticketsUrl', facebookUrl);
+                                                setPreviewUrl(facebookUrl);
+                                              } else {
+                                                setPreviewUrl('');
+                                              }
+                                            }}
+                                            onFocus={() => {
+                                              if (field.value && field.value.length > 1) {
+                                                searchFacebookPages(field.value);
+                                                setShowFacebookSuggestions(true);
+                                              }
+                                            }}
+                                            onBlur={() => {
+                                              setTimeout(() => setShowFacebookSuggestions(false), 200);
+                                            }}
+                                          />
+                                        </div>
+                                        
+                                        {/* Facebook Search Suggestions */}
+                                        {showFacebookSuggestions && facebookSearchSuggestions.length > 0 && (
+                                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                                            <div className="p-2 text-xs text-gray-500 border-b bg-gray-50">
+                                              <i className="fab fa-facebook text-blue-600 mr-1"></i>
+                                              Suggestions de pages Facebook
+                                            </div>
+                                            {facebookSearchSuggestions.map((suggestion, index) => (
+                                              <button
+                                                key={index}
+                                                type="button"
+                                                className="w-full px-3 py-2 text-left hover:bg-blue-50 focus:bg-blue-50 focus:outline-none border-b border-gray-100 last:border-b-0"
+                                                onClick={() => {
+                                                  field.onChange(suggestion);
+                                                  const facebookUrl = `https://www.facebook.com/${suggestion}`;
+                                                  form.setValue('ticketsUrl', facebookUrl);
+                                                  setPreviewUrl(facebookUrl);
+                                                  setShowFacebookSuggestions(false);
+                                                }}
+                                              >
+                                                <div className="flex items-center">
+                                                  <i className="fab fa-facebook text-blue-600 mr-2"></i>
+                                                  <div className="flex-1">
+                                                    <div className="text-xs font-medium text-gray-900">
+                                                      facebook.com/{suggestion}
+                                                    </div>
+                                                    {suggestion !== facebookSearchSuggestions[0] && (
+                                                      <div className="text-xs text-gray-500">
+                                                        Variante suggérée
+                                                      </div>
+                                                    )}
+                                                  </div>
+                                                </div>
+                                              </button>
+                                            ))}
+                                          </div>
+                                        )}
                                       </div>
                                       <p className="text-xs text-gray-600 mt-1">
                                         Saisissez l'identifiant Facebook (ex: "lebordel" pour facebook.com/lebordel)
