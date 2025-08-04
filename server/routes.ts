@@ -73,9 +73,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const apiKey = process.env.GOOGLE_PLACES_API_KEY_SERVER;
+      console.log('API Key check:', apiKey ? 'Found' : 'Not found');
       if (!apiKey) {
-        // Fallback to Quebec venues if no server API key configured
+        // Enhanced Quebec venues with real comedy and entertainment venues
         const quebecVenues = [
+          // Comedy venues and bars
+          `Le Bordel Comédie Club - Montréal, QC, Canada`,
+          `Théâtre Corona - Montréal, QC, Canada`,
+          `Le 164 - Saint-Jean-sur-Richelieu, QC, Canada`,
+          `La Taverne Vieux-Chambly - Chambly, QC, Canada`,
+          `Centre Bell - Montréal, QC, Canada`,
+          `Théâtre St-Denis - Montréal, QC, Canada`,
+          `Salle André-Mathieu - Laval, QC, Canada`,
+          `Théâtre du Capitole - Québec, QC, Canada`,
+          `L'Astral - Montréal, QC, Canada`,
+          `Bar Le Ritz PDB - Montréal, QC, Canada`,
+          // General format suggestions
           `${input} - Montréal, QC, Canada`,
           `${input} - Québec, QC, Canada`,
           `${input} - Laval, QC, Canada`,
@@ -120,6 +133,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json({ predictions: data.predictions || [] });
       } else {
         console.log('Google Places API error:', data);
+        // If API key has restrictions, fall back to Quebec venues
+        if (data.status === 'REQUEST_DENIED') {
+          const quebecVenues = [
+            // Comedy venues and bars
+            `Le Bordel Comédie Club - Montréal, QC, Canada`,
+            `Théâtre Corona - Montréal, QC, Canada`,
+            `Le 164 - Saint-Jean-sur-Richelieu, QC, Canada`,
+            `La Taverne Vieux-Chambly - Chambly, QC, Canada`,
+            `Centre Bell - Montréal, QC, Canada`,
+            `Théâtre St-Denis - Montréal, QC, Canada`,
+            `Salle André-Mathieu - Laval, QC, Canada`,
+            `Théâtre du Capitole - Québec, QC, Canada`,
+            `L'Astral - Montréal, QC, Canada`,
+            `Bar Le Ritz PDB - Montréal, QC, Canada`,
+            // General format suggestions
+            `${input} - Montréal, QC, Canada`,
+            `${input} - Québec, QC, Canada`,
+            `${input} - Laval, QC, Canada`,
+            `${input} - Gatineau, QC, Canada`,
+            `${input} - Longueuil, QC, Canada`,
+            `${input} - Sherbrooke, QC, Canada`,
+            `${input} - Trois-Rivières, QC, Canada`,
+            `${input} - Saint-Jean-sur-Richelieu, QC, Canada`,
+            `${input} - Chambly, QC, Canada`,
+            `${input} - Granby, QC, Canada`
+          ].filter(venue => venue.toLowerCase().includes(input.toLowerCase()))
+           .slice(0, 5)
+           .map((description, index) => ({
+             description,
+             place_id: `fallback_${index}`,
+             structured_formatting: {
+               main_text: description.split(' - ')[0],
+               secondary_text: description.split(' - ')[1] || 'Québec, Canada'
+             }
+           }));
+
+          return res.json({ 
+            predictions: quebecVenues,
+            status: 'FALLBACK_USED',
+            info_message: 'API key has restrictions - using Quebec venues fallback'
+          });
+        }
         res.json({ predictions: [] });
       }
     } catch (error) {

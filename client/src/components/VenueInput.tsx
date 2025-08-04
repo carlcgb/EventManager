@@ -41,6 +41,9 @@ export function VenueInput({ value, onChange, placeholder }: VenueInputProps) {
         const data = await response.json();
         if (data.predictions && Array.isArray(data.predictions)) {
           setSuggestions(data.predictions);
+          if (data.info_message) {
+            console.log('Places API info:', data.info_message);
+          }
         } else {
           console.log('No predictions received:', data);
           setSuggestions([]);
