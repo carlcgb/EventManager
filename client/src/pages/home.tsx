@@ -360,6 +360,17 @@ export default function Home() {
                               value={field.value}
                               onChange={field.onChange}
                               placeholder="Ex: Théâtre Corona, Montréal"
+                              onVenueNameExtracted={(extractedName) => {
+                                // Auto-fill venue name if it's empty, otherwise ask for confirmation
+                                const currentVenueName = form.getValues('venueName');
+                                if (!currentVenueName) {
+                                  form.setValue('venueName', extractedName);
+                                } else if (currentVenueName !== extractedName) {
+                                  if (confirm(`Remplacer "${currentVenueName}" par "${extractedName}" ?`)) {
+                                    form.setValue('venueName', extractedName);
+                                  }
+                                }
+                              }}
                             />
                           </FormControl>
                           <FormMessage />

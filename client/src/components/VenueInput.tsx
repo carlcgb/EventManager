@@ -6,6 +6,7 @@ interface VenueInputProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  onVenueNameExtracted?: (venueName: string) => void;
 }
 
 interface PlacePrediction {
@@ -17,7 +18,7 @@ interface PlacePrediction {
   };
 }
 
-export function VenueInput({ value, onChange, placeholder }: VenueInputProps) {
+export function VenueInput({ value, onChange, placeholder, onVenueNameExtracted }: VenueInputProps) {
   const [suggestions, setSuggestions] = useState<PlacePrediction[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -79,6 +80,63 @@ export function VenueInput({ value, onChange, placeholder }: VenueInputProps) {
     onChange(suggestion.description);
     setSuggestions([]);
     setShowSuggestions(false);
+    
+    // Auto-extract venue name from selected address
+    if (onVenueNameExtracted) {
+      const extractedName = extractVenueNameFromAddress(suggestion);
+      if (extractedName && extractedName.length > 2) {
+        onVenueNameExtracted(extractedName);
+      }
+    }
+  };
+
+  // Helper function to extract venue name from suggestion
+  const extractVenueNameFromAddress = (suggestion: PlacePrediction): string => {
+    // Priority 1: Use structured formatting main text if available
+    if (suggestion.structured_formatting?.main_text) {
+      const mainText = suggestion.structured_formatting.main_text;
+      
+      // Skip if it's just a generic location (city, province, etc.)
+      if (isGenericLocation(mainText)) {
+        return '';
+      }
+      
+      return mainText;
+    }
+    
+    // Priority 2: Extract from the description string
+    const parts = suggestion.description.split(',');
+    if (parts.length > 1) {
+      const potentialVenueName = parts[0].trim();
+      
+      // Check if it looks like a venue name
+      if (isValidVenueName(potentialVenueName)) {
+        return potentialVenueName;
+      }
+    }
+    
+    return '';
+  };
+
+  // Helper to check if text is a generic location
+  const isGenericLocation = (text: string): boolean => {
+    const genericTerms = [
+      'montréal', 'québec', 'laval', 'gatineau', 'longueuil', 'sherbrooke',
+      'trois-rivières', 'chambly', 'granby', 'terrebonne', 'montreal', 'quebec'
+    ];
+    return genericTerms.some(term => text.toLowerCase().includes(term));
+  };
+
+  // Helper to validate if text looks like a venue name
+  const isValidVenueName = (text: string): boolean => {
+    return text && 
+           !text.match(/^\d/) && // Doesn't start with a number
+           text.length > 3 && // Reasonable length
+           !text.toLowerCase().includes('rue ') &&
+           !text.toLowerCase().includes('avenue ') &&
+           !text.toLowerCase().includes('boulevard ') &&
+           !text.toLowerCase().includes('chemin ') &&
+           !isGenericLocation(text);
   };
 
   const handleBlur = () => {
