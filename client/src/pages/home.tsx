@@ -213,18 +213,35 @@ export default function Home() {
     
     setIsSearchingFacebook(true);
     try {
+      // First, filter saved venues that match the query
+      const matchingSavedVenues = savedVenues.filter(venue => 
+        venue.venueName.toLowerCase().includes(query.toLowerCase())
+      ).map(venue => ({
+        id: venue.facebookId || '',
+        name: venue.venueName,
+        url: venue.facebookUrl || '',
+        profilePicture: venue.profilePictureUrl || '',
+        verified: true,
+        isSaved: true
+      }));
+
+      // Then search for new Facebook pages
       const response = await fetch(`/api/facebook/search?q=${encodeURIComponent(query)}`);
+      let newPages = [];
+      
       if (response.ok) {
         const data = await response.json();
         if (data.data && Array.isArray(data.data)) {
-          setFacebookSearchSuggestions(data.data);
-        } else {
-          setFacebookSearchSuggestions([]);
+          // Filter out pages that are already saved
+          const savedIds = savedVenues.map(v => v.facebookId).filter(Boolean);
+          newPages = data.data.filter(page => !savedIds.includes(page.id));
         }
-      } else {
-        console.error('Facebook search failed:', response.status);
-        setFacebookSearchSuggestions([]);
       }
+
+      // Combine saved venues (first) and new pages
+      const allSuggestions = [...matchingSavedVenues, ...newPages];
+      setFacebookSearchSuggestions(allSuggestions);
+      
     } catch (error) {
       console.error('Facebook search error:', error);
       setFacebookSearchSuggestions([]);
@@ -726,11 +743,35 @@ export default function Home() {
                                               spellCheck="false"
                                               onChange={(e) => {
                                                 setFacebookSearchQuery(e.target.value);
-                                                searchFacebookPages(e.target.value);
+                                                const query = e.target.value;
+                                                if (query.length === 0) {
+                                                  // Show saved venues when field is empty
+                                                  setFacebookSearchSuggestions(savedVenues.map(venue => ({
+                                                    id: venue.facebookId || '',
+                                                    name: venue.venueName,
+                                                    url: venue.facebookUrl || '',
+                                                    profilePicture: venue.profilePictureUrl || '',
+                                                    verified: true,
+                                                    isSaved: true
+                                                  })));
+                                                } else {
+                                                  searchFacebookPages(query);
+                                                }
                                                 setShowFacebookSuggestions(true);
                                               }}
                                               onFocus={() => {
-                                                if (facebookSearchQuery.length > 1) {
+                                                if (facebookSearchQuery.length === 0 && savedVenues.length > 0) {
+                                                  // Show saved venues when focusing on empty field
+                                                  setFacebookSearchSuggestions(savedVenues.map(venue => ({
+                                                    id: venue.facebookId || '',
+                                                    name: venue.venueName,
+                                                    url: venue.facebookUrl || '',
+                                                    profilePicture: venue.profilePictureUrl || '',
+                                                    verified: true,
+                                                    isSaved: true
+                                                  })));
+                                                  setShowFacebookSuggestions(true);
+                                                } else if (facebookSearchQuery.length > 1) {
                                                   searchFacebookPages(facebookSearchQuery);
                                                   setShowFacebookSuggestions(true);
                                                 }
@@ -752,23 +793,50 @@ export default function Home() {
                                           <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
                                             <div className="p-2 text-xs text-gray-500 border-b bg-gray-50">
                                               <i className="fab fa-facebook text-blue-600 mr-1"></i>
-                                              Pages Facebook trouvées
+                                              {facebookSearchSuggestions.some(s => s.isSaved) ? "Lieux sauvegardés" : "Pages Facebook trouvées"}
                                             </div>
                                             {facebookSearchSuggestions.map((suggestion, index) => (
                                               <button
                                                 key={index}
                                                 type="button"
                                                 className="w-full px-3 py-2 text-left hover:bg-blue-50 focus:bg-blue-50 focus:outline-none border-b border-gray-100 last:border-b-0"
-                                                onClick={() => {
+                                                onClick={async () => {
                                                   field.onChange(suggestion.id);
                                                   form.setValue('ticketsUrl', suggestion.url);
                                                   setPreviewUrl(suggestion.url);
                                                   setFacebookSearchQuery('');
                                                   setShowFacebookSuggestions(false);
-                                                  toast({
-                                                    title: "Page Facebook ajoutée",
-                                                    description: `${suggestion.name} sélectionnée`
-                                                  });
+                                                  
+                                                  if (suggestion.isSaved) {
+                                                    // If it's a saved venue, also fill in venue details
+                                                    const savedVenue = savedVenues.find(v => v.facebookId === suggestion.id || v.venueName === suggestion.name);
+                                                    if (savedVenue) {
+                                                      form.setValue('venueName', savedVenue.venueName);
+                                                      if (savedVenue.venueAddress) {
+                                                        form.setValue('venue', savedVenue.venueAddress);
+                                                      }
+                                                    }
+                                                    toast({
+                                                      title: "Lieu sauvegardé sélectionné",
+                                                      description: `${suggestion.name} ajouté au formulaire`
+                                                    });
+                                                  } else {
+                                                    // Save new venue data
+                                                    const venueData = {
+                                                      venueName: form.getValues('venueName') || suggestion.name,
+                                                      venueAddress: form.getValues('venue'),
+                                                      facebookId: suggestion.id,
+                                                      facebookUrl: suggestion.url,
+                                                      profilePictureUrl: suggestion.profilePicture,
+                                                    };
+                                                    
+                                                    await saveVenue(venueData);
+                                                    
+                                                    toast({
+                                                      title: "Page Facebook ajoutée",
+                                                      description: `${suggestion.name} sélectionnée et sauvegardée`
+                                                    });
+                                                  }
                                                 }}
                                               >
                                                 <div className="flex items-center space-x-2">
@@ -792,9 +860,14 @@ export default function Home() {
                                                           <i className="fas fa-check text-white text-xs"></i>
                                                         </div>
                                                       )}
+                                                      {suggestion.isSaved && (
+                                                        <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                                          <i className="fas fa-bookmark text-white text-xs"></i>
+                                                        </div>
+                                                      )}
                                                     </div>
                                                     <div className="text-xs text-gray-500 truncate">
-                                                      facebook.com/{suggestion.id}
+                                                      {suggestion.id ? `facebook.com/${suggestion.id}` : 'Lieu sauvegardé'}
                                                     </div>
                                                   </div>
                                                 </div>
