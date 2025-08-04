@@ -472,7 +472,7 @@ export default function Home() {
                         ) : (
                           <>
                             <i className="fas fa-save mr-2"></i>
-                            Créer l'Événement
+                            Créer
                           </>
                         )}
                       </Button>
