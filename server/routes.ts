@@ -97,49 +97,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
           id: `${cleanQuery}`,
           name: originalQuery,
           url: `https://www.facebook.com/${cleanQuery}`,
-          category: "Page principale",
-          verified: false,
-          description: `Page Facebook principale pour ${originalQuery}`
+          verified: false
         },
         {
           id: `${cleanQuery}official`,
           name: `${originalQuery} (Officiel)`,
           url: `https://www.facebook.com/${cleanQuery}official`,
-          category: "Page officielle",
-          verified: false,
-          description: `Page officielle de ${originalQuery}`
+          verified: false
         },
         {
           id: `${cleanQuery}bar`,
           name: `${originalQuery} Bar`,
           url: `https://www.facebook.com/${cleanQuery}bar`,
-          category: "Bar/Restaurant",
-          verified: false,
-          description: `Page bar/restaurant de ${originalQuery}`
+          verified: false
         },
         {
           id: `${cleanQuery}venue`,
           name: `${originalQuery} Venue`,
           url: `https://www.facebook.com/${cleanQuery}venue`,
-          category: "Salle de spectacle",
-          verified: false,
-          description: `Page salle de spectacle de ${originalQuery}`
+          verified: false
         },
         {
           id: `${cleanQuery}mtl`,
           name: `${originalQuery} Montréal`,
           url: `https://www.facebook.com/${cleanQuery}mtl`,
-          category: "Localisation",
-          verified: false,
-          description: `Page Montréal de ${originalQuery}`
+          verified: false
         },
         {
           id: `${cleanQuery}comedy`,
           name: `${originalQuery} Comedy`,
           url: `https://www.facebook.com/${cleanQuery}comedy`,
-          category: "Comédie",
-          verified: false,
-          description: `Page comédie de ${originalQuery}`
+          verified: false
         }
       ];
 

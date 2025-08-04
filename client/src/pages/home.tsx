@@ -644,7 +644,7 @@ export default function Home() {
                                                       {suggestion.name}
                                                     </div>
                                                     <div className="text-xs text-gray-500">
-                                                      {suggestion.category} • facebook.com/{suggestion.id}
+                                                      facebook.com/{suggestion.id}
                                                     </div>
                                                     <div className="text-xs text-gray-400 mt-1">
                                                       Cliquez pour sélectionner et vérifier
@@ -680,25 +680,38 @@ export default function Home() {
                                       <i className="fas fa-times"></i>
                                     </Button>
                                   </div>
-                                  <div className="bg-white rounded border p-4">
-                                    <div className="flex items-center space-x-3">
-                                      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                        {previewUrl.includes('facebook.com') ? (
-                                          <i className="fab fa-facebook text-blue-600 text-xl"></i>
-                                        ) : (
-                                          <i className="fas fa-globe text-gray-600 text-xl"></i>
-                                        )}
+                                  <div className="bg-white rounded border">
+                                    {previewUrl.includes('facebook.com') ? (
+                                      <div className="p-2">
+                                        <iframe
+                                          src={`https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(previewUrl)}&tabs=timeline&width=340&height=200&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=false&appId`}
+                                          width="100%"
+                                          height="200"
+                                          style={{ border: 'none', overflow: 'hidden' }}
+                                          scrolling="no"
+                                          frameBorder="0"
+                                          allowTransparency={true}
+                                          allow="encrypted-media"
+                                          loading="lazy"
+                                          title="Aperçu Facebook"
+                                        />
                                       </div>
-                                      <div className="flex-1">
-                                        <p className="text-sm font-medium text-gray-900">
-                                          {previewUrl.includes('facebook.com') ? 'Page Facebook' : 'Site Web'}
-                                        </p>
-                                        <p className="text-xs text-gray-600 truncate">{previewUrl}</p>
-                                        <p className="text-xs text-gray-500 mt-1">
-                                          Cliquez sur "Aperçu" pour vérifier que la page existe
-                                        </p>
+                                    ) : (
+                                      <div className="p-4">
+                                        <div className="flex items-center space-x-3">
+                                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                                            <i className="fas fa-globe text-gray-600 text-xl"></i>
+                                          </div>
+                                          <div className="flex-1">
+                                            <p className="text-sm font-medium text-gray-900">Site Web</p>
+                                            <p className="text-xs text-gray-600 truncate">{previewUrl}</p>
+                                            <p className="text-xs text-gray-500 mt-1">
+                                              Cliquez sur "Aperçu" pour vérifier que la page existe
+                                            </p>
+                                          </div>
+                                        </div>
                                       </div>
-                                    </div>
+                                    )}
                                   </div>
                                   <div className="mt-2 flex items-center justify-between">
                                     <div className="flex space-x-2">
