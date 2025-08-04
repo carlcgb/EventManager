@@ -100,9 +100,10 @@ export default function PublicEvent() {
               </CardTitle>
               {getStatusBadge(event.status)}
             </div>
-            {event.description && (
-              <p className="text-lg text-gray-600 mt-4">
-                {event.description}
+            {event.venueName && (
+              <p className="text-lg text-gray-600 mt-4 flex items-center">
+                <i className="fas fa-store text-western-brown mr-2"></i>
+                {event.venueName}
               </p>
             )}
           </CardHeader>

@@ -45,9 +45,10 @@ export function EventDetailsModal({ event, isOpen, onClose, onEdit }: EventDetai
             </DialogTitle>
             {getStatusBadge(event.status)}
           </div>
-          {event.description && (
-            <DialogDescription className="text-lg text-gray-600 mt-2">
-              {event.description}
+          {event.venueName && (
+            <DialogDescription className="text-lg text-gray-600 mt-2 flex items-center">
+              <i className="fas fa-store text-western-brown mr-2"></i>
+              {event.venueName}
             </DialogDescription>
           )}
         </DialogHeader>

@@ -42,9 +42,11 @@ export const events = pgTable("events", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id).notNull(),
   title: text("title").notNull(),
-  description: text("description"),
+  venueName: text("venue_name").notNull(), // Name of the bar/venue
+  description: text("description"), // Keep for backward compatibility, but now used for venue name
   date: date("date").notNull(),
-  venue: text("venue").notNull(),
+  venue: text("venue").notNull(), // Full address
+  city: text("city").notNull(), // City extracted from address
   ticketsUrl: text("tickets_url"),
   addToCalendar: boolean("add_to_calendar").default(false),
   publishToWebsite: boolean("publish_to_website").default(false),
@@ -163,6 +165,8 @@ export const insertEventSchema = createInsertSchema(events).omit({
   updatedAt: true,
 }).extend({
   date: z.string().transform((str) => new Date(str)),
+  venueName: z.string().min(1, "Le nom du lieu est requis"),
+  city: z.string().min(1, "La ville est requise"),
 });
 
 export const updateEventSchema = insertEventSchema.partial();

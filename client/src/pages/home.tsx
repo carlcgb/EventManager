@@ -17,15 +17,16 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { formatFrenchDate } from "@/lib/utils";
+import { extractCityFromAddress, extractVenueNameFromAddress } from "@shared/utils";
 import { VenueInput } from "@/components/VenueInput";
 import { EventDetailsModal } from "@/components/EventDetailsModal";
 import EditEventDialog from "@/components/EditEventDialog";
 
 const eventFormSchema = z.object({
   title: z.string().min(1, "Le titre est requis"),
-  description: z.string().optional(),
+  venueName: z.string().min(1, "Le nom du bar/lieu est requis"),
+  venue: z.string().min(1, "L'adresse est requise"),
   date: z.string().min(1, "La date est requise"),
-  venue: z.string().min(1, "Le lieu est requis"),
   ticketsUrl: z.string().url("L'URL doit être valide").optional().or(z.literal("")),
   addToCalendar: z.boolean().default(true),
   sendNotification: z.boolean().default(false),
@@ -46,9 +47,9 @@ export default function Home() {
     resolver: zodResolver(eventFormSchema),
     defaultValues: {
       title: "",
-      description: "",
-      date: "",
+      venueName: "",
       venue: "",
+      date: "",
       ticketsUrl: "",
       addToCalendar: true,
       sendNotification: false,
@@ -74,7 +75,7 @@ export default function Home() {
 
   // Create event mutation with real API
   const createEventMutation = useMutation({
-    mutationFn: async (data: EventFormData) => {
+    mutationFn: async (data: EventFormData & { city: string }) => {
       const eventData = {
         ...data,
         date: data.date, // Send date as-is since it's now date-only
@@ -117,8 +118,16 @@ export default function Home() {
   const onSubmit = async (data: EventFormData) => {
     setIsSubmitting(true);
     try {
-      console.log("Données soumises:", data);
-      await createEventMutation.mutateAsync(data);
+      // Extract city from the venue address
+      const city = extractCityFromAddress(data.venue);
+      
+      const eventData = {
+        ...data,
+        city: city
+      };
+      
+      console.log("Données soumises:", eventData);
+      await createEventMutation.mutateAsync(eventData);
     } catch (error) {
       console.error("Erreur onSubmit:", error);
     } finally {
@@ -290,18 +299,17 @@ export default function Home() {
 
                     <FormField
                       control={form.control}
-                      name="description"
+                      name="venueName"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
-                            <i className="fas fa-align-left text-western-brown mr-2"></i>
-                            Description
+                            <i className="fas fa-store text-western-brown mr-2"></i>
+                            Nom du bar/lieu
                           </FormLabel>
                           <FormControl>
-                            <Textarea
-                              placeholder="Décrivez votre événement..."
-                              className="border-2 border-gray-200 focus:border-western-brown resize-none"
-                              rows={4}
+                            <Input
+                              placeholder="Ex: La Taverne Vieux-Chambly, Le Bordel Comédie Club..."
+                              className="border-2 border-gray-200 focus:border-western-brown"
                               {...field}
                             />
                           </FormControl>
@@ -345,7 +353,7 @@ export default function Home() {
                         <FormItem>
                           <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
                             <i className="fas fa-map-marker-alt text-western-brown mr-2"></i>
-                            Lieu
+                            Adresse complète
                           </FormLabel>
                           <FormControl>
                             <VenueInput
@@ -526,10 +534,16 @@ export default function Home() {
                                   {(event as any).displayDate || formatFrenchDate(event.date)}
                                 </span>
                               </div>
-                              <div className="text-sm text-gray-600 mt-1">
+                              <div className="text-sm text-gray-600 mt-1 space-y-1">
+                                {event.venueName && (
+                                  <div className="flex items-center">
+                                    <i className="fas fa-store text-western-brown mr-1"></i>
+                                    {event.venueName}
+                                  </div>
+                                )}
                                 <div className="flex items-center">
                                   <i className="fas fa-map-marker-alt text-western-brown mr-1"></i>
-                                  {event.venue}
+                                  {event.city || event.venue}
                                 </div>
                               </div>
                             </div>

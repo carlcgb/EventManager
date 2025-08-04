@@ -190,10 +190,10 @@ export default function Events() {
                       <span>{(event as any).displayDate || formatFrenchDate(event.date)}</span>
                     </div>
                     <AddressDisplay address={event.venue} showMapLink={true} />
-                    {event.description && (
+                    {event.venueName && (
                       <div className="flex items-start text-sm text-gray-600">
-                        <i className="fas fa-align-left text-western-brown mr-2 w-4 mt-0.5"></i>
-                        <span className="line-clamp-3">{event.description}</span>
+                        <i className="fas fa-store text-western-brown mr-2 w-4 mt-0.5"></i>
+                        <span className="line-clamp-3">{event.venueName}</span>
                       </div>
                     )}
                   </div>
