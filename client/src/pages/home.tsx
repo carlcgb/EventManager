@@ -315,9 +315,16 @@ export default function Home() {
                       name="date"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
-                            <i className="fas fa-calendar text-western-brown mr-2"></i>
-                            Date
+                          <FormLabel className="text-sm font-semibold text-gray-700 flex items-center justify-between">
+                            <span className="flex items-center">
+                              <i className="fas fa-calendar text-western-brown mr-2"></i>
+                              Date
+                            </span>
+                            {field.value && (
+                              <span className="text-xs text-western-brown font-medium">
+                                {formatFrenchDate(field.value)}
+                              </span>
+                            )}
                           </FormLabel>
                           <FormControl>
                             <Input

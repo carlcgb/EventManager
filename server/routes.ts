@@ -54,6 +54,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
+  // Google Places API proxy endpoint
+  app.get("/api/places/autocomplete", async (req, res) => {
+    try {
+      const { input } = req.query;
+      
+      if (!input || typeof input !== 'string') {
+        return res.status(400).json({ error: 'Input parameter is required' });
+      }
+
+      const apiKey = process.env.VITE_GOOGLE_PLACES_API_KEY;
+      if (!apiKey) {
+        return res.status(500).json({ error: 'Google Places API key not configured' });
+      }
+
+      const url = new URL('https://maps.googleapis.com/maps/api/place/autocomplete/json');
+      url.searchParams.append('input', input);
+      url.searchParams.append('key', apiKey);
+      url.searchParams.append('language', 'fr');
+      url.searchParams.append('components', 'country:ca');
+      url.searchParams.append('types', 'establishment|geocode');
+      url.searchParams.append('location', '45.5017,-73.5673'); // Montreal coordinates
+      url.searchParams.append('radius', '50000'); // 50km radius
+      url.searchParams.append('strictbounds', 'false');
+
+      const response = await fetch(url.toString());
+      const data = await response.json();
+
+      if (data.status === 'OK') {
+        res.json({ predictions: data.predictions || [] });
+      } else {
+        console.log('Google Places API error:', data);
+        res.json({ predictions: [] });
+      }
+    } catch (error) {
+      console.error('Places API error:', error);
+      res.status(500).json({ error: 'Failed to fetch places' });
+    }
+  });
+
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {

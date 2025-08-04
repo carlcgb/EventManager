@@ -21,44 +21,33 @@ export function VenueInput({ value, onChange, placeholder }: VenueInputProps) {
   const timeoutRef = useRef<NodeJS.Timeout>();
 
   const searchPlaces = async (query: string) => {
-    if (query.length < 3) {
+    if (query.length < 2) {
       setSuggestions([]);
       return;
     }
 
     setIsLoading(true);
     try {
-      // Use Google Places API for suggestions
+      // Use our backend proxy for Google Places API
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(query)}&key=${import.meta.env.VITE_GOOGLE_PLACES_API_KEY}&language=fr&components=country:ca`,
-        {
-          mode: 'cors'
-        }
+        `/api/places/autocomplete?input=${encodeURIComponent(query)}`
       );
 
       if (response.ok) {
         const data = await response.json();
-        setSuggestions(data.predictions || []);
+        if (data.predictions && Array.isArray(data.predictions)) {
+          setSuggestions(data.predictions);
+        } else {
+          console.log('No predictions received:', data);
+          setSuggestions([]);
+        }
       } else {
-        // Fallback to mock suggestions for demo
-        const mockSuggestions = [
-          { description: `${query}, Québec, Canada`, place_id: `mock_${Date.now()}_1` },
-          { description: `${query}, Montréal, QC, Canada`, place_id: `mock_${Date.now()}_2` },
-          { description: `${query}, Laval, QC, Canada`, place_id: `mock_${Date.now()}_3` },
-        ];
-        setSuggestions(mockSuggestions);
+        console.log('Places API proxy error:', response.status);
+        setSuggestions([]);
       }
     } catch (error) {
-      console.log("Using fallback suggestions:", error);
-      // Fallback suggestions for Quebec locations
-      const mockSuggestions = [
-        { description: `${query}, Québec, QC, Canada`, place_id: `mock_${Date.now()}_1` },
-        { description: `${query}, Montréal, QC, Canada`, place_id: `mock_${Date.now()}_2` },
-        { description: `${query}, Gatineau, QC, Canada`, place_id: `mock_${Date.now()}_3` },
-        { description: `${query}, Sherbrooke, QC, Canada`, place_id: `mock_${Date.now()}_4` },
-        { description: `${query}, Laval, QC, Canada`, place_id: `mock_${Date.now()}_5` },
-      ];
-      setSuggestions(mockSuggestions);
+      console.log("Places API proxy error:", error);
+      setSuggestions([]);
     } finally {
       setIsLoading(false);
     }
