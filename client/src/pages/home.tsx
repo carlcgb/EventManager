@@ -146,6 +146,17 @@ export default function Home() {
         placeName: data.placeName || venueName
       });
       
+      // Auto-fill Facebook ID field with venue name for easy editing
+      const cleanVenueName = (data.placeName || venueName)
+        .toLowerCase()
+        .replace(/[^\w\s]/g, '') // Remove special characters
+        .replace(/\s+/g, '') // Remove spaces
+        .replace(/^(le|la|les|du|des|de|d)\s*/i, ''); // Remove French articles
+      
+      if (cleanVenueName) {
+        form.setValue('facebookId', cleanVenueName);
+      }
+      
       // Auto-select the best URL option
       let selectedUrl = '';
       let urlType = '';
@@ -156,6 +167,11 @@ export default function Home() {
       } else if (data.websiteUrl) {
         selectedUrl = data.websiteUrl;
         urlType = 'Site web';
+      } else if (cleanVenueName) {
+        // If no official page found, pre-fill with Facebook URL from the ID
+        selectedUrl = `https://www.facebook.com/${cleanVenueName}`;
+        urlType = 'Facebook (suggéré)';
+        setPreviewUrl(selectedUrl);
       }
       
       if (selectedUrl) {
@@ -375,6 +391,11 @@ export default function Home() {
                               onVenueNameExtracted={(extractedName) => {
                                 // Always replace the venue name when address changes
                                 form.setValue('venueName', extractedName);
+                                // Clear previous Facebook ID and URL
+                                form.setValue('facebookId', '');
+                                form.setValue('ticketsUrl', '');
+                                setPreviewUrl('');
+                                setVenueOptions({});
                                 // Search for Facebook page with the extracted venue name
                                 searchVenueDetails(extractedName, field.value);
                               }}
