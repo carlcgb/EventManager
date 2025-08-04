@@ -54,6 +54,8 @@ export default function Home() {
   const [facebookSearchSuggestions, setFacebookSearchSuggestions] = useState<any[]>([]);
   const [showFacebookSuggestions, setShowFacebookSuggestions] = useState(false);
   const [facebookSearchQuery, setFacebookSearchQuery] = useState('');
+  const [savedVenues, setSavedVenues] = useState<any[]>([]);
+  const [showSavedVenues, setShowSavedVenues] = useState(false);
   const [isOptionsExpanded, setIsOptionsExpanded] = useState(false);
 
   const form = useForm<EventFormData>({
@@ -86,6 +88,11 @@ export default function Home() {
       return failureCount < 2;
     },
   });
+
+  // Load saved venues on component mount
+  useEffect(() => {
+    fetchSavedVenues();
+  }, []);
 
   // Create event mutation with real API
   const createEventMutation = useMutation({
@@ -226,6 +233,41 @@ export default function Home() {
     }
   };
 
+  // Function to fetch saved venues
+  const fetchSavedVenues = async () => {
+    try {
+      const response = await fetch('/api/venues/saved');
+      if (response.ok) {
+        const data = await response.json();
+        setSavedVenues(data.venues || []);
+      }
+    } catch (error) {
+      console.error('Error fetching saved venues:', error);
+    }
+  };
+
+  // Function to save a venue
+  const saveVenue = async (venueData: any) => {
+    try {
+      const response = await fetch('/api/venues/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(venueData),
+      });
+      
+      if (response.ok) {
+        await fetchSavedVenues(); // Refresh the list
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error saving venue:', error);
+      return false;
+    }
+  };
+
   const onSubmit = async (data: EventFormData) => {
     setIsSubmitting(true);
     try {
@@ -239,6 +281,17 @@ export default function Home() {
       
       console.log("Données soumises:", eventData);
       await createEventMutation.mutateAsync(eventData);
+      
+      // Save venue after successful event creation
+      if (data.venueName && data.venue) {
+        const venueData = {
+          venueName: data.venueName,
+          venueAddress: data.venue,
+          facebookId: data.facebookId || null,
+          facebookUrl: data.ticketsUrl?.includes('facebook.com') ? data.ticketsUrl : null,
+        };
+        await saveVenue(venueData);
+      }
     } catch (error) {
       console.error("Erreur onSubmit:", error);
     } finally {
@@ -573,6 +626,81 @@ export default function Home() {
                                 </div>
                               )}
                               
+                              {/* Saved Venues */}
+                              {savedVenues.length > 0 && (
+                                <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <FormLabel className="text-xs font-medium text-gray-700 flex items-center">
+                                      <i className="fas fa-bookmark text-green-600 mr-2"></i>
+                                      Lieux sauvegardés
+                                    </FormLabel>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-xs h-6 px-2"
+                                      onClick={() => setShowSavedVenues(!showSavedVenues)}
+                                    >
+                                      {showSavedVenues ? (
+                                        <i className="fas fa-chevron-up"></i>
+                                      ) : (
+                                        <i className="fas fa-chevron-down"></i>
+                                      )}
+                                    </Button>
+                                  </div>
+                                  
+                                  {showSavedVenues && (
+                                    <div className="grid grid-cols-1 gap-2 max-h-32 overflow-y-auto">
+                                      {savedVenues.map((venue, index) => (
+                                        <button
+                                          key={index}
+                                          type="button"
+                                          className="w-full p-2 text-left hover:bg-green-100 focus:bg-green-100 focus:outline-none rounded border border-green-300"
+                                          onClick={() => {
+                                            form.setValue('venueName', venue.venueName);
+                                            form.setValue('venue', venue.venueAddress || '');
+                                            if (venue.facebookId) {
+                                              form.setValue('facebookId', venue.facebookId);
+                                              form.setValue('ticketsUrl', venue.facebookUrl || '');
+                                              setPreviewUrl(venue.facebookUrl || '');
+                                            }
+                                            toast({
+                                              title: "Lieu sélectionné",
+                                              description: `${venue.venueName} ajouté au formulaire`
+                                            });
+                                          }}
+                                        >
+                                          <div className="flex items-center space-x-2">
+                                            {venue.profilePictureUrl && (
+                                              <div className="w-6 h-6 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
+                                                <img
+                                                  src={venue.profilePictureUrl}
+                                                  alt={venue.venueName}
+                                                  className="w-full h-full object-cover"
+                                                />
+                                              </div>
+                                            )}
+                                            <div className="flex-1 min-w-0">
+                                              <div className="text-xs font-medium text-gray-900 truncate">
+                                                {venue.venueName}
+                                              </div>
+                                              {venue.venueAddress && (
+                                                <div className="text-xs text-gray-500 truncate">
+                                                  {venue.venueAddress}
+                                                </div>
+                                              )}
+                                              <div className="text-xs text-green-600">
+                                                Utilisé {venue.useCount} fois
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
                               {/* Facebook Page Search */}
                               <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
                                 <FormField

@@ -9,6 +9,7 @@ import {
   text,
   boolean,
   uuid,
+  integer,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -114,6 +115,23 @@ export const userStats = pgTable("user_stats", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Table to store saved Facebook pages for venues
+export const savedVenues = pgTable("saved_venues", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  venueName: text("venue_name").notNull(),
+  venueAddress: text("venue_address"),
+  facebookId: text("facebook_id"),
+  facebookUrl: text("facebook_url"),
+  profilePictureUrl: text("profile_picture_url"),
+  websiteUrl: text("website_url"),
+  googleMapsUrl: text("google_maps_url"),
+  useCount: integer("use_count").default(1),
+  lastUsed: timestamp("last_used").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()),
+});
+
 // Schema types
 export const insertUserSchema = createInsertSchema(users).pick({
   email: true,
@@ -191,6 +209,18 @@ export const insertUserStatsSchema = createInsertSchema(userStats).omit({
   id: true,
   updatedAt: true,
 });
+
+export const insertSavedVenueSchema = createInsertSchema(savedVenues).omit({
+  id: true,
+  userId: true,
+  useCount: true,
+  lastUsed: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type SavedVenue = typeof savedVenues.$inferSelect;
+export type InsertSavedVenue = z.infer<typeof insertSavedVenueSchema>;
 
 export type UpsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;

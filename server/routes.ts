@@ -5,10 +5,12 @@ import { setupAuth, isAuthenticated } from "./auth";
 
 import { GoogleCalendarService } from "./calendarService";
 import { google } from 'googleapis';
-import { insertEventSchema, updateEventSchema, insertCalendarIntegrationSchema } from "@shared/schema";
+import { insertEventSchema, updateEventSchema, insertCalendarIntegrationSchema, insertSavedVenueSchema, savedVenues } from "@shared/schema";
 import { CalendarIntegrationService } from "./calendarService";
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { eq, desc } from 'drizzle-orm';
+import { db } from './db';
 
 // Helper function to format dates in French
 function formatFrenchDate(date: Date | string | null): string {
@@ -154,6 +156,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Facebook search error:', error);
       res.status(500).json({ error: 'Erreur lors de la recherche Facebook' });
+    }
+  });
+
+  // Get saved venues for current user
+  app.get('/api/venues/saved', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const venues = await db
+        .select()
+        .from(savedVenues)
+        .where(eq(savedVenues.userId, userId))
+        .orderBy(desc(savedVenues.lastUsed));
+
+      res.json({ venues });
+    } catch (error) {
+      console.error('Error fetching saved venues:', error);
+      res.status(500).json({ error: 'Failed to fetch saved venues' });
+    }
+  });
+
+  // Save or update a venue
+  app.post('/api/venues/save', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const venueData = insertSavedVenueSchema.parse(req.body);
+      
+      // Check if venue already exists for this user
+      const existingVenue = await db
+        .select()
+        .from(savedVenues)
+        .where(eq(savedVenues.userId, userId))
+        .where(eq(savedVenues.facebookId, venueData.facebookId || ''))
+        .limit(1);
+
+      if (existingVenue.length > 0) {
+        // Update use count and last used date
+        const [updated] = await db
+          .update(savedVenues)
+          .set({
+            useCount: existingVenue[0].useCount + 1,
+            lastUsed: new Date(),
+            venueName: venueData.venueName, // Update in case venue name changed
+            venueAddress: venueData.venueAddress,
+            facebookUrl: venueData.facebookUrl,
+            profilePictureUrl: venueData.profilePictureUrl,
+            websiteUrl: venueData.websiteUrl,
+            googleMapsUrl: venueData.googleMapsUrl,
+          })
+          .where(eq(savedVenues.id, existingVenue[0].id))
+          .returning();
+
+        res.json({ venue: updated, message: 'Venue usage updated' });
+      } else {
+        // Create new venue
+        const [newVenue] = await db
+          .insert(savedVenues)
+          .values({
+            ...venueData,
+            userId,
+          })
+          .returning();
+
+        res.json({ venue: newVenue, message: 'Venue saved successfully' });
+      }
+    } catch (error) {
+      console.error('Error saving venue:', error);
+      res.status(500).json({ error: 'Failed to save venue' });
     }
   });
 
