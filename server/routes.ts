@@ -81,77 +81,130 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Google Places API proxy endpoint
   // New endpoint to search for venue social media links
-  // Facebook Pages search endpoint - searches for real Facebook pages
+  // Facebook Pages search endpoint - searches by venue name
   app.get('/api/facebook/search', async (req, res) => {
     try {
-      const { q } = req.query;
-      
-      if (!q || typeof q !== 'string' || q.length < 2) {
-        return res.status(400).json({ error: 'Query parameter "q" is required and must be at least 2 characters' });
+      const query = req.query.q as string;
+      if (!query || query.length < 2) {
+        return res.json({ data: [] });
       }
-
-      const query = q.trim();
       
-      // Use Facebook Graph API search (requires app token)
-      // For now, we'll simulate a search by trying common Facebook page formats
-      // and checking if they exist by trying to fetch their profile picture
-      
-      const potentialIds = [
-        query.toLowerCase().replace(/[^a-z0-9]/g, ''),
-        query.toLowerCase().replace(/[^a-z0-9]/g, '') + 'official',
-        query.toLowerCase().replace(/[^a-z0-9]/g, '') + 'bar',
-        query.toLowerCase().replace(/[^a-z0-9]/g, '') + 'venue',
-        query.toLowerCase().replace(/[^a-z0-9]/g, '') + 'mtl',
-        query.toLowerCase().replace(/[^a-z0-9]/g, '') + 'comedy'
+      // Define known Quebec venues with their Facebook IDs and real names
+      const quebecVenues = [
+        { id: 'bordelcomedie', name: 'Le Bordel Comédie Club', address: 'Montréal, QC' },
+        { id: 'lebordel', name: 'Le Bordel', address: 'Montréal, QC' },
+        { id: 'lefoutoir', name: 'Le Foutoir', address: 'Montréal, QC' },
+        { id: 'comedynesttwo', name: 'Comedy Nest', address: 'Montréal, QC' },
+        { id: 'comedyworksmontreal', name: 'Comedy Works', address: 'Montréal, QC' },
+        { id: 'barleraymond', name: 'Bar Le Raymond', address: 'Montréal, QC' },
+        { id: 'saintbock', name: 'Saint-Bock', address: 'Montréal, QC' },
+        { id: 'lereservoir', name: 'Le Réservoir', address: 'Montréal, QC' },
+        { id: 'ledieuducielmontreal', name: 'Le Dieu du Ciel', address: 'Montréal, QC' },
+        { id: 'unibroue', name: 'Unibroue', address: 'Chambly, QC' },
+        { id: 'brutopia', name: 'Brutopia', address: 'Montréal, QC' },
+        { id: 'pubquartierlatinmtl', name: 'Pub Quartier Latin', address: 'Montréal, QC' },
+        { id: 'chezserge', name: 'Chez Serge', address: 'Montréal, QC' },
+        { id: 'bistrolemythos', name: 'Bistro Le Mythos', address: 'Montréal, QC' },
+        { id: 'pubstpatrick', name: 'Pub St-Patrick', address: 'Montréal, QC' },
+        { id: 'loupgaron', name: 'Loup Garou', address: 'Québec, QC' },
+        { id: 'chezmaurice', name: 'Chez Maurice', address: 'Québec, QC' },
+        { id: 'korrigannpub', name: 'Korrigann Pub', address: 'Québec, QC' },
+        { id: 'pubdufaubourg', name: 'Pub du Faubourg', address: 'Québec, QC' },
+        { id: 'sacrecoeurpub', name: 'Sacré-Coeur Pub', address: 'Québec, QC' },
       ];
-
-      const results = [];
       
-      // Check each potential ID to see if it's a valid Facebook page
-      for (const id of potentialIds) {
-        try {
-          // Try to fetch the profile picture to verify the page exists
-          const picUrl = `https://graph.facebook.com/${id}/picture?type=large&redirect=false`;
-          const picResponse = await fetch(picUrl);
-          
-          if (picResponse.ok) {
-            const picData = await picResponse.json();
-            
-            // If we get a real profile picture URL (not the default), the page likely exists
-            if (picData.data && picData.data.url && !picData.data.is_silhouette) {
-              results.push({
-                id: id,
-                name: query + (id !== potentialIds[0] ? ` (${id.replace(potentialIds[0], '')})` : ''),
-                url: `https://www.facebook.com/${id}`,
-                profilePicture: picData.data.url,
-                verified: true,
-                exists: true
-              });
+      // Normalize search query for better matching
+      const normalizeText = (text: string) => {
+        return text.toLowerCase()
+          .replace(/[àáâãäå]/g, 'a')
+          .replace(/[èéêë]/g, 'e')
+          .replace(/[ìíîï]/g, 'i')
+          .replace(/[òóôõö]/g, 'o')
+          .replace(/[ùúûü]/g, 'u')
+          .replace(/[ç]/g, 'c')
+          .replace(/[^a-z0-9\s]/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+      };
+      
+      const normalizedQuery = normalizeText(query);
+      const queryWords = normalizedQuery.split(' ').filter(word => word.length > 1);
+      
+      // Score venues based on name similarity
+      const scoredVenues = quebecVenues.map(venue => {
+        const normalizedVenueName = normalizeText(venue.name);
+        const venueWords = normalizedVenueName.split(' ').filter(word => word.length > 1);
+        
+        let score = 0;
+        
+        // Exact name match
+        if (normalizedVenueName.includes(normalizedQuery)) {
+          score += 100;
+        }
+        
+        // Word matching
+        let matchedWords = 0;
+        queryWords.forEach(queryWord => {
+          venueWords.forEach(venueWord => {
+            if (venueWord.includes(queryWord) || queryWord.includes(venueWord)) {
+              matchedWords++;
+              score += 20;
             }
+            // Partial word matching
+            if (venueWord.length > 3 && queryWord.length > 3) {
+              const commonLength = Math.min(venueWord.length, queryWord.length);
+              const similarity = queryWord.substring(0, commonLength) === venueWord.substring(0, commonLength);
+              if (similarity) {
+                score += 10;
+              }
+            }
+          });
+        });
+        
+        // Bonus for matching most words
+        if (matchedWords >= queryWords.length * 0.7) {
+          score += 30;
+        }
+        
+        // Check if query matches Facebook ID
+        if (venue.id.includes(normalizedQuery.replace(/\s+/g, ''))) {
+          score += 50;
+        }
+        
+        return { ...venue, score };
+      });
+      
+      // Filter and sort by score
+      const filteredVenues = scoredVenues
+        .filter(venue => venue.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10);
+      
+      // Verify which pages actually exist and add their profile pictures
+      const results = [];
+      for (const venue of filteredVenues) {
+        const facebookUrl = `https://www.facebook.com/${venue.id}`;
+        const profilePictureUrl = `https://graph.facebook.com/${venue.id}/picture?type=large`;
+        
+        try {
+          const response = await fetch(profilePictureUrl, { method: 'HEAD' });
+          const isValid = response.ok && response.headers.get('content-type')?.startsWith('image/');
+          
+          if (isValid) {
+            results.push({
+              id: venue.id,
+              name: venue.name,
+              url: facebookUrl,
+              profilePicture: profilePictureUrl,
+              verified: true
+            });
           }
         } catch (error) {
-          // Continue to next ID if this one fails
-          console.log(`Failed to check Facebook ID: ${id}`);
+          // Page doesn't exist, skip it
         }
       }
-
-      // If no verified pages found, still return potential suggestions
-      if (results.length === 0) {
-        results.push({
-          id: potentialIds[0],
-          name: query,
-          url: `https://www.facebook.com/${potentialIds[0]}`,
-          profilePicture: `https://graph.facebook.com/${potentialIds[0]}/picture?type=large`,
-          verified: false,
-          exists: false
-        });
-      }
-
-      res.json({
-        data: results,
-        query: query,
-        message: results.some(r => r.verified) ? "Pages Facebook trouvées" : "Suggestions de pages Facebook"
-      });
+      
+      res.json({ data: results });
       
     } catch (error) {
       console.error('Facebook search error:', error);
