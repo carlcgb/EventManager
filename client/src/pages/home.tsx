@@ -582,7 +582,7 @@ export default function Home() {
                               {previewUrl && (
                                 <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
                                   <div className="flex items-center justify-between mb-2">
-                                    <p className="text-xs font-medium text-gray-700">Aperçu de la page :</p>
+                                    <p className="text-xs font-medium text-gray-700">Page sélectionnée :</p>
                                     <Button
                                       type="button"
                                       variant="ghost"
@@ -593,36 +593,61 @@ export default function Home() {
                                       <i className="fas fa-times"></i>
                                     </Button>
                                   </div>
-                                  <div className="bg-white rounded border overflow-hidden">
-                                    <iframe
-                                      src={previewUrl}
-                                      className="w-full h-48 border-0"
-                                      title="Aperçu de la page"
-                                      sandbox="allow-scripts allow-same-origin"
-                                      loading="lazy"
-                                      onError={() => {
-                                        // If iframe fails, show a link instead
-                                        setPreviewUrl('');
-                                        toast({
-                                          title: "Aperçu non disponible",
-                                          description: "La page ne peut pas être affichée en aperçu",
-                                          variant: "destructive"
-                                        });
-                                      }}
-                                    />
+                                  <div className="bg-white rounded border p-4">
+                                    <div className="flex items-center space-x-3">
+                                      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        {previewUrl.includes('facebook.com') ? (
+                                          <i className="fab fa-facebook text-blue-600 text-xl"></i>
+                                        ) : (
+                                          <i className="fas fa-globe text-gray-600 text-xl"></i>
+                                        )}
+                                      </div>
+                                      <div className="flex-1">
+                                        <p className="text-sm font-medium text-gray-900">
+                                          {previewUrl.includes('facebook.com') ? 'Page Facebook' : 'Site Web'}
+                                        </p>
+                                        <p className="text-xs text-gray-600 truncate">{previewUrl}</p>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                          Cliquez sur "Aperçu" pour vérifier que la page existe
+                                        </p>
+                                      </div>
+                                    </div>
                                   </div>
                                   <div className="mt-2 flex items-center justify-between">
-                                    <p className="text-xs text-gray-600 truncate flex-1">{previewUrl}</p>
-                                    <Button
-                                      type="button"
-                                      variant="outline"
-                                      size="sm"
-                                      className="text-xs h-6 px-2 ml-2"
-                                      onClick={() => window.open(previewUrl, '_blank')}
-                                    >
-                                      <i className="fas fa-external-link-alt mr-1"></i>
-                                      Ouvrir
-                                    </Button>
+                                    <div className="flex space-x-2">
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-xs h-7 px-3"
+                                        onClick={() => window.open(previewUrl, '_blank')}
+                                      >
+                                        <i className="fas fa-external-link-alt mr-1"></i>
+                                        Aperçu
+                                      </Button>
+                                      {previewUrl.includes('facebook.com') && (
+                                        <Button
+                                          type="button"
+                                          variant="outline"
+                                          size="sm"
+                                          className="text-xs h-7 px-3"
+                                          onClick={() => {
+                                            const facebookId = form.getValues('facebookId');
+                                            if (facebookId) {
+                                              const searchUrl = `https://www.facebook.com/search/pages/?q=${encodeURIComponent(facebookId)}`;
+                                              window.open(searchUrl, '_blank');
+                                            }
+                                          }}
+                                        >
+                                          <i className="fas fa-search mr-1"></i>
+                                          Rechercher
+                                        </Button>
+                                      )}
+                                    </div>
+                                    <span className="text-xs text-green-600 font-medium flex items-center">
+                                      <i className="fas fa-check-circle mr-1"></i>
+                                      Prêt à utiliser
+                                    </span>
                                   </div>
                                 </div>
                               )}
