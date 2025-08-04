@@ -33,6 +33,7 @@ Preferred communication style: Simple, everyday language.
 - **Session storage** table required for Replit Auth integration
 
 ### Authentication Strategy
+- **Single-user access** - Restricted to samheberthumoriste@gmail.com only
 - **Google-only authentication** via Firebase Auth for simplified user experience
 - **Automatic Google Calendar integration** - calendar permissions requested during login
 - **Session management** with secure HTTP-only cookies and PostgreSQL storage
@@ -121,6 +122,7 @@ Preferred communication style: Simple, everyday language.
 - **Simplified event creation** - Removed time component, events are now date-only
 - **All-day calendar events** - Google Calendar events created as all-day events
 - **Direct Google authentication** - Removed intermediate login page, authentication now happens directly from landing page
+- **Single-user authentication** - Restricted access to samheberthumoriste@gmail.com only
 - **Tickets URL functionality** - Added tickets URL field to events with validation and display on event pages
 - **Removed "Publier sur le site web"** - Simplified form by removing website publishing checkbox
 - **Enhanced Google Calendar UI** - Improved integration display with management options

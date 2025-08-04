@@ -41,6 +41,10 @@ export const signInWithGoogle = async () => {
     });
 
     if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      if (errorData.error === "UNAUTHORIZED_EMAIL") {
+        throw new Error('Accès non autorisé. Seul le compte autorisé peut accéder à cette application.');
+      }
       throw new Error('Erreur lors de l\'authentification avec le serveur');
     }
 

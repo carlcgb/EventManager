@@ -63,6 +63,15 @@ export function setupAuth(app: Express) {
         return res.status(400).json({ message: "Email requis depuis Google" });
       }
 
+      // Restrict access to specific email only
+      const allowedEmail = "samheberthumoriste@gmail.com";
+      if (email !== allowedEmail) {
+        return res.status(403).json({ 
+          message: "Accès non autorisé. Seul le compte autorisé peut accéder à cette application.",
+          error: "UNAUTHORIZED_EMAIL"
+        });
+      }
+
       // Check if user exists, create if not
       let user = await storage.getUserByEmail(email);
       

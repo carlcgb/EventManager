@@ -83,6 +83,9 @@ export default function Landing() {
                 </svg>
                 Se connecter avec Google
               </button>
+              <p className="text-xs text-gray-500 mt-2">
+                Accès restreint au compte autorisé
+              </p>
             </div>
           </div>
         </div>
