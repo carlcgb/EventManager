@@ -368,9 +368,13 @@ export default function Home() {
                                 const currentVenueName = form.getValues('venueName');
                                 if (!currentVenueName) {
                                   form.setValue('venueName', extractedName);
+                                  // Search for Facebook page with the extracted venue name
+                                  searchVenueDetails(extractedName, field.value);
                                 } else if (currentVenueName !== extractedName) {
                                   if (confirm(`Remplacer "${currentVenueName}" par "${extractedName}" ?`)) {
                                     form.setValue('venueName', extractedName);
+                                    // Search for Facebook page with the new venue name
+                                    searchVenueDetails(extractedName, field.value);
                                   }
                                 }
                               }}
@@ -395,14 +399,6 @@ export default function Home() {
                               placeholder="Ex: La Taverne Vieux-Chambly, Le Bordel Comédie Club..."
                               className="border-2 border-gray-200 focus:border-western-brown"
                               {...field}
-                              onBlur={(e) => {
-                                // Search for venue details when user finishes typing venue name
-                                const venueName = e.target.value;
-                                const venueAddress = form.getValues('venue');
-                                if (venueName && venueName.length > 3) {
-                                  searchVenueDetails(venueName, venueAddress);
-                                }
-                              }}
                             />
                           </FormControl>
                           <FormMessage />
