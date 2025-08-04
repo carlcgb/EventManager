@@ -221,10 +221,7 @@ export default function Events() {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex justify-between items-center pt-4 border-t border-gray-200">
-                    <span className="text-xs text-gray-500">
-                      Créé le {formatFrenchDate(event.createdAt)}
-                    </span>
+                  <div className="flex justify-end items-center pt-4 border-t border-gray-200">
                     <div className="flex items-center space-x-2">
                       <SocialShareButtons event={event} variant="minimal" />
                       <Button
