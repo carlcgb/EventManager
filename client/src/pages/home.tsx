@@ -53,6 +53,7 @@ export default function Home() {
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [facebookSearchSuggestions, setFacebookSearchSuggestions] = useState<string[]>([]);
   const [showFacebookSuggestions, setShowFacebookSuggestions] = useState(false);
+  const [isOptionsExpanded, setIsOptionsExpanded] = useState(false);
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema),
@@ -738,9 +739,20 @@ export default function Home() {
                       )}
                     />
 
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <h3 className="font-semibold text-gray-700 mb-3">Options</h3>
-                      <div className="space-y-3">
+                    <div className="bg-gray-50 rounded-lg">
+                      <button
+                        type="button"
+                        onClick={() => setIsOptionsExpanded(!isOptionsExpanded)}
+                        className="w-full flex items-center justify-between p-4 hover:bg-gray-100 transition-colors rounded-lg"
+                      >
+                        <h3 className="font-semibold text-gray-700 flex items-center">
+                          <i className="fas fa-cog text-western-brown mr-2"></i>
+                          Options
+                        </h3>
+                        <i className={`fas fa-chevron-${isOptionsExpanded ? 'up' : 'down'} text-gray-500 transition-transform`}></i>
+                      </button>
+                      {isOptionsExpanded && (
+                        <div className="px-4 pb-4 space-y-3">
                         <FormField
                           control={form.control}
                           name="addToCalendar"
@@ -818,7 +830,8 @@ export default function Home() {
                             </FormItem>
                           )}
                         />
-                      </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3">
