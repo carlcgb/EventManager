@@ -42,6 +42,7 @@ export default function Home() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [isSearchingFacebook, setIsSearchingFacebook] = useState(false);
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema),
@@ -117,6 +118,7 @@ export default function Home() {
 
   // Function to search for venue details and auto-fill social media links
   const searchVenueDetails = async (venueName: string, venueAddress?: string) => {
+    setIsSearchingFacebook(true);
     try {
       const params = new URLSearchParams({ venueName });
       if (venueAddress) {
@@ -160,6 +162,8 @@ export default function Home() {
       }
     } catch (error) {
       console.log('Could not fetch venue details:', error);
+    } finally {
+      setIsSearchingFacebook(false);
     }
   };
 
@@ -443,6 +447,12 @@ export default function Home() {
                             <i className="fas fa-ticket-alt text-western-brown mr-2"></i>
                             URL des billets
                             <span className="text-xs text-gray-500 ml-2">(optionnel)</span>
+                            {isSearchingFacebook && (
+                              <span className="text-xs text-blue-600 ml-2 flex items-center">
+                                <i className="fas fa-spinner fa-spin mr-1"></i>
+                                Recherche de page Facebook...
+                              </span>
+                            )}
                           </FormLabel>
                           <FormControl>
                             <Input
