@@ -132,6 +132,7 @@ Preferred communication style: Simple, everyday language.
 - **Auto-fill venue name** - Implemented intelligent extraction of venue names from address autocomplete selections
 - **Google Places fallback** - Added Quebec venue suggestions when API restrictions prevent Google Places usage
 - **Facebook page auto-detection** - Automatically searches for venue Facebook pages and website links when address is selected, with visual loading indicator
+- **Manual Facebook ID input** - Added field to manually enter Facebook page ID with automatic URL construction (facebook.com/ID)
 
 ### Build and Bundling
 - **esbuild** - Fast JavaScript bundler for production

@@ -29,6 +29,7 @@ const eventFormSchema = z.object({
   venue: z.string().min(1, "L'adresse est requise"),
   date: z.string().min(1, "La date est requise"),
   ticketsUrl: z.string().url("L'URL doit être valide").optional().or(z.literal("")),
+  facebookId: z.string().optional(),
   addToCalendar: z.boolean().default(true),
   sendNotification: z.boolean().default(false),
 });
@@ -58,6 +59,7 @@ export default function Home() {
       venue: "",
       date: "",
       ticketsUrl: "",
+      facebookId: "",
       addToCalendar: true,
       sendNotification: false,
     },
@@ -496,6 +498,42 @@ export default function Home() {
                                   </div>
                                 </div>
                               )}
+                              
+                              {/* Manual Facebook ID input */}
+                              <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                <FormField
+                                  control={form.control}
+                                  name="facebookId"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="text-xs font-medium text-gray-700 flex items-center">
+                                        <i className="fab fa-facebook text-blue-600 mr-2"></i>
+                                        ID Facebook personnalisé (optionnel)
+                                      </FormLabel>
+                                      <div className="flex gap-2 items-center">
+                                        <span className="text-xs text-gray-500">facebook.com/</span>
+                                        <Input
+                                          {...field}
+                                          placeholder="nom-du-lieu"
+                                          className="text-xs h-8 border-gray-300"
+                                          onChange={(e) => {
+                                            field.onChange(e);
+                                            const facebookId = e.target.value;
+                                            if (facebookId && facebookId.length > 2) {
+                                              const facebookUrl = `https://www.facebook.com/${facebookId}`;
+                                              form.setValue('ticketsUrl', facebookUrl);
+                                            }
+                                          }}
+                                        />
+                                      </div>
+                                      <p className="text-xs text-gray-600 mt-1">
+                                        Saisissez l'identifiant Facebook (ex: "lebordel" pour facebook.com/lebordel)
+                                      </p>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
                             </div>
                           </FormControl>
                           <FormMessage />
