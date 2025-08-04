@@ -126,7 +126,9 @@ export default function Home() {
       const response = await fetch(`/api/places/venue-details?${params}`);
       const data = await response.json();
       
-      if (data.facebookUrl) {
+      console.log('Venue details response:', data);
+      
+      if (data.facebookUrl && !data.facebookUrl.includes('/search/')) {
         const currentTicketsUrl = form.getValues('ticketsUrl');
         if (!currentTicketsUrl) {
           form.setValue('ticketsUrl', data.facebookUrl);
@@ -147,6 +149,13 @@ export default function Home() {
             title: "Site web trouvé",
             description: `Site web ajouté automatiquement pour ${data.placeName || venueName}`,
           });
+        }
+      } else if (data.facebookUrl && data.facebookUrl.includes('/search/')) {
+        const currentTicketsUrl = form.getValues('ticketsUrl');
+        if (!currentTicketsUrl) {
+          if (confirm(`Aucune page Facebook officielle trouvée pour "${venueName}". Voulez-vous utiliser le lien de recherche Facebook ?\n\n${data.facebookUrl}`)) {
+            form.setValue('ticketsUrl', data.facebookUrl);
+          }
         }
       }
     } catch (error) {

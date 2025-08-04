@@ -120,7 +120,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const detailsUrl = new URL('https://maps.googleapis.com/maps/api/place/details/json');
       detailsUrl.searchParams.append('place_id', placeId);
       detailsUrl.searchParams.append('key', apiKey);
-      detailsUrl.searchParams.append('fields', 'website,url,editorial_summary');
+      detailsUrl.searchParams.append('fields', 'website,url,name,formatted_address,business_status,types');
 
       const detailsResponse = await fetch(detailsUrl.toString());
       const detailsData = await detailsResponse.json();
@@ -135,6 +135,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const result = detailsData.result || {};
       
+      console.log('Venue details search results:', {
+        placeName: searchData.results[0].name,
+        placeId: searchData.results[0].place_id,
+        website: result.website,
+        url: result.url,
+        types: result.types
+      });
+      
       // Extract Facebook URL if website contains facebook.com
       let facebookUrl = null;
       let websiteUrl = result.website || null;
@@ -144,11 +152,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         websiteUrl = null; // Don't duplicate in website field
       }
 
+      // If no website found, try to construct Facebook search URL
+      if (!facebookUrl && !websiteUrl) {
+        const cleanVenueName = venueName.replace(/[^\w\s]/g, '').trim();
+        facebookUrl = `https://www.facebook.com/search/top?q=${encodeURIComponent(cleanVenueName)}`;
+      }
+
       res.json({
         facebookUrl,
         websiteUrl,
         googleMapsUrl: result.url || null,
-        placeName: searchData.results[0].name || venueName
+        placeName: searchData.results[0].name || venueName,
+        debug: {
+          searchQuery,
+          foundPlace: searchData.results[0].name,
+          hasWebsite: !!result.website
+        }
       });
 
     } catch (error) {
