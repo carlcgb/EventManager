@@ -25,18 +25,18 @@
 
   --radius: 0.75rem;
 
-  /* Modern theme colors */
-  --western-brown: hsl(262, 83%, 58%);
-  --western-chocolate: hsl(252, 56%, 57%);
-  --western-sand: hsl(215, 25%, 27%);
-  --western-burlywood: hsl(210, 40%, 96%);
-  --western-peru: hsl(262, 83%, 58%);
-  --western-gold: hsl(45, 93%, 58%);
-  --western-dark: hsl(222, 47%, 11%);
-  --western-beige: hsl(210, 40%, 98%);
-  --western-success: hsl(142, 76%, 36%);
-  --western-danger: hsl(0, 84%, 60%);
-  --western-warning: hsl(38, 92%, 50%);
+  /* Sam Hebert brand colors - professional and elegant */
+  --western-brown: hsl(30, 12%, 25%);     /* Dark charcoal brown */
+  --western-chocolate: hsl(35, 15%, 35%); /* Medium brown */
+  --western-sand: hsl(45, 20%, 90%);      /* Light cream */
+  --western-burlywood: hsl(40, 18%, 75%); /* Medium beige */
+  --western-peru: hsl(30, 25%, 45%);      /* Warm brown */
+  --western-gold: hsl(45, 60%, 55%);      /* Muted gold */
+  --western-dark: hsl(25, 15%, 15%);      /* Very dark brown */
+  --western-beige: hsl(50, 25%, 95%);     /* Very light cream */
+  --western-success: hsl(120, 45%, 40%);  /* Professional green */
+  --western-danger: hsl(0, 70%, 50%);     /* Alert red */
+  --western-warning: hsl(35, 75%, 50%);   /* Warm orange */
 }
 
 .dark {
@@ -60,18 +60,18 @@
   --destructive-foreground: hsl(210, 40%, 98%);
   --ring: hsl(262, 83%, 58%);
   
-  /* Dark mode modern colors */
-  --western-brown: hsl(262, 83%, 58%);
-  --western-chocolate: hsl(252, 56%, 57%);
-  --western-sand: hsl(210, 40%, 98%);
-  --western-burlywood: hsl(217, 32%, 17%);
-  --western-peru: hsl(262, 83%, 58%);
-  --western-gold: hsl(45, 93%, 58%);
-  --western-dark: hsl(210, 40%, 98%);
-  --western-beige: hsl(222, 47%, 11%);
-  --western-success: hsl(142, 76%, 36%);
-  --western-danger: hsl(0, 84%, 60%);
-  --western-warning: hsl(38, 92%, 50%);
+  /* Sam Hebert brand colors - dark mode */
+  --western-brown: hsl(35, 25%, 40%);     /* Lighter brown for dark mode */
+  --western-chocolate: hsl(40, 20%, 50%); /* Medium brown */
+  --western-sand: hsl(25, 15%, 20%);      /* Dark background */
+  --western-burlywood: hsl(30, 18%, 30%); /* Dark beige */
+  --western-peru: hsl(35, 30%, 60%);      /* Light warm brown */
+  --western-gold: hsl(45, 70%, 65%);      /* Bright gold */
+  --western-dark: hsl(50, 25%, 95%);      /* Light text */
+  --western-beige: hsl(25, 15%, 15%);     /* Very dark background */
+  --western-success: hsl(120, 50%, 50%);  /* Bright green */
+  --western-danger: hsl(0, 80%, 60%);     /* Bright red */
+  --western-warning: hsl(35, 85%, 60%);   /* Bright orange */
 }
 
 @layer base {
