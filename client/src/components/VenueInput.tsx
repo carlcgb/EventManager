@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { MapPin } from "lucide-react";
+import { extractVenueName } from "@/lib/utils";
 
 interface VenueInputProps {
   value: string;
@@ -81,9 +82,16 @@ export function VenueInput({ value, onChange, placeholder, onVenueNameExtracted 
     setSuggestions([]);
     setShowSuggestions(false);
     
-    // Auto-extract venue name from selected address
+    // Auto-extract venue name from selected address using enhanced function
     if (onVenueNameExtracted) {
-      const extractedName = extractVenueNameFromAddress(suggestion);
+      // Try the enhanced extraction function first
+      let extractedName = extractVenueName(suggestion.description);
+      
+      // If that doesn't work, try the legacy method
+      if (!extractedName) {
+        extractedName = extractVenueNameFromAddress(suggestion);
+      }
+      
       if (extractedName && extractedName.length > 2) {
         onVenueNameExtracted(extractedName);
       }
@@ -129,14 +137,14 @@ export function VenueInput({ value, onChange, placeholder, onVenueNameExtracted 
 
   // Helper to validate if text looks like a venue name
   const isValidVenueName = (text: string): boolean => {
-    return text && 
+    return Boolean(text && 
            !text.match(/^\d/) && // Doesn't start with a number
            text.length > 3 && // Reasonable length
            !text.toLowerCase().includes('rue ') &&
            !text.toLowerCase().includes('avenue ') &&
            !text.toLowerCase().includes('boulevard ') &&
            !text.toLowerCase().includes('chemin ') &&
-           !isGenericLocation(text);
+           !isGenericLocation(text));
   };
 
   const handleBlur = () => {
