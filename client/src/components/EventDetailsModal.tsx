@@ -125,15 +125,7 @@ export function EventDetailsModal({ event, isOpen, onClose, onEdit }: EventDetai
             <SocialShareButtons event={event} />
           </div>
 
-          {/* Informations système */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-700 mb-2">Informations</h3>
-            <div className="text-sm text-gray-600 space-y-1">
-              <p><strong>Créé le :</strong> {formatFrenchDate(event.createdAt)}</p>
-              <p><strong>Modifié le :</strong> {formatFrenchDate(event.updatedAt)}</p>
-              <p><strong>ID :</strong> <code className="bg-gray-200 px-1 rounded text-xs">{event.id}</code></p>
-            </div>
-          </div>
+
 
           {/* Actions */}
           <div className="flex justify-end space-x-3 pt-4 border-t">
