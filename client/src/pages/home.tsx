@@ -332,7 +332,7 @@ export default function Home() {
               
               <CardContent className="p-6">
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" autoComplete="off">
                     <FormField
                       control={form.control}
                       name="title"
@@ -346,6 +346,10 @@ export default function Home() {
                             <Input
                               placeholder="Ex: Spectacle d'humour au Théâtre Corona"
                               className="border-2 border-gray-200 focus:border-western-brown"
+                              autoComplete="off"
+                              autoCorrect="off"
+                              autoCapitalize="off"
+                              spellCheck="false"
                               {...field}
                             />
                           </FormControl>
@@ -394,6 +398,10 @@ export default function Home() {
                             <Input
                               placeholder="Ex: La Taverne Vieux-Chambly, Le Bordel Comédie Club..."
                               className="border-2 border-gray-200 focus:border-western-brown"
+                              autoComplete="off"
+                              autoCorrect="off"
+                              autoCapitalize="off"
+                              spellCheck="false"
                               {...field}
                             />
                           </FormControl>
@@ -422,6 +430,7 @@ export default function Home() {
                             <Input
                               type="date"
                               className="border-2 border-gray-200 focus:border-western-brown"
+                              autoComplete="off"
                               {...field}
                             />
                           </FormControl>
@@ -453,6 +462,9 @@ export default function Home() {
                                 type="url"
                                 placeholder="https://exemple.com/acheter-billets"
                                 className="border-2 border-gray-200 focus:border-western-brown"
+                                autoComplete="off"
+                                autoCorrect="off"
+                                spellCheck="false"
                               />
                               {(venueOptions.facebookUrl || venueOptions.websiteUrl) && (
                                 <div className="space-y-2">
@@ -519,6 +531,10 @@ export default function Home() {
                                           {...field}
                                           placeholder="nom-du-lieu"
                                           className="text-xs h-8 border-gray-300"
+                                          autoComplete="off"
+                                          autoCorrect="off"
+                                          autoCapitalize="off"
+                                          spellCheck="false"
                                           onChange={(e) => {
                                             field.onChange(e);
                                             const facebookId = e.target.value;

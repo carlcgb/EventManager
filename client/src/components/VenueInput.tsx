@@ -166,6 +166,10 @@ export function VenueInput({ value, onChange, placeholder, onVenueNameExtracted 
           onFocus={() => setShowSuggestions(true)}
           placeholder={placeholder || "Entrez l'adresse du lieu"}
           className="pl-10 focus:ring-western-brown focus:border-western-brown"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck="false"
         />
       </div>
 
