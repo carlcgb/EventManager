@@ -299,27 +299,6 @@ export default function Home() {
 
                     <FormField
                       control={form.control}
-                      name="venueName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
-                            <i className="fas fa-store text-western-brown mr-2"></i>
-                            Nom du bar/lieu
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Ex: La Taverne Vieux-Chambly, Le Bordel Comédie Club..."
-                              className="border-2 border-gray-200 focus:border-western-brown"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
                       name="venue"
                       render={({ field }) => (
                         <FormItem>
@@ -343,6 +322,27 @@ export default function Home() {
                                   }
                                 }
                               }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="venueName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
+                            <i className="fas fa-store text-western-brown mr-2"></i>
+                            Nom du bar/lieu
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Ex: La Taverne Vieux-Chambly, Le Bordel Comédie Club..."
+                              className="border-2 border-gray-200 focus:border-western-brown"
+                              {...field}
                             />
                           </FormControl>
                           <FormMessage />

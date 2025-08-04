@@ -128,7 +128,7 @@ Preferred communication style: Simple, everyday language.
 - **Enhanced Google Calendar UI** - Improved integration display with management options
 - **CSS fixes** - Resolved @apply directive issues in Tailwind CSS configuration
 - **Date timezone fix** - Corrected date formatting to prevent timezone issues showing dates 1 day earlier
-- **Venue field reordering** - Moved "Nom du bar/lieu" field before "Adresse complète" for more intuitive form flow
+- **Venue field ordering** - "Adresse complète" field positioned before "Nom du bar/lieu" for optimal workflow
 - **Auto-fill venue name** - Implemented intelligent extraction of venue names from address autocomplete selections
 - **Google Places fallback** - Added Quebec venue suggestions when API restrictions prevent Google Places usage
 
