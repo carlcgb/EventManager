@@ -77,7 +77,8 @@ export function EventDetailsModal({ event, isOpen, onClose, onEdit }: EventDetai
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-western-dark mb-2">Lieu</h3>
-                <AddressDisplay address={event.venue} />
+                {event.venue && <AddressDisplay address={event.venue} />}
+                {!event.venue && <p className="text-gray-500 italic">Adresse non spécifiée</p>}
               </div>
             </div>
           </div>

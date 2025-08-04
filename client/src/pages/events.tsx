@@ -154,12 +154,15 @@ export default function Events() {
               </div>
             </div>
           ) : (events as Event[]).length > 0 ? (
-            (events as Event[]).map((event: Event) => (
-              <Card 
-                key={event.id} 
-                className="shadow-western hover:shadow-western-lg transition-all duration-200 cursor-pointer hover:scale-105 card-blur"
-                onClick={() => handleEventClick(event)}
-              >
+            (events as Event[]).map((event: Event) => {
+              // Debug: Log all event data
+              console.log('DEBUG Event in map:', event.title, 'venue:', event.venue);
+              return (
+                <Card 
+                  key={event.id} 
+                  className="shadow-western hover:shadow-western-lg transition-all duration-200 cursor-pointer hover:scale-105 card-blur"
+                  onClick={() => handleEventClick(event)}
+                >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-xl font-bold text-gray-900 line-clamp-2">
@@ -189,7 +192,9 @@ export default function Events() {
                       <i className="fas fa-calendar text-western-brown mr-2 w-4"></i>
                       <span>{(event as any).displayDate || formatFrenchDate(event.date)}</span>
                     </div>
-                    <AddressDisplay address={event.venue} showMapLink={true} />
+                    {event.venue && (
+                      <AddressDisplay address={event.venue} showMapLink={true} />
+                    )}
                     {event.venueName && (
                       <div className="flex items-start text-sm text-gray-600">
                         <i className="fas fa-store text-western-brown mr-2 w-4 mt-0.5"></i>
@@ -252,8 +257,9 @@ export default function Events() {
                     </div>
                   </div>
                 </CardContent>
-              </Card>
-            ))
+                </Card>
+              );
+            })
           ) : (
             <div className="col-span-full">
               <Card className="shadow-western card-blur">

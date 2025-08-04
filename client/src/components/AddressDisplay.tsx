@@ -8,6 +8,9 @@ interface AddressDisplayProps {
 }
 
 export function AddressDisplay({ address, className = "", showMapLink = true }: AddressDisplayProps) {
+  // Debug: Log all addresses to identify the issue
+  console.log('DEBUG AddressDisplay - address received:', address);
+
   const handleOpenInMaps = () => {
     const encodedAddress = encodeURIComponent(address);
     const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
