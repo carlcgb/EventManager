@@ -43,7 +43,7 @@ export function EventDetailsModal({ event, isOpen, onClose, onEdit }: EventDetai
               <span>🤠</span>
               <span>{event.title}</span>
             </DialogTitle>
-            {getStatusBadge(event.status)}
+            {getStatusBadge(event.status || 'draft')}
           </div>
           {event.venueName && (
             <DialogDescription className="text-lg text-gray-600 mt-2 flex items-center">

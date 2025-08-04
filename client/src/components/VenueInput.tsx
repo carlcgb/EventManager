@@ -11,6 +11,10 @@ interface VenueInputProps {
 interface PlacePrediction {
   description: string;
   place_id: string;
+  structured_formatting?: {
+    main_text: string;
+    secondary_text: string;
+  };
 }
 
 export function VenueInput({ value, onChange, placeholder }: VenueInputProps) {
@@ -104,15 +108,20 @@ export function VenueInput({ value, onChange, placeholder }: VenueInputProps) {
         />
       </div>
 
-      {showSuggestions && suggestions.length > 0 && (
+      {showSuggestions && (suggestions.length > 0 || isLoading) && (
         <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
-          {isLoading && (
-            <div className="p-3 text-sm text-gray-500 text-center">
+          {isLoading ? (
+            <div className="p-3 text-sm text-gray-500 text-center flex items-center justify-center">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-western-brown mr-2"></div>
               Recherche en cours...
             </div>
-          )}
-          {suggestions.map((suggestion) => (
-            <button
+          ) : suggestions.length === 0 ? (
+            <div className="p-3 text-sm text-gray-500 text-center">
+              Aucune suggestion trouvée
+            </div>
+          ) : (
+            suggestions.map((suggestion) => (
+              <button
               key={suggestion.place_id}
               type="button"
               className="w-full px-4 py-3 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none border-b border-gray-100 last:border-b-0"
@@ -120,10 +129,24 @@ export function VenueInput({ value, onChange, placeholder }: VenueInputProps) {
             >
               <div className="flex items-center">
                 <MapPin className="w-4 h-4 text-gray-400 mr-3 flex-shrink-0" />
-                <span className="text-sm text-gray-700">{suggestion.description}</span>
+                <div className="flex-1">
+                  {suggestion.structured_formatting ? (
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {suggestion.structured_formatting.main_text}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {suggestion.structured_formatting.secondary_text}
+                      </div>
+                    </div>
+                  ) : (
+                    <span className="text-sm text-gray-700">{suggestion.description}</span>
+                  )}
+                </div>
               </div>
-            </button>
-          ))}
+              </button>
+            ))
+          )}
         </div>
       )}
     </div>

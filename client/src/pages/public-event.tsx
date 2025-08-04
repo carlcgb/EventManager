@@ -98,7 +98,7 @@ export default function PublicEvent() {
                 <span>🤠</span>
                 <span>{event.title}</span>
               </CardTitle>
-              {getStatusBadge(event.status)}
+              {getStatusBadge(event.status || 'draft')}
             </div>
             {event.venueName && (
               <p className="text-lg text-gray-600 mt-4 flex items-center">
