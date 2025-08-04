@@ -115,6 +115,45 @@ export default function Home() {
     },
   });
 
+  // Function to search for venue details and auto-fill social media links
+  const searchVenueDetails = async (venueName: string, venueAddress?: string) => {
+    try {
+      const params = new URLSearchParams({ venueName });
+      if (venueAddress) {
+        params.append('address', venueAddress);
+      }
+      
+      const response = await fetch(`/api/places/venue-details?${params}`);
+      const data = await response.json();
+      
+      if (data.facebookUrl) {
+        const currentTicketsUrl = form.getValues('ticketsUrl');
+        if (!currentTicketsUrl) {
+          form.setValue('ticketsUrl', data.facebookUrl);
+          toast({
+            title: "Page Facebook trouvée",
+            description: `Lien Facebook ajouté automatiquement pour ${data.placeName || venueName}`,
+          });
+        } else if (currentTicketsUrl !== data.facebookUrl) {
+          if (confirm(`Remplacer le lien actuel par la page Facebook de ${data.placeName || venueName} ?\n\n${data.facebookUrl}`)) {
+            form.setValue('ticketsUrl', data.facebookUrl);
+          }
+        }
+      } else if (data.websiteUrl) {
+        const currentTicketsUrl = form.getValues('ticketsUrl');
+        if (!currentTicketsUrl) {
+          form.setValue('ticketsUrl', data.websiteUrl);
+          toast({
+            title: "Site web trouvé",
+            description: `Site web ajouté automatiquement pour ${data.placeName || venueName}`,
+          });
+        }
+      }
+    } catch (error) {
+      console.log('Could not fetch venue details:', error);
+    }
+  };
+
   const onSubmit = async (data: EventFormData) => {
     setIsSubmitting(true);
     try {
@@ -343,6 +382,14 @@ export default function Home() {
                               placeholder="Ex: La Taverne Vieux-Chambly, Le Bordel Comédie Club..."
                               className="border-2 border-gray-200 focus:border-western-brown"
                               {...field}
+                              onBlur={(e) => {
+                                // Search for venue details when user finishes typing venue name
+                                const venueName = e.target.value;
+                                const venueAddress = form.getValues('venue');
+                                if (venueName && venueName.length > 3) {
+                                  searchVenueDetails(venueName, venueAddress);
+                                }
+                              }}
                             />
                           </FormControl>
                           <FormMessage />

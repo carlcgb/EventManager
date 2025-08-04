@@ -131,6 +131,7 @@ Preferred communication style: Simple, everyday language.
 - **Venue field ordering** - "Adresse complète" field positioned before "Nom du bar/lieu" for optimal workflow
 - **Auto-fill venue name** - Implemented intelligent extraction of venue names from address autocomplete selections
 - **Google Places fallback** - Added Quebec venue suggestions when API restrictions prevent Google Places usage
+- **Facebook page auto-detection** - Automatically searches for venue Facebook pages and website links using Google Places API
 
 ### Build and Bundling
 - **esbuild** - Fast JavaScript bundler for production

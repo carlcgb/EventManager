@@ -78,6 +78,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await setupAuth(app);
 
   // Google Places API proxy endpoint
+  // New endpoint to search for venue social media links
+  app.get("/api/places/venue-details", async (req, res) => {
+    try {
+      const { venueName, address } = req.query;
+      
+      if (!venueName || typeof venueName !== 'string') {
+        return res.status(400).json({ error: 'venueName parameter is required' });
+      }
+
+      const apiKey = process.env.GOOGLE_PLACES_API_KEY_SERVER;
+      if (!apiKey) {
+        return res.json({ 
+          facebookUrl: null,
+          websiteUrl: null,
+          message: 'API key not available - manual entry required'
+        });
+      }
+
+      // First, search for the place using text search
+      const searchQuery = address ? `${venueName} ${address}` : venueName;
+      const searchUrl = new URL('https://maps.googleapis.com/maps/api/place/textsearch/json');
+      searchUrl.searchParams.append('query', searchQuery);
+      searchUrl.searchParams.append('key', apiKey);
+      searchUrl.searchParams.append('language', 'fr');
+      searchUrl.searchParams.append('region', 'ca');
+
+      const searchResponse = await fetch(searchUrl.toString());
+      const searchData = await searchResponse.json();
+
+      if (searchData.status !== 'OK' || !searchData.results?.length) {
+        return res.json({ 
+          facebookUrl: null,
+          websiteUrl: null,
+          message: 'Venue not found in Google Places'
+        });
+      }
+
+      // Get place details for the first result
+      const placeId = searchData.results[0].place_id;
+      const detailsUrl = new URL('https://maps.googleapis.com/maps/api/place/details/json');
+      detailsUrl.searchParams.append('place_id', placeId);
+      detailsUrl.searchParams.append('key', apiKey);
+      detailsUrl.searchParams.append('fields', 'website,url,editorial_summary');
+
+      const detailsResponse = await fetch(detailsUrl.toString());
+      const detailsData = await detailsResponse.json();
+
+      if (detailsData.status !== 'OK') {
+        return res.json({ 
+          facebookUrl: null,
+          websiteUrl: null,
+          message: 'Could not fetch venue details'
+        });
+      }
+
+      const result = detailsData.result || {};
+      
+      // Extract Facebook URL if website contains facebook.com
+      let facebookUrl = null;
+      let websiteUrl = result.website || null;
+      
+      if (websiteUrl && websiteUrl.includes('facebook.com')) {
+        facebookUrl = websiteUrl;
+        websiteUrl = null; // Don't duplicate in website field
+      }
+
+      res.json({
+        facebookUrl,
+        websiteUrl,
+        googleMapsUrl: result.url || null,
+        placeName: searchData.results[0].name || venueName
+      });
+
+    } catch (error) {
+      console.error('Venue details search error:', error);
+      res.status(500).json({ 
+        error: 'Internal server error',
+        facebookUrl: null,
+        websiteUrl: null
+      });
+    }
+  });
+
   app.get("/api/places/autocomplete", async (req, res) => {
     try {
       const { input } = req.query;
