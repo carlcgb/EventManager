@@ -79,6 +79,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Google Places API proxy endpoint
   // New endpoint to search for venue social media links
+  // Facebook Pages search endpoint
+  app.get('/api/facebook/search', async (req, res) => {
+    try {
+      const { q } = req.query;
+      
+      if (!q || typeof q !== 'string' || q.length < 2) {
+        return res.status(400).json({ error: 'Query parameter "q" is required and must be at least 2 characters' });
+      }
+
+      // Generate intelligent Facebook page suggestions for venues
+      const cleanQuery = q.toLowerCase().trim().replace(/[^a-z0-9]/g, '');
+      const originalQuery = q.trim();
+      
+      const suggestions = [
+        {
+          id: `${cleanQuery}`,
+          name: originalQuery,
+          url: `https://www.facebook.com/${cleanQuery}`,
+          category: "Page principale",
+          verified: false,
+          description: `Page Facebook principale pour ${originalQuery}`
+        },
+        {
+          id: `${cleanQuery}official`,
+          name: `${originalQuery} (Officiel)`,
+          url: `https://www.facebook.com/${cleanQuery}official`,
+          category: "Page officielle",
+          verified: false,
+          description: `Page officielle de ${originalQuery}`
+        },
+        {
+          id: `${cleanQuery}bar`,
+          name: `${originalQuery} Bar`,
+          url: `https://www.facebook.com/${cleanQuery}bar`,
+          category: "Bar/Restaurant",
+          verified: false,
+          description: `Page bar/restaurant de ${originalQuery}`
+        },
+        {
+          id: `${cleanQuery}venue`,
+          name: `${originalQuery} Venue`,
+          url: `https://www.facebook.com/${cleanQuery}venue`,
+          category: "Salle de spectacle",
+          verified: false,
+          description: `Page salle de spectacle de ${originalQuery}`
+        },
+        {
+          id: `${cleanQuery}mtl`,
+          name: `${originalQuery} Montréal`,
+          url: `https://www.facebook.com/${cleanQuery}mtl`,
+          category: "Localisation",
+          verified: false,
+          description: `Page Montréal de ${originalQuery}`
+        },
+        {
+          id: `${cleanQuery}comedy`,
+          name: `${originalQuery} Comedy`,
+          url: `https://www.facebook.com/${cleanQuery}comedy`,
+          category: "Comédie",
+          verified: false,
+          description: `Page comédie de ${originalQuery}`
+        }
+      ];
+
+      res.json({
+        data: suggestions,
+        query: originalQuery,
+        message: "Suggestions de pages Facebook. Cliquez pour vérifier l'existence de la page."
+      });
+      
+    } catch (error) {
+      console.error('Facebook search error:', error);
+      res.status(500).json({ error: 'Erreur lors de la recherche Facebook' });
+    }
+  });
+
   app.get("/api/places/venue-details", async (req, res) => {
     try {
       const { venueName, address } = req.query;

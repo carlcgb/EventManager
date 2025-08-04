@@ -51,7 +51,7 @@ export default function Home() {
     placeName?: string;
   }>({});
   const [previewUrl, setPreviewUrl] = useState<string>('');
-  const [facebookSearchSuggestions, setFacebookSearchSuggestions] = useState<string[]>([]);
+  const [facebookSearchSuggestions, setFacebookSearchSuggestions] = useState<any[]>([]);
   const [showFacebookSuggestions, setShowFacebookSuggestions] = useState(false);
   const [isOptionsExpanded, setIsOptionsExpanded] = useState(false);
 
@@ -191,28 +191,30 @@ export default function Home() {
     }
   };
 
-  // Function to search Facebook pages suggestions
+  // Function to search Facebook pages
   const searchFacebookPages = async (query: string) => {
     if (query.length < 2) {
       setFacebookSearchSuggestions([]);
       return;
     }
     
-    // Generate intelligent Facebook page suggestions based on venue name
-    const suggestions = [
-      query,
-      `${query}official`,
-      `${query}bar`,
-      `${query}venue`,
-      `${query}mtl`,
-      `${query}quebec`,
-      `${query}club`,
-      `${query}theatre`,
-      `${query}show`,
-      `${query}comedy`
-    ].filter((s, i, arr) => arr.indexOf(s) === i); // Remove duplicates
-    
-    setFacebookSearchSuggestions(suggestions.slice(0, 6));
+    try {
+      const response = await fetch(`/api/facebook/search?q=${encodeURIComponent(query)}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.data && Array.isArray(data.data)) {
+          setFacebookSearchSuggestions(data.data);
+        } else {
+          setFacebookSearchSuggestions([]);
+        }
+      } else {
+        console.error('Facebook search failed:', response.status);
+        setFacebookSearchSuggestions([]);
+      }
+    } catch (error) {
+      console.error('Facebook search error:', error);
+      setFacebookSearchSuggestions([]);
+    }
   };
 
   const onSubmit = async (data: EventFormData) => {
@@ -625,24 +627,28 @@ export default function Home() {
                                                 type="button"
                                                 className="w-full px-3 py-2 text-left hover:bg-blue-50 focus:bg-blue-50 focus:outline-none border-b border-gray-100 last:border-b-0"
                                                 onClick={() => {
-                                                  field.onChange(suggestion);
-                                                  const facebookUrl = `https://www.facebook.com/${suggestion}`;
-                                                  form.setValue('ticketsUrl', facebookUrl);
-                                                  setPreviewUrl(facebookUrl);
+                                                  field.onChange(suggestion.id);
+                                                  form.setValue('ticketsUrl', suggestion.url);
+                                                  setPreviewUrl(suggestion.url);
                                                   setShowFacebookSuggestions(false);
+                                                  toast({
+                                                    title: "Page Facebook sélectionnée",
+                                                    description: `${suggestion.name} ajouté comme URL des billets`
+                                                  });
                                                 }}
                                               >
                                                 <div className="flex items-center">
                                                   <i className="fab fa-facebook text-blue-600 mr-2"></i>
                                                   <div className="flex-1">
                                                     <div className="text-xs font-medium text-gray-900">
-                                                      facebook.com/{suggestion}
+                                                      {suggestion.name}
                                                     </div>
-                                                    {suggestion !== facebookSearchSuggestions[0] && (
-                                                      <div className="text-xs text-gray-500">
-                                                        Variante suggérée
-                                                      </div>
-                                                    )}
+                                                    <div className="text-xs text-gray-500">
+                                                      {suggestion.category} • facebook.com/{suggestion.id}
+                                                    </div>
+                                                    <div className="text-xs text-gray-400 mt-1">
+                                                      Cliquez pour sélectionner et vérifier
+                                                    </div>
                                                   </div>
                                                 </div>
                                               </button>
