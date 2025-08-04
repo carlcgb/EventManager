@@ -16,8 +16,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { formatFrenchDate } from "@/lib/utils";
 import { VenueInput } from "@/components/VenueInput";
 import { EventDetailsModal } from "@/components/EventDetailsModal";
 import EditEventDialog from "@/components/EditEventDialog";
@@ -517,7 +516,7 @@ export default function Home() {
                               <div className="flex items-center text-sm text-gray-600 space-x-3">
                                 <span className="flex items-center">
                                   <i className="fas fa-calendar text-western-brown mr-1"></i>
-                                  {format(new Date(event.date), "d MMMM yyyy", { locale: fr })}
+                                  {formatFrenchDate(event.date)}
                                 </span>
                               </div>
                               <div className="text-sm text-gray-600 mt-1">

@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
 import type { Event } from "@shared/schema";
 import { toast } from "@/hooks/use-toast";
+import { formatFrenchDate } from "@/lib/utils";
 
 interface SocialShareButtonsProps {
   event: Event;
@@ -11,7 +10,7 @@ interface SocialShareButtonsProps {
 
 export function SocialShareButtons({ event, variant = "default" }: SocialShareButtonsProps) {
   const eventUrl = `${window.location.origin}/event/${event.id}`;
-  const eventDate = format(new Date(event.date), "d MMMM yyyy", { locale: fr });
+  const eventDate = formatFrenchDate(event.date);
   
   // Texte de partage personnalisé pour chaque plateforme
   const shareTexts = {
