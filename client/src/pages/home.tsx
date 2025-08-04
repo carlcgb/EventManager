@@ -191,30 +191,9 @@ export default function Home() {
     }
   };
 
-  // Function to search Facebook pages
-  const searchFacebookPages = async (query: string) => {
-    if (query.length < 2) {
-      setFacebookSearchSuggestions([]);
-      return;
-    }
-    
-    try {
-      const response = await fetch(`/api/facebook/search?q=${encodeURIComponent(query)}`);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.data && Array.isArray(data.data)) {
-          setFacebookSearchSuggestions(data.data);
-        } else {
-          setFacebookSearchSuggestions([]);
-        }
-      } else {
-        console.error('Facebook search failed:', response.status);
-        setFacebookSearchSuggestions([]);
-      }
-    } catch (error) {
-      console.error('Facebook search error:', error);
-      setFacebookSearchSuggestions([]);
-    }
+  // Function to get Facebook profile picture
+  const getFacebookProfilePicture = (facebookId: string) => {
+    return `https://graph.facebook.com/${facebookId}/picture?type=large`;
   };
 
   const onSubmit = async (data: EventFormData) => {
@@ -590,10 +569,6 @@ export default function Home() {
                                               field.onChange(e);
                                               const facebookId = e.target.value;
                                               
-                                              // Search for suggestions
-                                              searchFacebookPages(facebookId);
-                                              setShowFacebookSuggestions(true);
-                                              
                                               if (facebookId && facebookId.length > 2) {
                                                 const facebookUrl = `https://www.facebook.com/${facebookId}`;
                                                 form.setValue('ticketsUrl', facebookUrl);
@@ -602,59 +577,9 @@ export default function Home() {
                                                 setPreviewUrl('');
                                               }
                                             }}
-                                            onFocus={() => {
-                                              if (field.value && field.value.length > 1) {
-                                                searchFacebookPages(field.value);
-                                                setShowFacebookSuggestions(true);
-                                              }
-                                            }}
-                                            onBlur={() => {
-                                              setTimeout(() => setShowFacebookSuggestions(false), 200);
-                                            }}
                                           />
                                         </div>
-                                        
-                                        {/* Facebook Search Suggestions */}
-                                        {showFacebookSuggestions && facebookSearchSuggestions.length > 0 && (
-                                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
-                                            <div className="p-2 text-xs text-gray-500 border-b bg-gray-50">
-                                              <i className="fab fa-facebook text-blue-600 mr-1"></i>
-                                              Suggestions de pages Facebook
-                                            </div>
-                                            {facebookSearchSuggestions.map((suggestion, index) => (
-                                              <button
-                                                key={index}
-                                                type="button"
-                                                className="w-full px-3 py-2 text-left hover:bg-blue-50 focus:bg-blue-50 focus:outline-none border-b border-gray-100 last:border-b-0"
-                                                onClick={() => {
-                                                  field.onChange(suggestion.id);
-                                                  form.setValue('ticketsUrl', suggestion.url);
-                                                  setPreviewUrl(suggestion.url);
-                                                  setShowFacebookSuggestions(false);
-                                                  toast({
-                                                    title: "Page Facebook sélectionnée",
-                                                    description: `${suggestion.name} ajouté comme URL des billets`
-                                                  });
-                                                }}
-                                              >
-                                                <div className="flex items-center">
-                                                  <i className="fab fa-facebook text-blue-600 mr-2"></i>
-                                                  <div className="flex-1">
-                                                    <div className="text-xs font-medium text-gray-900">
-                                                      {suggestion.name}
-                                                    </div>
-                                                    <div className="text-xs text-gray-500">
-                                                      facebook.com/{suggestion.id}
-                                                    </div>
-                                                    <div className="text-xs text-gray-400 mt-1">
-                                                      Cliquez pour sélectionner et vérifier
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                              </button>
-                                            ))}
-                                          </div>
-                                        )}
+
                                       </div>
                                       <p className="text-xs text-gray-600 mt-1">
                                         Saisissez l'identifiant Facebook (ex: "lebordel" pour facebook.com/lebordel)
@@ -680,38 +605,36 @@ export default function Home() {
                                       <i className="fas fa-times"></i>
                                     </Button>
                                   </div>
-                                  <div className="bg-white rounded border">
-                                    {previewUrl.includes('facebook.com') ? (
-                                      <div className="p-2">
-                                        <iframe
-                                          src={`https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(previewUrl)}&tabs=timeline&width=340&height=200&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=false&appId`}
-                                          width="100%"
-                                          height="200"
-                                          style={{ border: 'none', overflow: 'hidden' }}
-                                          scrolling="no"
-                                          frameBorder="0"
-                                          allowTransparency={true}
-                                          allow="encrypted-media"
-                                          loading="lazy"
-                                          title="Aperçu Facebook"
-                                        />
-                                      </div>
-                                    ) : (
-                                      <div className="p-4">
-                                        <div className="flex items-center space-x-3">
-                                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                                            <i className="fas fa-globe text-gray-600 text-xl"></i>
-                                          </div>
-                                          <div className="flex-1">
-                                            <p className="text-sm font-medium text-gray-900">Site Web</p>
-                                            <p className="text-xs text-gray-600 truncate">{previewUrl}</p>
-                                            <p className="text-xs text-gray-500 mt-1">
-                                              Cliquez sur "Aperçu" pour vérifier que la page existe
-                                            </p>
-                                          </div>
+                                  <div className="bg-white rounded border p-4">
+                                    <div className="flex items-center space-x-3">
+                                      {previewUrl.includes('facebook.com') ? (
+                                        <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                                          <img
+                                            src={getFacebookProfilePicture(form.getValues('facebookId'))}
+                                            alt="Photo de profil Facebook"
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                              e.currentTarget.style.display = 'none';
+                                              e.currentTarget.nextElementSibling.style.display = 'flex';
+                                            }}
+                                          />
+                                          <i className="fab fa-facebook text-blue-600 text-xl hidden"></i>
                                         </div>
+                                      ) : (
+                                        <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                                          <i className="fas fa-globe text-gray-600 text-xl"></i>
+                                        </div>
+                                      )}
+                                      <div className="flex-1">
+                                        <p className="text-sm font-medium text-gray-900">
+                                          {previewUrl.includes('facebook.com') ? 'Page Facebook' : 'Site Web'}
+                                        </p>
+                                        <p className="text-xs text-gray-600 truncate">{previewUrl}</p>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                          Cliquez sur "Aperçu" pour vérifier que la page existe
+                                        </p>
                                       </div>
-                                    )}
+                                    </div>
                                   </div>
                                   <div className="mt-2 flex items-center justify-between">
                                     <div className="flex space-x-2">
