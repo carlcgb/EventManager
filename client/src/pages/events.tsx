@@ -155,8 +155,6 @@ export default function Events() {
             </div>
           ) : (events as Event[]).length > 0 ? (
             (events as Event[]).map((event: Event) => {
-              // Debug: Log all event data
-              console.log('DEBUG Event in map:', event.title, 'venue:', event.venue);
               return (
                 <Card 
                   key={event.id} 
