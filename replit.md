@@ -33,7 +33,7 @@ Preferred communication style: Simple, everyday language.
 - **Session storage** table required for Replit Auth integration
 
 ### Authentication Strategy
-- **Single-user access** - Restricted to samheberthumoriste@gmail.com only
+- **Multi-user access** - Restricted to samheberthumoriste@gmail.com and carl.g.bisaillon@gmail.com only
 - **Google-only authentication** via Firebase Auth for simplified user experience
 - **Automatic Google Calendar integration** - calendar permissions requested during login
 - **Session management** with secure HTTP-only cookies and PostgreSQL storage

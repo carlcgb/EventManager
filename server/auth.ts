@@ -63,11 +63,14 @@ export function setupAuth(app: Express) {
         return res.status(400).json({ message: "Email requis depuis Google" });
       }
 
-      // Restrict access to specific email only
-      const allowedEmail = "samheberthumoriste@gmail.com";
-      if (email !== allowedEmail) {
+      // Restrict access to specific emails only
+      const allowedEmails = [
+        "samheberthumoriste@gmail.com",
+        "carl.g.bisaillon@gmail.com"
+      ];
+      if (!allowedEmails.includes(email)) {
         return res.status(403).json({ 
-          message: "Accès non autorisé. Seul le compte autorisé peut accéder à cette application.",
+          message: "Accès non autorisé. Seuls les comptes autorisés peuvent accéder à cette application.",
           error: "UNAUTHORIZED_EMAIL"
         });
       }
