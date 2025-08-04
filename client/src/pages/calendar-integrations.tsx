@@ -365,29 +365,40 @@ export default function CalendarIntegrations() {
         )}
 
         {/* Help Section */}
-        <Card className="shadow-western bg-western-sand/20">
-          <CardHeader>
-            <CardTitle className="text-xl text-western-dark">
+        <Card className="shadow-western card-blur">
+          <CardHeader className="bg-western-chocolate text-white">
+            <CardTitle className="text-lg font-semibold flex items-center">
+              <i className="fas fa-question-circle mr-2"></i>
               Comment ça fonctionne ?
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="p-6 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold text-western-dark mb-2">
-                  Microsoft Outlook
-                </h4>
-                <p className="text-gray-600 text-sm">
+              <div className="bg-western-sand/20 rounded-lg p-4">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="w-10 h-10 bg-western-brown rounded-full flex items-center justify-center">
+                    <i className="fab fa-microsoft text-white"></i>
+                  </div>
+                  <h4 className="font-semibold text-western-dark">
+                    Microsoft Outlook
+                  </h4>
+                </div>
+                <p className="text-gray-600 text-sm leading-relaxed">
                   Une fois connecté, tous vos nouveaux événements seront automatiquement 
                   ajoutés à votre calendrier Outlook. Vous pourrez les modifier depuis 
                   Outlook et les changements se synchroniseront.
                 </p>
               </div>
-              <div>
-                <h4 className="font-semibold text-western-dark mb-2">
-                  Apple Calendar
-                </h4>
-                <p className="text-gray-600 text-sm">
+              <div className="bg-western-sand/20 rounded-lg p-4">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="w-10 h-10 bg-western-brown rounded-full flex items-center justify-center">
+                    <i className="fab fa-apple text-white"></i>
+                  </div>
+                  <h4 className="font-semibold text-western-dark">
+                    Apple Calendar
+                  </h4>
+                </div>
+                <p className="text-gray-600 text-sm leading-relaxed">
                   Exportez un fichier .ics que vous pouvez importer dans Apple Calendar 
                   sur Mac, iPhone ou iPad. Répétez l'export pour obtenir les dernières 
                   mises à jour.
