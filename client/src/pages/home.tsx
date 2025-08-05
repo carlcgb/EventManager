@@ -355,6 +355,33 @@ export default function Home() {
             </div>
             
             <div className="flex items-center space-x-4">
+              {/* Event Statistics - Discrete */}
+              <div className="hidden lg:flex items-center space-x-3 bg-western-brown/10 px-3 py-2 rounded-lg border border-western-brown/20">
+                <div className="flex items-center space-x-1 text-xs">
+                  <i className="fas fa-calendar-week text-western-brown"></i>
+                  <span className="text-western-dark font-medium">
+                    {statsLoading ? '...' : (stats as any)?.monthlyEvents || 0}
+                  </span>
+                  <span className="text-gray-500">ce mois</span>
+                </div>
+                <div className="w-px h-4 bg-western-brown/30"></div>
+                <div className="flex items-center space-x-1 text-xs">
+                  <i className="fas fa-globe text-western-success"></i>
+                  <span className="text-western-dark font-medium">
+                    {statsLoading ? '...' : (stats as any)?.publishedEvents || 0}
+                  </span>
+                  <span className="text-gray-500">publiés</span>
+                </div>
+                <div className="w-px h-4 bg-western-brown/30"></div>
+                <div className="flex items-center space-x-1 text-xs">
+                  <i className="fas fa-clock text-western-warning"></i>
+                  <span className="text-western-dark font-medium">
+                    {statsLoading ? '...' : (stats as any)?.pendingEvents || 0}
+                  </span>
+                  <span className="text-gray-500">en attente</span>
+                </div>
+              </div>
+              
               <div className="hidden md:flex items-center space-x-2 bg-western-brown/20 px-4 py-2 rounded-lg">
                 <i className="fas fa-user-circle text-western-sand"></i>
                 <span className="text-western-beige font-medium">
@@ -376,68 +403,7 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Dashboard Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="border-l-4 border-western-brown shadow-western card-blur">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Événements ce mois</p>
-                  <p className="text-3xl font-bold text-western-brown">
-                    {statsLoading ? (
-                      <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
-                    ) : (
-                      (stats as any)?.monthlyEvents || 0
-                    )}
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-western-brown/10 rounded-lg flex items-center justify-center">
-                  <i className="fas fa-calendar-check text-western-brown text-xl"></i>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-l-4 border-western-success shadow-western card-blur">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Événements publiés</p>
-                  <p className="text-3xl font-bold text-western-success">
-                    {statsLoading ? (
-                      <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
-                    ) : (
-                      (stats as any)?.publishedEvents || 0
-                    )}
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-western-success/10 rounded-lg flex items-center justify-center">
-                  <i className="fas fa-globe text-western-success text-xl"></i>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-l-4 border-western-warning shadow-western card-blur">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">En attente</p>
-                  <p className="text-3xl font-bold text-western-warning">
-                    {statsLoading ? (
-                      <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
-                    ) : (
-                      (stats as any)?.pendingEvents || 0
-                    )}
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-western-warning/10 rounded-lg flex items-center justify-center">
-                  <i className="fas fa-clock text-western-warning text-xl"></i>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
