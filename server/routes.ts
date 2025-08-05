@@ -402,6 +402,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!apiKey) {
         return res.json({ 
           facebookUrl: null,
+          instagramUrl: null,
           websiteUrl: null,
           message: 'API key not available - manual entry required'
         });
@@ -421,6 +422,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (searchData.status !== 'OK' || !searchData.results?.length) {
         return res.json({ 
           facebookUrl: null,
+          instagramUrl: null,
           websiteUrl: null,
           message: 'Venue not found in Google Places'
         });
@@ -439,6 +441,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (detailsData.status !== 'OK') {
         return res.json({ 
           facebookUrl: null,
+          instagramUrl: null,
           websiteUrl: null,
           message: 'Could not fetch venue details'
         });
@@ -454,13 +457,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         types: result.types
       });
       
-      // Extract Facebook URL if website contains facebook.com
+      // Extract social media URLs
       let facebookUrl = null;
+      let instagramUrl = null;
       let websiteUrl = result.website || null;
       
-      if (websiteUrl && websiteUrl.includes('facebook.com')) {
-        facebookUrl = websiteUrl;
-        websiteUrl = null; // Don't duplicate in website field
+      if (websiteUrl) {
+        if (websiteUrl.includes('facebook.com')) {
+          facebookUrl = websiteUrl;
+          websiteUrl = null; // Don't duplicate in website field
+        } else if (websiteUrl.includes('instagram.com')) {
+          instagramUrl = websiteUrl;
+          websiteUrl = null; // Don't duplicate in website field
+        }
       }
 
       // If no website found, try to construct Facebook search URL
@@ -471,6 +480,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({
         facebookUrl,
+        instagramUrl,
         websiteUrl,
         googleMapsUrl: result.url || null,
         placeName: searchData.results[0].name || venueName,
@@ -486,6 +496,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         error: 'Internal server error',
         facebookUrl: null,
+        instagramUrl: null,
         websiteUrl: null
       });
     }

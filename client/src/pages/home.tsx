@@ -50,6 +50,7 @@ export default function Home() {
   const [isSearchingFacebook, setIsSearchingFacebook] = useState(false);
   const [venueOptions, setVenueOptions] = useState<{
     facebookUrl?: string;
+    instagramUrl?: string;
     websiteUrl?: string;
     placeName?: string;
   }>({});
@@ -157,6 +158,7 @@ export default function Home() {
       // Store the venue options for the dropdown
       setVenueOptions({
         facebookUrl: data.facebookUrl && !data.facebookUrl.includes('/search/') ? data.facebookUrl : undefined,
+        instagramUrl: data.instagramUrl,
         websiteUrl: data.websiteUrl,
         placeName: data.placeName || venueName
       });
@@ -606,12 +608,12 @@ export default function Home() {
                                 autoCorrect="off"
                                 spellCheck="false"
                               />
-                              {(venueOptions.facebookUrl || venueOptions.websiteUrl) && (
+                              {(venueOptions.facebookUrl || venueOptions.instagramUrl || venueOptions.websiteUrl) && (
                                 <div className="space-y-2">
                                   <p className="text-xs text-gray-600">
                                     Options trouvées pour {venueOptions.placeName}:
                                   </p>
-                                  <div className="flex gap-2">
+                                  <div className="flex flex-wrap gap-2">
                                     {venueOptions.facebookUrl && (
                                       <Button
                                         type="button"
@@ -629,6 +631,25 @@ export default function Home() {
                                       >
                                         <i className="fab fa-facebook mr-1"></i>
                                         Facebook
+                                      </Button>
+                                    )}
+                                    {venueOptions.instagramUrl && (
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-xs h-8 flex items-center"
+                                        onClick={() => {
+                                          form.setValue('ticketsUrl', venueOptions.instagramUrl!);
+                                          setPreviewUrl(venueOptions.instagramUrl!);
+                                          toast({
+                                            title: "Instagram sélectionné",
+                                            description: "Lien Instagram ajouté au champ URL des billets"
+                                          });
+                                        }}
+                                      >
+                                        <i className="fab fa-instagram mr-1"></i>
+                                        Instagram
                                       </Button>
                                     )}
                                     {venueOptions.websiteUrl && (
