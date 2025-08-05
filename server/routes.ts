@@ -85,7 +85,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/facebook/search', async (req, res) => {
     try {
       const query = req.query.q as string;
-      const searchType = req.query.type as string || 'venues'; // 'venues' or 'events'
+      const searchType = 'venues'; // Only search for venues
       
       if (!query || query.length < 2) {
         return res.json({ data: [] });
@@ -115,19 +115,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { id: 'casinolacleamy', name: 'Casino du Lac-Leamy', address: 'Gatineau, QC' },
       ];
       
-      // Define known Quebec events with their Facebook event IDs
-      const quebecEvents = [
-        { id: '123456789', name: 'Festival de Comédie de Montréal', venue: 'Diverses salles', date: '2025-07-15', type: 'Comedy' },
-        { id: '234567890', name: 'Soirée Humour au Bordel', venue: 'Le Bordel Comédie Club', date: '2025-02-20', type: 'Comedy' },
-        { id: '345678901', name: 'Open Mic Comedy Night', venue: 'Comedy Nest', date: '2025-02-25', type: 'Comedy' },
-        { id: '456789012', name: 'Stand-up Comedy Show', venue: 'Comedy Works', date: '2025-03-01', type: 'Comedy' },
-        { id: '567890123', name: 'Spectacle d\'Humour', venue: 'Le Foutoir', date: '2025-03-10', type: 'Comedy' },
-        { id: '678901234', name: 'Soirée Microphone Ouvert', venue: 'Bar Le Raymond', date: '2025-03-15', type: 'Music' },
-        { id: '789012345', name: 'Concert Jazz', venue: 'Saint-Bock', date: '2025-03-20', type: 'Music' },
-        { id: '890123456', name: 'Soirée Musicale', venue: 'Le Réservoir', date: '2025-03-25', type: 'Music' },
-        { id: '901234567', name: 'Festival de Musique Québécoise', venue: 'Diverses salles', date: '2025-06-15', type: 'Music' },
-        { id: '012345678', name: 'Spectacle de Variétés', venue: 'Le Dieu du Ciel', date: '2025-04-01', type: 'Variety' },
-      ];
+
       
       // Normalize search query for better matching
       const normalizeText = (text: string) => {
@@ -148,56 +136,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       let results = [];
       
-      if (searchType === 'events') {
-        // Score events based on name and venue similarity
-        const scoredEvents = quebecEvents.map(event => {
-          const normalizedEventName = normalizeText(event.name);
-          const normalizedVenueName = normalizeText(event.venue);
-          const eventWords = normalizedEventName.split(' ').concat(normalizedVenueName.split(' ')).filter(word => word.length > 1);
-          
-          let score = 0;
-          
-          // Exact name match
-          if (normalizedEventName.includes(normalizedQuery) || normalizedVenueName.includes(normalizedQuery)) {
-            score += 100;
-          }
-          
-          // Word matching
-          queryWords.forEach(queryWord => {
-            eventWords.forEach(eventWord => {
-              if (eventWord.includes(queryWord) || queryWord.includes(eventWord)) {
-                score += 20;
-              }
-              // Partial word matching
-              if (eventWord.length > 3 && queryWord.length > 3) {
-                const commonLength = Math.min(eventWord.length, queryWord.length);
-                const similarity = queryWord.substring(0, commonLength) === eventWord.substring(0, commonLength);
-                if (similarity) {
-                  score += 10;
-                }
-              }
-            });
-          });
-          
-          return { ...event, score, searchType: 'event' };
-        });
-        
-        // Filter and sort events
-        results = scoredEvents
-          .filter(event => event.score > 0)
-          .sort((a, b) => b.score - a.score)
-          .slice(0, 10)
-          .map(event => ({
-            id: event.id,
-            name: event.name,
-            venue: event.venue,
-            date: event.date,
-            type: event.type,
-            facebookUrl: `https://facebook.com/events/${event.id}`,
-            searchType: 'event'
-          }));
-      } else {
-        // Score venues based on name similarity
+      // Score venues based on name similarity
         const scoredVenues = quebecVenues.map(venue => {
           const normalizedVenueName = normalizeText(venue.name);
           const venueWords = normalizedVenueName.split(' ').filter(word => word.length > 1);
@@ -271,7 +210,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Page doesn't exist, skip it
           }
         }
-      }
       
       res.json({ data: results });
       

@@ -159,7 +159,7 @@ export default function Events() {
             </CardHeader>
             <CardContent>
               <SimpleFacebookSearch
-                placeholder="Rechercher la page du lieu (ex: Le Bordel, Centre Bell, Comedy Nest...)"
+                placeholder="Rechercher une page Facebook (ex: Le Bordel, Centre Bell, Comedy Nest...)"
                 onPageSelected={(page) => {
                   console.log("Page sélectionnée:", page);
                 }}
