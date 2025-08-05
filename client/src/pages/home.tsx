@@ -290,59 +290,59 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
+    <div className="min-h-screen bg-black/30 backdrop-blur-[1px]">
       {/* Navigation Header */}
-      <header className="bg-white/60 backdrop-blur-md shadow-2xl border-0">
+      <header className="bg-western-dark shadow-western-lg border-b-4 border-western-brown">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-amber-600 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
-                <i className="fas fa-calendar-star text-white text-xl"></i>
+              <div className="w-12 h-12 bg-western-brown rounded-full flex items-center justify-center">
+                <i className="fas fa-hat-cowboy text-western-beige text-xl"></i>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-amber-800">Sam Hébert</h1>
-                <p className="text-amber-600 text-sm">Gestionnaire d'Événements</p>
+                <h1 className="text-2xl font-bold text-western-beige">Sam Hébert</h1>
+                <p className="text-western-sand text-sm">Gestionnaire d'Événements</p>
               </div>
             </div>
             
             <div className="flex items-center space-x-4">
               {/* Event Statistics - Discrete */}
-              <div className="hidden lg:flex items-center space-x-3 bg-amber-100/80 backdrop-blur-md px-4 py-2 rounded-xl border-0 shadow-lg">
+              <div className="hidden lg:flex items-center space-x-3 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
                 <div className="flex items-center space-x-1 text-xs">
-                  <i className="fas fa-calendar-week text-amber-600"></i>
-                  <span className="text-amber-800 font-medium">
+                  <i className="fas fa-calendar-week text-western-brown"></i>
+                  <span className="text-western-dark font-medium">
                     {statsLoading ? '...' : (stats as any)?.monthlyEvents || 0}
                   </span>
-                  <span className="text-amber-600">ce mois</span>
+                  <span className="text-gray-500">ce mois</span>
                 </div>
-                <div className="w-px h-4 bg-amber-300"></div>
+                <div className="w-px h-4 bg-gray-300"></div>
                 <div className="flex items-center space-x-1 text-xs">
-                  <i className="fas fa-globe text-green-600"></i>
-                  <span className="text-amber-800 font-medium">
+                  <i className="fas fa-globe text-western-success"></i>
+                  <span className="text-western-dark font-medium">
                     {statsLoading ? '...' : (stats as any)?.publishedEvents || 0}
                   </span>
-                  <span className="text-amber-600">publiés</span>
+                  <span className="text-gray-500">publiés</span>
                 </div>
-                <div className="w-px h-4 bg-amber-300"></div>
+                <div className="w-px h-4 bg-gray-300"></div>
                 <div className="flex items-center space-x-1 text-xs">
-                  <i className="fas fa-clock text-yellow-600"></i>
-                  <span className="text-amber-800 font-medium">
+                  <i className="fas fa-clock text-western-warning"></i>
+                  <span className="text-western-dark font-medium">
                     {statsLoading ? '...' : (stats as any)?.pendingEvents || 0}
                   </span>
-                  <span className="text-amber-600">en attente</span>
+                  <span className="text-gray-500">en attente</span>
                 </div>
               </div>
               
-              <div className="hidden md:flex items-center space-x-2 bg-amber-100/80 backdrop-blur-md px-4 py-2 rounded-xl border-0">
-                <i className="fas fa-user-circle text-amber-600"></i>
-                <span className="text-amber-800 font-medium">
+              <div className="hidden md:flex items-center space-x-2 bg-western-brown/20 px-4 py-2 rounded-lg">
+                <i className="fas fa-user-circle text-western-sand"></i>
+                <span className="text-western-beige font-medium">
                   {(user as any)?.firstName || (user as any)?.email || 'Utilisateur'}
                 </span>
               </div>
               <Button 
                 variant="destructive"
                 onClick={handleLogout}
-                className="bg-red-500/80 hover:bg-red-600/90 backdrop-blur-sm border border-red-400/50 flex items-center space-x-2 rounded-xl shadow-lg"
+                className="bg-western-danger hover:bg-red-700 flex items-center space-x-2"
               >
                 <i className="fas fa-sign-out-alt"></i>
                 <span className="hidden sm:inline">Déconnexion</span>
@@ -360,18 +360,18 @@ export default function Home() {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           {/* Event Creation Form */}
           <div className="xl:col-span-2">
-            <Card className="bg-white/60 backdrop-blur-md border-0 shadow-2xl overflow-hidden">
-              <CardHeader className="bg-amber-100/80 backdrop-blur-sm text-amber-800 border-0">
-                <CardTitle className="text-2xl font-bold flex items-center text-amber-800">
-                  <i className="fas fa-plus-circle mr-3 text-amber-600"></i>
+            <Card className="shadow-western-lg overflow-hidden card-blur">
+              <CardHeader className="bg-gradient-to-r from-western-brown to-western-chocolate text-white">
+                <CardTitle className="text-2xl font-bold flex items-center text-western-beige">
+                  <i className="fas fa-plus-circle mr-3"></i>
                   Créer un Nouvel Événement
                 </CardTitle>
-                <p className="text-amber-600 mt-2">
+                <p className="text-western-sand mt-2">
                   Ajoutez un événement à votre calendrier et publiez-le sur votre site web
                 </p>
               </CardHeader>
               
-              <CardContent className="p-6 bg-white/30 backdrop-blur-sm">
+              <CardContent className="p-6">
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" autoComplete="off">
                     <FormField
@@ -379,14 +379,14 @@ export default function Home() {
                       name="title"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-semibold text-amber-800 flex items-center">
-                            <i className="fas fa-heading text-amber-600 mr-2"></i>
+                          <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
+                            <i className="fas fa-heading text-western-brown mr-2"></i>
                             Titre de l'événement
                           </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Ex: Spectacle d'humour au Théâtre Corona"
-                              className="bg-white/80 backdrop-blur-sm border-0 text-amber-800 placeholder:text-amber-500 focus:bg-white/90 rounded-lg"
+                              className="border-2 border-gray-200 focus:border-western-brown"
                               autoComplete="off"
                               autoCorrect="off"
                               autoCapitalize="off"
@@ -404,8 +404,8 @@ export default function Home() {
                       name="venue"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-semibold text-amber-800 flex items-center">
-                            <i className="fas fa-map-marker-alt text-amber-600 mr-2"></i>
+                          <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
+                            <i className="fas fa-map-marker-alt text-western-brown mr-2"></i>
                             Adresse complète
                           </FormLabel>
                           <FormControl>
@@ -441,14 +441,14 @@ export default function Home() {
                       name="venueName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-semibold text-white flex items-center">
-                            <i className="fas fa-store text-purple-300 mr-2"></i>
+                          <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
+                            <i className="fas fa-store text-western-brown mr-2"></i>
                             Nom du bar/lieu
                           </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Ex: La Taverne Vieux-Chambly, Le Bordel Comédie Club..."
-                              className="bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder:text-purple-200 focus:border-purple-400 focus:bg-white/30 rounded-lg"
+                              className="border-2 border-gray-200 focus:border-western-brown"
                               autoComplete="off"
                               autoCorrect="off"
                               autoCapitalize="off"
@@ -501,13 +501,13 @@ export default function Home() {
                       name="date"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-semibold text-white flex items-center justify-between">
+                          <FormLabel className="text-sm font-semibold text-gray-700 flex items-center justify-between">
                             <span className="flex items-center">
-                              <i className="fas fa-calendar text-purple-300 mr-2"></i>
+                              <i className="fas fa-calendar text-western-brown mr-2"></i>
                               Date
                             </span>
                             {field.value && (
-                              <span className="text-xs text-purple-200 font-medium">
+                              <span className="text-xs text-western-brown font-medium">
                                 {formatFrenchDate(field.value)}
                               </span>
                             )}
@@ -515,7 +515,7 @@ export default function Home() {
                           <FormControl>
                             <Input
                               type="date"
-                              className="bg-white/20 backdrop-blur-sm border border-white/30 text-white focus:border-purple-400 focus:bg-white/30 rounded-lg"
+                              className="border-2 border-gray-200 focus:border-western-brown"
                               autoComplete="off"
                               {...field}
                             />
@@ -530,12 +530,12 @@ export default function Home() {
                       name="ticketsUrl"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-semibold text-white flex items-center">
-                            <i className="fas fa-ticket-alt text-purple-300 mr-2"></i>
+                          <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
+                            <i className="fas fa-ticket-alt text-western-brown mr-2"></i>
                             URL des billets
-                            <span className="text-xs text-purple-200 ml-2">(optionnel)</span>
+                            <span className="text-xs text-gray-500 ml-2">(optionnel)</span>
                             {isSearchingFacebook && (
-                              <span className="text-xs text-blue-300 ml-2 flex items-center">
+                              <span className="text-xs text-blue-600 ml-2 flex items-center">
                                 <i className="fas fa-spinner fa-spin mr-1"></i>
                                 Recherche de page Facebook...
                               </span>
@@ -547,7 +547,7 @@ export default function Home() {
                                 {...field}
                                 type="url"
                                 placeholder="https://exemple.com/acheter-billets"
-                                className="bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder:text-purple-200 focus:border-purple-400 focus:bg-white/30 rounded-lg"
+                                className="border-2 border-gray-200 focus:border-western-brown"
                                 autoComplete="off"
                                 autoCorrect="off"
                                 spellCheck="false"
@@ -682,11 +682,11 @@ export default function Home() {
                                 <Checkbox
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
-                                  className="data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600 border-white/30"
+                                  className="data-[state=checked]:bg-western-brown data-[state=checked]:border-western-brown"
                                 />
                               </FormControl>
-                              <FormLabel className="text-sm text-white flex items-center">
-                                <i className="fas fa-bell text-purple-300 mr-2"></i>
+                              <FormLabel className="text-sm text-gray-700 flex items-center">
+                                <i className="fas fa-bell text-western-brown mr-2"></i>
                                 Envoyer une notification
                               </FormLabel>
                             </FormItem>
@@ -700,7 +700,7 @@ export default function Home() {
                       <Button
                         type="submit"
                         disabled={isSubmitting || createEventMutation.isPending}
-                        className="flex-1 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white font-semibold py-3 shadow-2xl backdrop-blur-sm border border-purple-400/30 rounded-xl"
+                        className="flex-1 bg-gradient-to-r from-western-brown to-western-chocolate hover:from-western-chocolate hover:to-western-brown text-white font-semibold py-3 shadow-western"
                       >
                         {isSubmitting || createEventMutation.isPending ? (
                           <>
@@ -723,14 +723,14 @@ export default function Home() {
 
           {/* Recent Events Sidebar */}
           <div className="space-y-6">
-            <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-purple-600/80 to-violet-600/80 backdrop-blur-sm text-white border-b border-white/20">
+            <Card className="shadow-western overflow-hidden card-blur">
+              <CardHeader className="bg-western-chocolate text-white">
                 <CardTitle className="text-lg font-semibold flex items-center">
-                  <i className="fas fa-history mr-2 text-purple-200"></i>
+                  <i className="fas fa-history mr-2"></i>
                   Événements Récents
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-0 bg-white/5 backdrop-blur-sm">
+              <CardContent className="p-0">
                 <div className="divide-y divide-gray-100">
                   {eventsLoading ? (
                     <div className="p-4 animate-pulse space-y-4">
@@ -745,27 +745,27 @@ export default function Home() {
                       .map((event: Event) => (
                         <div 
                           key={event.id} 
-                          className="p-4 hover:bg-white/10 transition-colors duration-200 cursor-pointer"
+                          className="p-4 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
                           onClick={() => handleEventClick(event)}
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
-                              <h4 className="font-semibold text-white mb-1">{event.title}</h4>
-                              <div className="flex items-center text-sm text-purple-200 space-x-3">
+                              <h4 className="font-semibold text-gray-900 mb-1">{event.title}</h4>
+                              <div className="flex items-center text-sm text-gray-600 space-x-3">
                                 <span className="flex items-center">
-                                  <i className="fas fa-calendar text-purple-300 mr-1"></i>
+                                  <i className="fas fa-calendar text-western-brown mr-1"></i>
                                   {(event as any).displayDate || formatFrenchDate(event.date)}
                                 </span>
                               </div>
-                              <div className="text-sm text-purple-200 mt-1 space-y-1">
+                              <div className="text-sm text-gray-600 mt-1 space-y-1">
                                 {event.venueName && (
                                   <div className="flex items-center">
-                                    <i className="fas fa-store text-purple-300 mr-1"></i>
+                                    <i className="fas fa-store text-western-brown mr-1"></i>
                                     {event.venueName}
                                   </div>
                                 )}
                                 <div className="flex items-center">
-                                  <i className="fas fa-map-marker-alt text-purple-300 mr-1"></i>
+                                  <i className="fas fa-map-marker-alt text-western-brown mr-1"></i>
                                   {event.city || event.venue}
                                 </div>
                               </div>

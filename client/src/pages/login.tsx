@@ -38,7 +38,7 @@ export default function Login() {
         <div className="absolute bottom-10 right-10 text-amber-200 text-4xl opacity-20">🌵</div>
       </div>
 
-      <Card className="w-full max-w-md bg-white/60 backdrop-blur-md shadow-2xl border-0">
+      <Card className="w-full max-w-md bg-white/60 backdrop-blur-sm border-amber-200 shadow-xl">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-amber-800">Connexion</CardTitle>
           <CardDescription className="text-amber-600">
@@ -61,7 +61,7 @@ export default function Login() {
             Connecter avec Google
           </Button>
 
-          <div className="text-center text-sm text-amber-700 bg-white/20 backdrop-blur-md p-4 rounded-lg border-0 shadow-lg">
+          <div className="text-center text-sm text-amber-700 bg-amber-50 p-4 rounded-lg border border-amber-200">
             <p className="font-medium">Connexion sécurisée avec Google</p>
             <p className="text-amber-600 mt-1">
               Utilisez votre compte Google pour accéder à vos événements en toute sécurité
