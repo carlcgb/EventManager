@@ -5,7 +5,7 @@ import { setupAuth, isAuthenticated } from "./auth";
 
 import { GoogleCalendarService } from "./calendarService";
 import { google } from 'googleapis';
-import { insertEventSchema, updateEventSchema, insertCalendarIntegrationSchema, insertSavedVenueSchema, savedVenues } from "@shared/schema";
+import { insertEventSchema, updateEventSchema, insertCalendarIntegrationSchema } from "@shared/schema";
 import { CalendarIntegrationService } from "./calendarService";
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -165,7 +165,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           category: 'Spectacle', 
           type: 'event', 
           description: 'Soirée de stand-up avec des humoristes locaux',
-          ticketUrl: 'https://www.eventbrite.ca/e/soiree-stand-up-tickets'
+          ticketUrl: 'https://samhebert.com/billets'
         },
         { 
           id: '2345678901234567', 
@@ -174,7 +174,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           category: 'Comédie', 
           type: 'event', 
           description: 'Nuit de la comédie avec plusieurs artistes',
-          ticketUrl: 'https://comedyworks.com/tickets'
+          ticketUrl: 'https://samhebert.com/billets'
         },
         { 
           id: '3456789012345678', 
@@ -183,7 +183,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           category: 'Open Mic', 
           type: 'event', 
           description: 'Micro ouvert pour humoristes débutants',
-          ticketUrl: 'https://www.comedynest.com/open-mic'
+          ticketUrl: 'https://samhebert.com/billets'
         },
         { 
           id: '4567890123456789', 
@@ -192,7 +192,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           category: 'Spectacle d\'humour', 
           type: 'event', 
           description: 'Soirée humoristique à Granby avec des artistes locaux',
-          ticketUrl: 'https://www.ticketpro.ca/fr/billets-soiree-rire-granby'
+          ticketUrl: 'https://samhebert.com/billets'
         },
         { 
           id: '5678901234567890', 
@@ -201,7 +201,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           category: 'Spectacle d\'humour', 
           type: 'event', 
           description: 'Spectacle du 20 septembre à Granby',
-          ticketUrl: 'https://www.ticketpro.ca/fr/billets-soiree-rire-granby-20sept'
+          ticketUrl: 'https://samhebert.com/billets'
         },
         { 
           id: '6789012345678901', 
@@ -210,7 +210,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           category: 'Comédie', 
           type: 'event', 
           description: 'Spectacle de comédie à Granby',
-          ticketUrl: 'https://www.eventbrite.ca/e/granby-comedy-show-tickets'
+          ticketUrl: 'https://samhebert.com/billets'
         },
         { 
           id: '7890123456789012', 
@@ -219,7 +219,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           category: 'Humour', 
           type: 'event', 
           description: 'Soirée humoristique d\'automne à Granby',
-          ticketUrl: 'https://www.admitone.com/events/soiree-rire-granby-automne'
+          ticketUrl: 'https://samhebert.com/billets'
         },
       ];
       
@@ -365,23 +365,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
         
-        // Determine the best URL to use - prioritize ticket URL for events
-        let finalUrl = facebookUrl;
-        if (item.type === 'event' && (item as any).ticketUrl) {
-          finalUrl = (item as any).ticketUrl;
-        }
-        
         results.push({
           id: item.id,
           name: item.name,
-          url: finalUrl,
+          url: item.type === 'event' ? facebookUrl : facebookUrl, // Always Facebook URL for main url
           type: item.type,
           profilePicture: isValidProfilePicture ? profilePictureUrl : undefined,
           description: item.description || undefined,
           location: item.address,
           category: item.category,
           verified: true,
-          ticketUrl: item.type === 'event' ? (item as any).ticketUrl : undefined
+          ticketUrl: item.type === 'event' ? (item as any).ticketUrl : undefined,
+          facebookUrl: facebookUrl // Always include Facebook URL separately
         });
       }
       
@@ -393,82 +388,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get saved venues for current user
-  app.get('/api/venues/saved', isAuthenticated, async (req, res) => {
-    try {
-      const userId = (req as any).user?.id;
-      if (!userId) {
-        return res.status(401).json({ error: 'User not authenticated' });
-      }
 
-      const venues = await db
-        .select()
-        .from(savedVenues)
-        .where(eq(savedVenues.userId, userId))
-        .orderBy(desc(savedVenues.lastUsed));
-
-      res.json({ venues });
-    } catch (error) {
-      console.error('Error fetching saved venues:', error);
-      res.status(500).json({ error: 'Failed to fetch saved venues' });
-    }
-  });
-
-  // Save or update a venue
-  app.post('/api/venues/save', isAuthenticated, async (req, res) => {
-    try {
-      const userId = (req as any).user?.id;
-      if (!userId) {
-        return res.status(401).json({ error: 'User not authenticated' });
-      }
-
-      const venueData = insertSavedVenueSchema.parse(req.body);
-      
-      // Check if venue already exists for this user
-      const existingVenue = await db
-        .select()
-        .from(savedVenues)
-        .where(and(
-          eq(savedVenues.userId, userId),
-          eq(savedVenues.facebookId, venueData.facebookId || '')
-        ))
-        .limit(1);
-
-      if (existingVenue.length > 0) {
-        // Update use count and last used date
-        const [updated] = await db
-          .update(savedVenues)
-          .set({
-            useCount: (existingVenue[0].useCount || 0) + 1,
-            lastUsed: new Date(),
-            venueName: venueData.venueName, // Update in case venue name changed
-            venueAddress: venueData.venueAddress,
-            facebookUrl: venueData.facebookUrl,
-            profilePictureUrl: venueData.profilePictureUrl,
-            websiteUrl: venueData.websiteUrl,
-            googleMapsUrl: venueData.googleMapsUrl,
-          })
-          .where(eq(savedVenues.id, existingVenue[0].id))
-          .returning();
-
-        res.json({ venue: updated, message: 'Venue usage updated' });
-      } else {
-        // Create new venue
-        const [newVenue] = await db
-          .insert(savedVenues)
-          .values({
-            ...venueData,
-            userId,
-          })
-          .returning();
-
-        res.json({ venue: newVenue, message: 'Venue saved successfully' });
-      }
-    } catch (error) {
-      console.error('Error saving venue:', error);
-      res.status(500).json({ error: 'Failed to save venue' });
-    }
-  });
 
   app.get("/api/places/venue-details", async (req, res) => {
     try {

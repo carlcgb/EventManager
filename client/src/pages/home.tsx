@@ -30,6 +30,7 @@ const eventFormSchema = z.object({
   venue: z.string().min(1, "L'adresse est requise"),
   date: z.string().min(1, "La date est requise"),
   ticketsUrl: z.string().url("L'URL doit être valide").optional().or(z.literal("")),
+  facebookEventUrl: z.string().url("L'URL doit être valide").optional().or(z.literal("")),
   facebookId: z.string().optional(),
   addToCalendar: z.boolean().default(true),
   sendNotification: z.boolean().default(false),
@@ -67,6 +68,7 @@ export default function Home() {
       venue: "",
       date: "",
       ticketsUrl: "",
+      facebookEventUrl: "",
       facebookId: "",
       addToCalendar: true,
       sendNotification: false,
@@ -616,80 +618,7 @@ export default function Home() {
                                 </div>
                               )}
                               
-                              {/* Saved Venues */}
-                              {savedVenues.length > 0 && (
-                                <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                                  <div className="flex items-center justify-between mb-2">
-                                    <FormLabel className="text-xs font-medium text-gray-700 flex items-center">
-                                      <i className="fas fa-bookmark text-green-600 mr-2"></i>
-                                      Lieux sauvegardés
-                                    </FormLabel>
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="sm"
-                                      className="text-xs h-6 px-2"
-                                      onClick={() => setShowSavedVenues(!showSavedVenues)}
-                                    >
-                                      {showSavedVenues ? (
-                                        <i className="fas fa-chevron-up"></i>
-                                      ) : (
-                                        <i className="fas fa-chevron-down"></i>
-                                      )}
-                                    </Button>
-                                  </div>
-                                  
-                                  {showSavedVenues && (
-                                    <div className="grid grid-cols-1 gap-2 max-h-32 overflow-y-auto">
-                                      {savedVenues.map((venue, index) => (
-                                        <button
-                                          key={index}
-                                          type="button"
-                                          className="w-full p-2 text-left hover:bg-green-100 focus:bg-green-100 focus:outline-none rounded border border-green-300"
-                                          onClick={() => {
-                                            form.setValue('venueName', venue.venueName);
-                                            form.setValue('venue', venue.venueAddress || '');
-                                            if (venue.facebookId) {
-                                              form.setValue('facebookId', venue.facebookId);
-                                              form.setValue('ticketsUrl', venue.facebookUrl || '');
-                                              setPreviewUrl(venue.facebookUrl || '');
-                                            }
-                                            toast({
-                                              title: "Lieu sélectionné",
-                                              description: `${venue.venueName} ajouté au formulaire`
-                                            });
-                                          }}
-                                        >
-                                          <div className="flex items-center space-x-2">
-                                            {venue.profilePictureUrl && (
-                                              <div className="w-6 h-6 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
-                                                <img
-                                                  src={venue.profilePictureUrl}
-                                                  alt={venue.venueName}
-                                                  className="w-full h-full object-cover"
-                                                />
-                                              </div>
-                                            )}
-                                            <div className="flex-1 min-w-0">
-                                              <div className="text-xs font-medium text-gray-900 truncate">
-                                                {venue.venueName}
-                                              </div>
-                                              {venue.venueAddress && (
-                                                <div className="text-xs text-gray-500 truncate">
-                                                  {venue.venueAddress}
-                                                </div>
-                                              )}
-                                              <div className="text-xs text-green-600">
-                                                Utilisé {venue.useCount} fois
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </button>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                              )}
+
 
                               {/* Facebook Event Search */}
                               <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
@@ -699,13 +628,22 @@ export default function Home() {
                                   onSelect={(result) => {
                                     // Update form with selected Facebook page/event
                                     form.setValue('facebookId', result.id);
-                                    form.setValue('ticketsUrl', result.url);
-                                    setPreviewUrl(result.url);
                                     
-                                    // If it's a venue page, auto-fill venue name if not already set
-                                    if (result.type === 'page' && !form.getValues('venueName')) {
-                                      form.setValue('venueName', result.name);
+                                    if (result.type === 'event') {
+                                      // For events: set ticket URL and Facebook event URL separately
+                                      if (result.ticketUrl) {
+                                        form.setValue('ticketsUrl', result.ticketUrl);
+                                      }
+                                      form.setValue('facebookEventUrl', result.facebookUrl || result.url);
+                                    } else {
+                                      // For pages: set as ticket URL (venue page)
+                                      form.setValue('ticketsUrl', result.url);
+                                      if (!form.getValues('venueName')) {
+                                        form.setValue('venueName', result.name);
+                                      }
                                     }
+                                    
+                                    setPreviewUrl(result.url);
                                     
                                     toast({
                                       title: "Sélection Facebook",
@@ -865,6 +803,32 @@ export default function Home() {
                                 </div>
                               )}
                             </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="facebookEventUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-semibold text-gray-700 flex items-center">
+                            <i className="fab fa-facebook text-western-brown mr-2"></i>
+                            Événement Facebook
+                            <span className="text-xs text-gray-500 ml-2">(optionnel)</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="url"
+                              placeholder="https://www.facebook.com/events/123456789"
+                              className="border-2 border-gray-200 focus:border-western-brown"
+                              autoComplete="off"
+                              autoCorrect="off"
+                              spellCheck="false"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

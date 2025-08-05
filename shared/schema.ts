@@ -48,6 +48,7 @@ export const events = pgTable("events", {
   venue: text("venue").notNull(), // Full address
   city: text("city").notNull(), // City extracted from address
   ticketsUrl: text("tickets_url"),
+  facebookEventUrl: text("facebook_event_url"), // URL to Facebook event page
   addToCalendar: boolean("add_to_calendar").default(false),
   publishToWebsite: boolean("publish_to_website").default(false),
   sendNotification: boolean("send_notification").default(false),
@@ -75,22 +76,7 @@ export const calendarIntegrations = pgTable("calendar_integrations", {
 
 
 
-// Table to store saved Facebook pages for venues
-export const savedVenues = pgTable("saved_venues", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id).notNull(),
-  venueName: text("venue_name").notNull(),
-  venueAddress: text("venue_address"),
-  facebookId: text("facebook_id"),
-  facebookUrl: text("facebook_url"),
-  profilePictureUrl: text("profile_picture_url"),
-  websiteUrl: text("website_url"),
-  googleMapsUrl: text("google_maps_url"),
-  useCount: integer("use_count").default(1),
-  lastUsed: timestamp("last_used").defaultNow(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()),
-});
+
 
 // Schema types
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -151,17 +137,7 @@ export const updateEventSchema = insertEventSchema.partial();
 
 
 
-export const insertSavedVenueSchema = createInsertSchema(savedVenues).omit({
-  id: true,
-  userId: true,
-  useCount: true,
-  lastUsed: true,
-  createdAt: true,
-  updatedAt: true,
-});
 
-export type SavedVenue = typeof savedVenues.$inferSelect;
-export type InsertSavedVenue = z.infer<typeof insertSavedVenueSchema>;
 
 export type UpsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;

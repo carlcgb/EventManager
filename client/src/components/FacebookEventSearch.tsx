@@ -14,6 +14,8 @@ interface FacebookResult {
   description?: string;
   location?: string;
   category?: string;
+  ticketUrl?: string;
+  facebookUrl?: string;
 }
 
 interface FacebookEventSearchProps {
