@@ -48,12 +48,7 @@ export default function Home() {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [isSearchingFacebook, setIsSearchingFacebook] = useState(false);
-  const [venueOptions, setVenueOptions] = useState<{
-    facebookUrl?: string;
-    instagramUrl?: string;
-    websiteUrl?: string;
-    placeName?: string;
-  }>({});
+
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [facebookSearchSuggestions, setFacebookSearchSuggestions] = useState<any[]>([]);
   const [showFacebookSuggestions, setShowFacebookSuggestions] = useState(false);
@@ -141,67 +136,17 @@ export default function Home() {
     },
   });
 
-  // Function to search for venue details and auto-fill social media links
-  const searchVenueDetails = async (venueName: string, venueAddress?: string) => {
-    setIsSearchingFacebook(true);
-    try {
-      const params = new URLSearchParams({ venueName });
-      if (venueAddress) {
-        params.append('address', venueAddress);
-      }
-      
-      const response = await fetch(`/api/places/venue-details?${params}`);
-      const data = await response.json();
-      
-      console.log('Venue details response:', data);
-      
-      // Store the venue options for the dropdown
-      setVenueOptions({
-        facebookUrl: data.facebookUrl && !data.facebookUrl.includes('/search/') ? data.facebookUrl : undefined,
-        instagramUrl: data.instagramUrl,
-        websiteUrl: data.websiteUrl,
-        placeName: data.placeName || venueName
-      });
-      
-      // Auto-fill Facebook ID field with venue name for easy editing
-      const cleanVenueName = (data.placeName || venueName)
-        .toLowerCase()
-        .replace(/[^\w\s]/g, '') // Remove special characters
-        .replace(/\s+/g, '') // Remove spaces
-        .replace(/^(le|la|les|du|des|de|d)\s*/i, ''); // Remove French articles
-      
-      if (cleanVenueName) {
-        form.setValue('facebookId', cleanVenueName);
-      }
-      
-      // Auto-select the best URL option
-      let selectedUrl = '';
-      let urlType = '';
-      
-      if (data.facebookUrl && !data.facebookUrl.includes('/search/')) {
-        selectedUrl = data.facebookUrl;
-        urlType = 'Facebook';
-      } else if (data.websiteUrl) {
-        selectedUrl = data.websiteUrl;
-        urlType = 'Site web';
-      } else if (cleanVenueName) {
-        // If no official page found, pre-fill with Facebook URL from the ID
-        selectedUrl = `https://www.facebook.com/${cleanVenueName}`;
-        urlType = 'Facebook (suggéré)';
-        setPreviewUrl(selectedUrl);
-      }
-      
-      if (selectedUrl) {
-        form.setValue('ticketsUrl', selectedUrl);
-        toast({
-          title: `${urlType} trouvé`,
-          description: `Lien ajouté automatiquement pour ${data.placeName || venueName}`,
-        });
-      }
-    } catch (error) {
-      console.log('Could not fetch venue details:', error);
-    } finally {
-      setIsSearchingFacebook(false);
+  // Function to auto-fill Facebook ID field based on venue name
+  const autoFillFacebookId = (venueName: string) => {
+    const cleanVenueName = venueName
+      .toLowerCase()
+      .replace(/[^\w\s]/g, '') // Remove special characters
+      .replace(/\s+/g, '') // Remove spaces
+      .replace(/^(le|la|les|du|des|de|d)\s*/i, '') // Remove French articles
+      .replace(/(club|bar|resto|restaurant|comédie|comedy|theatre|theater)/gi, ''); // Remove common venue words
+    
+    if (cleanVenueName.length > 2) {
+      form.setValue('facebookId', cleanVenueName);
     }
   };
 
@@ -481,9 +426,8 @@ export default function Home() {
                                   form.setValue('ticketsUrl', '');
                                   setPreviewUrl('');
                                 }
-                                setVenueOptions({});
-                                // Search for Facebook page with the extracted venue name
-                                searchVenueDetails(extractedName, field.value);
+                                // Auto-fill Facebook ID based on venue name
+                                autoFillFacebookId(extractedName);
                               }}
                             />
                           </FormControl>
@@ -608,72 +552,7 @@ export default function Home() {
                                 autoCorrect="off"
                                 spellCheck="false"
                               />
-                              {(venueOptions.facebookUrl || venueOptions.instagramUrl || venueOptions.websiteUrl) && (
-                                <div className="space-y-2">
-                                  <p className="text-xs text-gray-600">
-                                    Options trouvées pour {venueOptions.placeName}:
-                                  </p>
-                                  <div className="flex flex-wrap gap-2">
-                                    {venueOptions.facebookUrl && (
-                                      <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        className="text-xs h-8 flex items-center"
-                                        onClick={() => {
-                                          form.setValue('ticketsUrl', venueOptions.facebookUrl!);
-                                          setPreviewUrl(venueOptions.facebookUrl!);
-                                          toast({
-                                            title: "Facebook sélectionné",
-                                            description: "Lien Facebook ajouté au champ URL des billets"
-                                          });
-                                        }}
-                                      >
-                                        <i className="fab fa-facebook mr-1"></i>
-                                        Facebook
-                                      </Button>
-                                    )}
-                                    {venueOptions.instagramUrl && (
-                                      <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        className="text-xs h-8 flex items-center"
-                                        onClick={() => {
-                                          form.setValue('ticketsUrl', venueOptions.instagramUrl!);
-                                          setPreviewUrl(venueOptions.instagramUrl!);
-                                          toast({
-                                            title: "Instagram sélectionné",
-                                            description: "Lien Instagram ajouté au champ URL des billets"
-                                          });
-                                        }}
-                                      >
-                                        <i className="fab fa-instagram mr-1"></i>
-                                        Instagram
-                                      </Button>
-                                    )}
-                                    {venueOptions.websiteUrl && (
-                                      <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        className="text-xs h-8 flex items-center"
-                                        onClick={() => {
-                                          form.setValue('ticketsUrl', venueOptions.websiteUrl!);
-                                          setPreviewUrl(venueOptions.websiteUrl!);
-                                          toast({
-                                            title: "Site web sélectionné",
-                                            description: "Lien du site web ajouté au champ URL des billets"
-                                          });
-                                        }}
-                                      >
-                                        <i className="fas fa-globe mr-1"></i>
-                                        Site web
-                                      </Button>
-                                    )}
-                                  </div>
-                                </div>
-                              )}
+
 
                               {/* Hidden field for Facebook ID */}
                               <FormField
