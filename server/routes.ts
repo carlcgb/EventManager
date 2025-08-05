@@ -462,6 +462,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let instagramUrl = null;
       let websiteUrl = result.website || null;
       
+      // Check if the main website is a social media platform
       if (websiteUrl) {
         if (websiteUrl.includes('facebook.com')) {
           facebookUrl = websiteUrl;
@@ -469,6 +470,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } else if (websiteUrl.includes('instagram.com')) {
           instagramUrl = websiteUrl;
           websiteUrl = null; // Don't duplicate in website field
+        }
+      }
+
+      // If we only have a website but no social media links, suggest likely social media handles
+      if (websiteUrl && !facebookUrl && !instagramUrl) {
+        console.log('Website found but no social media detected, generating suggestions for:', venueName);
+        
+        // Generate clean handle suggestions based on venue name
+        const cleanName = venueName
+          .toLowerCase()
+          .replace(/[^\w\s]/g, '') // Remove special characters
+          .replace(/\s+/g, '') // Remove spaces
+          .replace(/^(le|la|les|du|des|de|d)\s*/i, '') // Remove French articles
+          .replace(/(club|bar|resto|restaurant|comédie|comedy|theatre|theater)/gi, ''); // Remove common venue words
+        
+        console.log('Clean name for social media suggestions:', cleanName);
+        
+        if (cleanName.length > 2) {
+          // Suggest Facebook page
+          facebookUrl = `https://www.facebook.com/${cleanName}`;
+          console.log('Suggesting Facebook URL:', facebookUrl);
+          
+          // Suggest Instagram handle  
+          instagramUrl = `https://www.instagram.com/${cleanName}`;
+          console.log('Suggesting Instagram URL:', instagramUrl);
         }
       }
 
