@@ -356,7 +356,7 @@ export default function Home() {
             
             <div className="flex items-center space-x-4">
               {/* Event Statistics - Discrete */}
-              <div className="hidden lg:flex items-center space-x-3 bg-western-brown/10 px-3 py-2 rounded-lg border border-western-brown/20">
+              <div className="hidden lg:flex items-center space-x-3 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
                 <div className="flex items-center space-x-1 text-xs">
                   <i className="fas fa-calendar-week text-western-brown"></i>
                   <span className="text-western-dark font-medium">
@@ -364,7 +364,7 @@ export default function Home() {
                   </span>
                   <span className="text-gray-500">ce mois</span>
                 </div>
-                <div className="w-px h-4 bg-western-brown/30"></div>
+                <div className="w-px h-4 bg-gray-300"></div>
                 <div className="flex items-center space-x-1 text-xs">
                   <i className="fas fa-globe text-western-success"></i>
                   <span className="text-western-dark font-medium">
@@ -372,7 +372,7 @@ export default function Home() {
                   </span>
                   <span className="text-gray-500">publiés</span>
                 </div>
-                <div className="w-px h-4 bg-western-brown/30"></div>
+                <div className="w-px h-4 bg-gray-300"></div>
                 <div className="flex items-center space-x-1 text-xs">
                   <i className="fas fa-clock text-western-warning"></i>
                   <span className="text-western-dark font-medium">
