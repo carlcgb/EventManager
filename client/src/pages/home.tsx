@@ -466,10 +466,16 @@ export default function Home() {
                               onVenueNameExtracted={(extractedName) => {
                                 // Always replace the venue name when address changes
                                 form.setValue('venueName', extractedName);
-                                // Clear previous Facebook ID and URL
-                                form.setValue('facebookId', '');
-                                form.setValue('ticketsUrl', '');
-                                setPreviewUrl('');
+                                // Only clear Facebook info if it's venue-related, not event-related
+                                const currentTicketsUrl = form.getValues('ticketsUrl');
+                                const isEventUrl = currentTicketsUrl?.includes('/events/');
+                                
+                                if (!isEventUrl) {
+                                  // Clear previous Facebook ID and URL only if it's not an event URL
+                                  form.setValue('facebookId', '');
+                                  form.setValue('ticketsUrl', '');
+                                  setPreviewUrl('');
+                                }
                                 setVenueOptions({});
                                 // Search for Facebook page with the extracted venue name
                                 searchVenueDetails(extractedName, field.value);
