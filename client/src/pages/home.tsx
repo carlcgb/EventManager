@@ -290,7 +290,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900/20 via-violet-800/10 to-purple-700/20 backdrop-blur-sm">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-violet-800 to-purple-700">
       {/* Navigation Header */}
       <header className="bg-white/10 backdrop-blur-md shadow-2xl border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
