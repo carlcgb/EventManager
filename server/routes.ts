@@ -247,29 +247,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .sort((a, b) => b.score - a.score)
           .slice(0, 10);
         
-        // Verify which pages actually exist and add their profile pictures
+        // Include all matched venues, with verification status
         results = [];
         for (const venue of filteredVenues) {
           const facebookUrl = `https://www.facebook.com/${venue.id}`;
           const profilePictureUrl = `https://graph.facebook.com/${venue.id}/picture?type=large`;
           
+          let verified = false;
           try {
             const response = await fetch(profilePictureUrl, { method: 'HEAD' });
-            const isValid = response.ok && response.headers.get('content-type')?.startsWith('image/');
-            
-            if (isValid) {
-              results.push({
-                id: venue.id,
-                name: venue.name,
-                url: facebookUrl,
-                profilePicture: profilePictureUrl,
-                verified: true,
-                searchType: 'venue'
-              });
-            }
+            verified = response.ok && response.headers.get('content-type')?.startsWith('image/');
           } catch (error) {
-            // Page doesn't exist, skip it
+            verified = false;
           }
+          
+          // Include all venues, but mark verification status
+          results.push({
+            id: venue.id,
+            name: venue.name,
+            url: facebookUrl,
+            profilePicture: verified ? profilePictureUrl : null,
+            verified: verified,
+            searchType: 'venue'
+          });
         }
       }
       
