@@ -13,6 +13,7 @@ import EditEventDialog from "@/components/EditEventDialog";
 import { AddressDisplay } from "@/components/AddressDisplay";
 import { EventDetailsModal } from "@/components/EventDetailsModal";
 import { SocialShareButtons } from "@/components/SocialShareButtons";
+import { FacebookEventSearch } from "@/components/FacebookEventSearch";
 import type { Event } from "@shared/schema";
 
 export default function Events() {
@@ -142,6 +143,35 @@ export default function Events() {
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-western-beige mb-2 drop-shadow-lg">Tous les Événements</h2>
           <p className="text-western-sand font-medium">Gérez tous vos événements passés et à venir</p>
+        </div>
+
+        {/* Facebook Event Search */}
+        <div className="mb-8">
+          <Card className="card-blur shadow-western">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
+                <i className="fab fa-facebook text-blue-600 mr-2"></i>
+                Rechercher des Événements Facebook
+              </CardTitle>
+              <p className="text-sm text-gray-600">
+                Trouvez des événements existants sur Facebook pour vous inspirer ou planifier
+              </p>
+            </CardHeader>
+            <CardContent>
+              <FacebookEventSearch
+                value=""
+                onChange={() => {}}
+                onEventSelected={(event) => {
+                  toast({
+                    title: "Événement trouvé",
+                    description: `${event.name} au ${event.venue}`,
+                  });
+                  window.open(event.facebookUrl, '_blank');
+                }}
+                placeholder="Rechercher des événements (ex: comédie montréal, concert jazz, etc.)"
+              />
+            </CardContent>
+          </Card>
         </div>
 
         {/* Events Grid */}
