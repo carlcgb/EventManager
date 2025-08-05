@@ -23,6 +23,7 @@ import { VenueInput } from "@/components/VenueInput";
 import { EventDetailsModal } from "@/components/EventDetailsModal";
 import EditEventDialog from "@/components/EditEventDialog";
 import { FacebookEventSearch } from "@/components/FacebookEventSearch";
+import { FacebookAutocomplete } from "@/components/FacebookAutocomplete";
 
 const eventFormSchema = z.object({
   title: z.string().min(1, "Le titre est requis"),
@@ -513,11 +514,14 @@ export default function Home() {
 
                           {/* Recherche Facebook automatique qui apparaît quand le nom du lieu est extrait */}
                           {field.value && field.value.length > 2 && (
-                            <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                              <FacebookEventSearch
-                                eventTitle={form.watch('title')}
+                            <div className="mt-3">
+                              <FacebookAutocomplete
                                 venueName={field.value}
-                                onSelect={(result) => {
+                                eventTitle={form.watch('title')}
+                                autoTrigger={true}
+                                placeholder="Rechercher la page Facebook du lieu..."
+                                label="Recherche Facebook automatique"
+                                onSelect={(result: any) => {
                                   // Remplir automatiquement les champs appropriés
                                   form.setValue('facebookId', result.id);
                                   
