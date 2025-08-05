@@ -90,8 +90,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!query || query.length < 2) {
         return res.json({ data: [] });
       }
+
+      // Check if we have a Facebook access token for real API calls
+      const facebookToken = process.env.FACEBOOK_ACCESS_TOKEN;
       
-      // Define known Quebec venues with their Facebook IDs, real names, and categories
+      if (facebookToken) {
+        // Use real Facebook Graph API
+        try {
+          const apiSearchType = searchType === 'event' ? 'event' : 'page';
+          const fields = apiSearchType === 'event' 
+            ? 'id,name,description,place,start_time,cover'
+            : 'id,name,category,location,picture,verification_status,website';
+          
+          const response = await fetch(
+            `https://graph.facebook.com/v18.0/search?q=${encodeURIComponent(query)}&type=${apiSearchType}&fields=${fields}&access_token=${facebookToken}&limit=10`
+          );
+          
+          if (response.ok) {
+            const data = await response.json();
+            const results = data.data?.map((item: any) => ({
+              id: item.id,
+              name: item.name,
+              url: `https://facebook.com/${item.id}`,
+              profilePicture: item.picture?.data?.url || `https://graph.facebook.com/${item.id}/picture?type=large`,
+              verified: item.verification_status === 'blue_verified' || item.verification_status === 'gray_verified',
+              address: item.location?.street || item.place?.location?.street || '',
+              category: item.category || 'Événement',
+              description: item.description || '',
+              type: apiSearchType,
+              isSaved: false
+            })) || [];
+            
+            return res.json({ data: results });
+          }
+        } catch (error) {
+          console.error('Facebook API error:', error);
+          // Fall back to predefined database if API fails
+        }
+      }
+      
+      // Fallback: Define known Quebec venues with their Facebook IDs, real names, and categories
       const quebecVenues = [
         { id: 'bordelcomedie', name: 'Le Bordel Comédie Club', address: 'Montréal, QC', category: 'Club de comédie', type: 'page' },
         { id: 'lebordel', name: 'Le Bordel', address: 'Montréal, QC', category: 'Bar', type: 'page' },
