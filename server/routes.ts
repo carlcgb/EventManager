@@ -645,7 +645,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             
             calendarEventId = await googleService.createEvent({
               title: eventData.title,
-              description: eventData.description || '',
+              description: `Événement au ${eventData.venueName}`,
               startTime: eventDate,
               endTime: endTime,
               location: eventData.venue || ''
@@ -723,7 +723,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             const calendarEventData = {
               title: event.title,
-              description: event.description || '',
+              description: `Événement au ${event.venueName}`,
               startTime: startTime,
               endTime: endTime,
               location: event.venue
@@ -753,7 +753,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             const calendarEventData = {
               title: event.title,
-              description: event.description || '',
+              description: `Événement au ${event.venueName}`,
               startTime: startTime,
               endTime: endTime,
               location: event.venue

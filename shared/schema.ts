@@ -44,7 +44,6 @@ export const events = pgTable("events", {
   userId: varchar("user_id").references(() => users.id).notNull(),
   title: text("title").notNull(),
   venueName: text("venue_name").notNull(), // Name of the bar/venue
-  description: text("description"), // Keep for backward compatibility, but now used for venue name
   date: date("date").notNull(),
   venue: text("venue").notNull(), // Full address
   city: text("city").notNull(), // City extracted from address
