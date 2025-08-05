@@ -510,6 +510,38 @@ export default function Home() {
                             />
                           </FormControl>
                           <FormMessage />
+
+                          {/* Recherche Facebook automatique qui apparaît quand le nom du lieu est extrait */}
+                          {field.value && field.value.length > 2 && (
+                            <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                              <FacebookEventSearch
+                                eventTitle={form.watch('title')}
+                                venueName={field.value}
+                                onSelect={(result) => {
+                                  // Remplir automatiquement les champs appropriés
+                                  form.setValue('facebookId', result.id);
+                                  
+                                  if (result.type === 'event') {
+                                    // Pour les événements: remplir l'URL des billets et l'événement Facebook
+                                    if (result.ticketUrl) {
+                                      form.setValue('ticketsUrl', result.ticketUrl);
+                                    }
+                                    form.setValue('facebookEventUrl', result.facebookUrl || result.url);
+                                    setPreviewUrl(result.ticketUrl || result.url);
+                                  } else {
+                                    // Pour les pages: remplir l'URL des billets avec la page Facebook
+                                    form.setValue('ticketsUrl', result.url);
+                                    setPreviewUrl(result.url);
+                                  }
+                                  
+                                  toast({
+                                    title: "Facebook sélectionné",
+                                    description: `${result.name} ajouté automatiquement`,
+                                  });
+                                }}
+                              />
+                            </div>
+                          )}
                         </FormItem>
                       )}
                     />
