@@ -61,7 +61,7 @@ export default function Login() {
             Connecter avec Google
           </Button>
 
-          <div className="text-center text-sm text-amber-700 bg-amber-50/80 backdrop-blur-sm p-4 rounded-lg border-0 shadow-lg">
+          <div className="text-center text-sm text-amber-700 bg-white/60 backdrop-blur-md p-4 rounded-lg border-0 shadow-lg">
             <p className="font-medium">Connexion sécurisée avec Google</p>
             <p className="text-amber-600 mt-1">
               Utilisez votre compte Google pour accéder à vos événements en toute sécurité
