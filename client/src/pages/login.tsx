@@ -29,31 +29,28 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-violet-800 to-purple-700 flex items-center justify-center p-4">
-      {/* Background decorative elements */}
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 flex items-center justify-center p-4">
+      {/* Background western elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-10 left-10 text-purple-300/20 text-6xl">✨</div>
-        <div className="absolute top-20 right-20 text-purple-300/20 text-4xl">🌟</div>
-        <div className="absolute bottom-20 left-20 text-purple-300/20 text-5xl">🎭</div>
-        <div className="absolute bottom-10 right-10 text-purple-300/20 text-4xl">🎪</div>
+        <div className="absolute top-10 left-10 text-amber-200 text-6xl opacity-20">🤠</div>
+        <div className="absolute top-20 right-20 text-amber-200 text-4xl opacity-20">⭐</div>
+        <div className="absolute bottom-20 left-20 text-amber-200 text-5xl opacity-20">🏜️</div>
+        <div className="absolute bottom-10 right-10 text-amber-200 text-4xl opacity-20">🌵</div>
       </div>
 
-      <Card className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
-        <CardHeader className="text-center bg-gradient-to-r from-purple-600/80 to-violet-600/80 backdrop-blur-sm border-b border-white/20">
-          <CardTitle className="text-2xl font-bold text-white flex items-center justify-center">
-            <i className="fas fa-calendar-star mr-3 text-purple-200"></i>
-            Connexion
-          </CardTitle>
-          <CardDescription className="text-purple-100">
+      <Card className="w-full max-w-md bg-white/60 backdrop-blur-md shadow-2xl border-0">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold text-amber-800">Connexion</CardTitle>
+          <CardDescription className="text-amber-600">
             Connectez-vous à votre compte pour gérer vos événements
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6 bg-white/5 backdrop-blur-sm">
+        <CardContent className="space-y-6">
           {/* Google Sign In - Now the primary method */}
           <Button
             type="button"
             onClick={handleGoogleSignIn}
-            className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/30 backdrop-blur-sm flex items-center justify-center gap-3 h-12 text-base font-medium rounded-xl shadow-2xl transition-all duration-300"
+            className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 flex items-center justify-center gap-3 h-12 text-base font-medium"
           >
             <svg className="w-6 h-6" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -64,12 +61,9 @@ export default function Login() {
             Connecter avec Google
           </Button>
 
-          <div className="text-center text-sm text-white bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/20 shadow-lg">
-            <p className="font-medium flex items-center justify-center">
-              <i className="fas fa-shield-alt mr-2 text-purple-300"></i>
-              Connexion sécurisée avec Google
-            </p>
-            <p className="text-purple-200 mt-1">
+          <div className="text-center text-sm text-amber-700 bg-amber-50/80 backdrop-blur-sm p-4 rounded-lg border-0 shadow-lg">
+            <p className="font-medium">Connexion sécurisée avec Google</p>
+            <p className="text-amber-600 mt-1">
               Utilisez votre compte Google pour accéder à vos événements en toute sécurité
             </p>
           </div>

@@ -290,52 +290,52 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-violet-800 to-purple-700">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
       {/* Navigation Header */}
-      <header className="bg-white/10 backdrop-blur-md shadow-2xl border-b border-white/20">
+      <header className="bg-white/60 backdrop-blur-md shadow-2xl border-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-600 rounded-full flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-amber-600 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
                 <i className="fas fa-calendar-star text-white text-xl"></i>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">Sam Hébert</h1>
-                <p className="text-purple-200 text-sm">Gestionnaire d'Événements</p>
+                <h1 className="text-2xl font-bold text-amber-800">Sam Hébert</h1>
+                <p className="text-amber-600 text-sm">Gestionnaire d'Événements</p>
               </div>
             </div>
             
             <div className="flex items-center space-x-4">
               {/* Event Statistics - Discrete */}
-              <div className="hidden lg:flex items-center space-x-3 bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl border border-white/30 shadow-lg">
+              <div className="hidden lg:flex items-center space-x-3 bg-amber-100/80 backdrop-blur-md px-4 py-2 rounded-xl border-0 shadow-lg">
                 <div className="flex items-center space-x-1 text-xs">
-                  <i className="fas fa-calendar-week text-purple-300"></i>
-                  <span className="text-white font-medium">
+                  <i className="fas fa-calendar-week text-amber-600"></i>
+                  <span className="text-amber-800 font-medium">
                     {statsLoading ? '...' : (stats as any)?.monthlyEvents || 0}
                   </span>
-                  <span className="text-purple-200">ce mois</span>
+                  <span className="text-amber-600">ce mois</span>
                 </div>
-                <div className="w-px h-4 bg-white/30"></div>
+                <div className="w-px h-4 bg-amber-300"></div>
                 <div className="flex items-center space-x-1 text-xs">
-                  <i className="fas fa-globe text-green-300"></i>
-                  <span className="text-white font-medium">
+                  <i className="fas fa-globe text-green-600"></i>
+                  <span className="text-amber-800 font-medium">
                     {statsLoading ? '...' : (stats as any)?.publishedEvents || 0}
                   </span>
-                  <span className="text-purple-200">publiés</span>
+                  <span className="text-amber-600">publiés</span>
                 </div>
-                <div className="w-px h-4 bg-white/30"></div>
+                <div className="w-px h-4 bg-amber-300"></div>
                 <div className="flex items-center space-x-1 text-xs">
-                  <i className="fas fa-clock text-yellow-300"></i>
-                  <span className="text-white font-medium">
+                  <i className="fas fa-clock text-yellow-600"></i>
+                  <span className="text-amber-800 font-medium">
                     {statsLoading ? '...' : (stats as any)?.pendingEvents || 0}
                   </span>
-                  <span className="text-purple-200">en attente</span>
+                  <span className="text-amber-600">en attente</span>
                 </div>
               </div>
               
-              <div className="hidden md:flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl border border-white/30">
-                <i className="fas fa-user-circle text-purple-200"></i>
-                <span className="text-white font-medium">
+              <div className="hidden md:flex items-center space-x-2 bg-amber-100/80 backdrop-blur-md px-4 py-2 rounded-xl border-0">
+                <i className="fas fa-user-circle text-amber-600"></i>
+                <span className="text-amber-800 font-medium">
                   {(user as any)?.firstName || (user as any)?.email || 'Utilisateur'}
                 </span>
               </div>
@@ -360,18 +360,18 @@ export default function Home() {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           {/* Event Creation Form */}
           <div className="xl:col-span-2">
-            <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-purple-600/80 to-violet-600/80 backdrop-blur-sm text-white border-b border-white/20">
-                <CardTitle className="text-2xl font-bold flex items-center text-white">
-                  <i className="fas fa-plus-circle mr-3 text-purple-200"></i>
+            <Card className="bg-white/60 backdrop-blur-md border-0 shadow-2xl overflow-hidden">
+              <CardHeader className="bg-amber-100/80 backdrop-blur-sm text-amber-800 border-0">
+                <CardTitle className="text-2xl font-bold flex items-center text-amber-800">
+                  <i className="fas fa-plus-circle mr-3 text-amber-600"></i>
                   Créer un Nouvel Événement
                 </CardTitle>
-                <p className="text-purple-100 mt-2">
+                <p className="text-amber-600 mt-2">
                   Ajoutez un événement à votre calendrier et publiez-le sur votre site web
                 </p>
               </CardHeader>
               
-              <CardContent className="p-6 bg-white/5 backdrop-blur-sm">
+              <CardContent className="p-6 bg-white/30 backdrop-blur-sm">
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" autoComplete="off">
                     <FormField
@@ -379,14 +379,14 @@ export default function Home() {
                       name="title"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-semibold text-white flex items-center">
-                            <i className="fas fa-heading text-purple-300 mr-2"></i>
+                          <FormLabel className="text-sm font-semibold text-amber-800 flex items-center">
+                            <i className="fas fa-heading text-amber-600 mr-2"></i>
                             Titre de l'événement
                           </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Ex: Spectacle d'humour au Théâtre Corona"
-                              className="bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder:text-purple-200 focus:border-purple-400 focus:bg-white/30 rounded-lg"
+                              className="bg-white/80 backdrop-blur-sm border-0 text-amber-800 placeholder:text-amber-500 focus:bg-white/90 rounded-lg"
                               autoComplete="off"
                               autoCorrect="off"
                               autoCapitalize="off"
@@ -404,8 +404,8 @@ export default function Home() {
                       name="venue"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-semibold text-white flex items-center">
-                            <i className="fas fa-map-marker-alt text-purple-300 mr-2"></i>
+                          <FormLabel className="text-sm font-semibold text-amber-800 flex items-center">
+                            <i className="fas fa-map-marker-alt text-amber-600 mr-2"></i>
                             Adresse complète
                           </FormLabel>
                           <FormControl>

@@ -165,7 +165,7 @@ export function VenueInput({ value, onChange, placeholder, onVenueNameExtracted 
   return (
     <div className="relative">
       <div className="relative">
-        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-300 w-4 h-4" />
+        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-600 w-4 h-4" />
         <Input
           ref={inputRef}
           value={value}
@@ -173,7 +173,7 @@ export function VenueInput({ value, onChange, placeholder, onVenueNameExtracted 
           onBlur={handleBlur}
           onFocus={() => setShowSuggestions(true)}
           placeholder={placeholder || "Entrez l'adresse du lieu"}
-          className="pl-10 bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder:text-purple-200 focus:border-purple-400 focus:bg-white/30 rounded-lg"
+          className="pl-10 bg-white/80 backdrop-blur-sm border-0 text-amber-800 placeholder:text-amber-500 focus:bg-white/90 rounded-lg"
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="off"
@@ -182,14 +182,14 @@ export function VenueInput({ value, onChange, placeholder, onVenueNameExtracted 
       </div>
 
       {showSuggestions && (suggestions.length > 0 || isLoading) && (
-        <div className="absolute z-50 w-full mt-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-2xl max-h-60 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-1 bg-white/80 backdrop-blur-md border-0 rounded-xl shadow-2xl max-h-60 overflow-y-auto">
           {isLoading ? (
-            <div className="p-3 text-sm text-purple-200 text-center flex items-center justify-center">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-400 mr-2"></div>
+            <div className="p-3 text-sm text-amber-600 text-center flex items-center justify-center">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-600 mr-2"></div>
               Recherche en cours...
             </div>
           ) : suggestions.length === 0 ? (
-            <div className="p-3 text-sm text-purple-200 text-center">
+            <div className="p-3 text-sm text-amber-600 text-center">
               Aucune suggestion trouvée
             </div>
           ) : (
@@ -197,23 +197,23 @@ export function VenueInput({ value, onChange, placeholder, onVenueNameExtracted 
               <button
               key={suggestion.place_id}
               type="button"
-              className="w-full px-4 py-3 text-left hover:bg-white/10 focus:bg-white/10 focus:outline-none border-b border-white/10 last:border-b-0"
+              className="w-full px-4 py-3 text-left hover:bg-amber-100/50 focus:bg-amber-100/50 focus:outline-none border-b border-amber-200/30 last:border-b-0"
               onClick={() => handleSuggestionClick(suggestion)}
             >
               <div className="flex items-center">
-                <MapPin className="w-4 h-4 text-purple-300 mr-3 flex-shrink-0" />
+                <MapPin className="w-4 h-4 text-amber-600 mr-3 flex-shrink-0" />
                 <div className="flex-1">
                   {suggestion.structured_formatting ? (
                     <div>
-                      <div className="text-sm font-medium text-white">
+                      <div className="text-sm font-medium text-amber-800">
                         {suggestion.structured_formatting.main_text}
                       </div>
-                      <div className="text-xs text-purple-200">
+                      <div className="text-xs text-amber-600">
                         {suggestion.structured_formatting.secondary_text}
                       </div>
                     </div>
                   ) : (
-                    <span className="text-sm text-white">{suggestion.description}</span>
+                    <span className="text-sm text-amber-800">{suggestion.description}</span>
                   )}
                 </div>
               </div>
