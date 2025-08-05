@@ -22,6 +22,7 @@ import { extractCityFromAddress, extractVenueNameFromAddress } from "@shared/uti
 import { VenueInput } from "@/components/VenueInput";
 import { EventDetailsModal } from "@/components/EventDetailsModal";
 import EditEventDialog from "@/components/EditEventDialog";
+import { FacebookEventSearch } from "@/components/FacebookEventSearch";
 
 const eventFormSchema = z.object({
   title: z.string().min(1, "Le titre est requis"),
@@ -684,173 +685,95 @@ export default function Home() {
                                 </div>
                               )}
 
-                              {/* Facebook Page Search */}
+                              {/* Facebook Event Search */}
                               <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                                <FormField
-                                  control={form.control}
-                                  name="facebookId"
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel className="text-xs font-medium text-gray-700 flex items-center">
-                                        <i className="fab fa-facebook text-blue-600 mr-2"></i>
-                                        Recherche rapide de page Facebook
-                                      </FormLabel>
-                                      <div className="relative">
-                                        <div className="flex items-center">
-                                          <div className="relative flex-1">
-                                            <i className="fab fa-facebook text-blue-600 absolute left-3 top-1/2 transform -translate-y-1/2 z-10"></i>
-                                            <Input
-                                              value={facebookSearchQuery}
-                                              placeholder="Chercher une page Facebook (ex: Le Bordel)"
-                                              className="pl-10 pr-10 text-xs h-8"
-                                              autoComplete="off"
-                                              autoCorrect="off"
-                                              autoCapitalize="off"
-                                              spellCheck="false"
-                                              onChange={(e) => {
-                                                setFacebookSearchQuery(e.target.value);
-                                                const query = e.target.value;
-                                                if (query.length === 0) {
-                                                  // Show saved venues when field is empty
-                                                  setFacebookSearchSuggestions(savedVenues.map(venue => ({
-                                                    id: venue.facebookId || '',
-                                                    name: venue.venueName,
-                                                    url: venue.facebookUrl || '',
-                                                    profilePicture: venue.profilePictureUrl || '',
-                                                    verified: true,
-                                                    isSaved: true
-                                                  })));
-                                                } else {
-                                                  searchFacebookPages(query);
-                                                }
-                                                setShowFacebookSuggestions(true);
-                                              }}
-                                              onFocus={() => {
-                                                if (facebookSearchQuery.length === 0 && savedVenues.length > 0) {
-                                                  // Show saved venues when focusing on empty field
-                                                  setFacebookSearchSuggestions(savedVenues.map(venue => ({
-                                                    id: venue.facebookId || '',
-                                                    name: venue.venueName,
-                                                    url: venue.facebookUrl || '',
-                                                    profilePicture: venue.profilePictureUrl || '',
-                                                    verified: true,
-                                                    isSaved: true
-                                                  })));
-                                                  setShowFacebookSuggestions(true);
-                                                } else if (facebookSearchQuery.length > 1) {
-                                                  searchFacebookPages(facebookSearchQuery);
-                                                  setShowFacebookSuggestions(true);
-                                                }
-                                              }}
-                                              onBlur={() => {
-                                                setTimeout(() => setShowFacebookSuggestions(false), 200);
-                                              }}
-                                            />
-                                            {isSearchingFacebook && (
-                                              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
-                                              </div>
-                                            )}
-                                          </div>
-                                        </div>
-                                        
-                                        {/* Facebook Search Results */}
-                                        {showFacebookSuggestions && facebookSearchSuggestions.length > 0 && (
-                                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
-                                            <div className="p-2 text-xs text-gray-500 border-b bg-gray-50">
-                                              <i className="fab fa-facebook text-blue-600 mr-1"></i>
-                                              {facebookSearchSuggestions.some(s => s.isSaved) ? "Lieux sauvegardés" : "Pages Facebook trouvées"}
-                                            </div>
-                                            {facebookSearchSuggestions.map((suggestion, index) => (
-                                              <button
-                                                key={index}
-                                                type="button"
-                                                className="w-full px-3 py-2 text-left hover:bg-blue-50 focus:bg-blue-50 focus:outline-none border-b border-gray-100 last:border-b-0"
-                                                onClick={async () => {
-                                                  field.onChange(suggestion.id);
-                                                  form.setValue('ticketsUrl', suggestion.url);
-                                                  setPreviewUrl(suggestion.url);
-                                                  setFacebookSearchQuery('');
-                                                  setShowFacebookSuggestions(false);
-                                                  
-                                                  if (suggestion.isSaved) {
-                                                    // If it's a saved venue, also fill in venue details
-                                                    const savedVenue = savedVenues.find(v => v.facebookId === suggestion.id || v.venueName === suggestion.name);
-                                                    if (savedVenue) {
-                                                      form.setValue('venueName', savedVenue.venueName);
-                                                      if (savedVenue.venueAddress) {
-                                                        form.setValue('venue', savedVenue.venueAddress);
-                                                      }
-                                                    }
-                                                    toast({
-                                                      title: "Lieu sauvegardé sélectionné",
-                                                      description: `${suggestion.name} ajouté au formulaire`
-                                                    });
-                                                  } else {
-                                                    // Save new venue data
-                                                    const venueData = {
-                                                      venueName: form.getValues('venueName') || suggestion.name,
-                                                      venueAddress: form.getValues('venue'),
-                                                      facebookId: suggestion.id,
-                                                      facebookUrl: suggestion.url,
-                                                      profilePictureUrl: suggestion.profilePicture,
-                                                    };
-                                                    
-                                                    await saveVenue(venueData);
-                                                    
-                                                    toast({
-                                                      title: "Page Facebook ajoutée",
-                                                      description: `${suggestion.name} sélectionnée et sauvegardée`
-                                                    });
-                                                  }
-                                                }}
-                                              >
-                                                <div className="flex items-center space-x-2">
-                                                  <div className="w-6 h-6 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
-                                                    <img
-                                                      src={suggestion.profilePicture}
-                                                      alt={suggestion.name}
-                                                      className="w-full h-full object-cover"
-                                                      onError={(e) => {
-                                                        e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjMzk3NEY2Ii8+CjxwYXRoIGQ9Ik0xMyAxMlYxNUgxNUwxNS4yIDEySDEzWk0xMiA3QzE0LjIgNyAxNS41IDguNSAxNS41IDEwLjVWMTJIMTNWMTAuNUMxMyAxMC4xIDEyLjYgMTAgMTIuMiAxMEgxMFY4LjVDMTAgOC4xIDEwLjQgNyAxMiA3WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cg==';
-                                                      }}
-                                                    />
-                                                  </div>
-                                                  <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center space-x-1">
-                                                      <div className="text-xs font-medium text-gray-900 truncate">
-                                                        {suggestion.name}
-                                                      </div>
-                                                      {suggestion.verified && (
-                                                        <div className="w-3 h-3 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                                          <i className="fas fa-check text-white text-xs"></i>
-                                                        </div>
-                                                      )}
-                                                      {suggestion.isSaved && (
-                                                        <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                                          <i className="fas fa-bookmark text-white text-xs"></i>
-                                                        </div>
-                                                      )}
-                                                    </div>
-                                                    <div className="text-xs text-gray-500 truncate">
-                                                      {suggestion.id ? `facebook.com/${suggestion.id}` : 'Lieu sauvegardé'}
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                              </button>
-                                            ))}
-                                          </div>
-                                        )}
-                                      </div>
-                                      <p className="text-xs text-gray-600 mt-1">
-                                        Tapez le nom du lieu pour chercher sa page Facebook et l'ajouter automatiquement
-                                      </p>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
+                                <FacebookEventSearch
+                                  eventTitle={form.watch('title')}
+                                  venueName={form.watch('venueName')}
+                                  onSelect={(result) => {
+                                    // Update form with selected Facebook page/event
+                                    form.setValue('facebookId', result.id);
+                                    form.setValue('ticketsUrl', result.url);
+                                    setPreviewUrl(result.url);
+                                    
+                                    // If it's a venue page, auto-fill venue name if not already set
+                                    if (result.type === 'page' && !form.getValues('venueName')) {
+                                      form.setValue('venueName', result.name);
+                                    }
+                                    
+                                    toast({
+                                      title: "Sélection Facebook",
+                                      description: `${result.name} ajouté à votre événement`,
+                                    });
+                                  }}
                                 />
                               </div>
+
+                              {/* Keep the existing URL preview section */}
+                              <FormField
+                                control={form.control}
+                                name="facebookId"
+                                render={({ field }) => (
+                                  <FormItem className="hidden">
+                                    <FormControl>
+                                      <Input {...field} />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
                               
+                              {/* Keep existing venue auto-detection */}
+                              {venueOptions.facebookUrl && (
+                                <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <FormLabel className="text-xs font-medium text-gray-700 flex items-center">
+                                      <i className="fas fa-lightbulb text-yellow-600 mr-2"></i>
+                                      Détection automatique
+                                    </FormLabel>
+                                  </div>
+                                  <div className="flex flex-wrap gap-2">
+                                    {venueOptions.facebookUrl && (
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-xs h-8 flex items-center"
+                                        onClick={() => {
+                                          form.setValue('ticketsUrl', venueOptions.facebookUrl!);
+                                          setPreviewUrl(venueOptions.facebookUrl!);
+                                          toast({
+                                            title: "Facebook sélectionné",
+                                            description: "Lien Facebook ajouté au champ URL des billets"
+                                          });
+                                        }}
+                                      >
+                                        <i className="fab fa-facebook mr-1"></i>
+                                        Facebook
+                                      </Button>
+                                    )}
+                                    {venueOptions.websiteUrl && (
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-xs h-8 flex items-center"
+                                        onClick={() => {
+                                          form.setValue('ticketsUrl', venueOptions.websiteUrl!);
+                                          setPreviewUrl(venueOptions.websiteUrl!);
+                                          toast({
+                                            title: "Site web sélectionné",
+                                            description: "Lien du site web ajouté au champ URL des billets"
+                                          });
+                                        }}
+                                      >
+                                        <i className="fas fa-globe mr-1"></i>
+                                        Site web
+                                      </Button>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+
                               {/* URL Preview */}
                               {previewUrl && (
                                 <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">

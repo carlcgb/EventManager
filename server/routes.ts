@@ -81,36 +81,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Google Places API proxy endpoint
   // New endpoint to search for venue social media links
-  // Facebook Pages search endpoint - searches by venue name
+  // Facebook Pages and Events search endpoint
   app.get('/api/facebook/search', async (req, res) => {
     try {
       const query = req.query.q as string;
+      const searchType = req.query.type as string || 'page'; // 'page', 'event', or 'all'
+      
       if (!query || query.length < 2) {
         return res.json({ data: [] });
       }
       
-      // Define known Quebec venues with their Facebook IDs and real names
+      // Define known Quebec venues with their Facebook IDs, real names, and categories
       const quebecVenues = [
-        { id: 'bordelcomedie', name: 'Le Bordel Comédie Club', address: 'Montréal, QC' },
-        { id: 'lebordel', name: 'Le Bordel', address: 'Montréal, QC' },
-        { id: 'lefoutoir', name: 'Le Foutoir', address: 'Montréal, QC' },
-        { id: 'comedynesttwo', name: 'Comedy Nest', address: 'Montréal, QC' },
-        { id: 'comedyworksmontreal', name: 'Comedy Works', address: 'Montréal, QC' },
-        { id: 'barleraymond', name: 'Bar Le Raymond', address: 'Montréal, QC' },
-        { id: 'saintbock', name: 'Saint-Bock', address: 'Montréal, QC' },
-        { id: 'lereservoir', name: 'Le Réservoir', address: 'Montréal, QC' },
-        { id: 'ledieuducielmontreal', name: 'Le Dieu du Ciel', address: 'Montréal, QC' },
-        { id: 'unibroue', name: 'Unibroue', address: 'Chambly, QC' },
-        { id: 'brutopia', name: 'Brutopia', address: 'Montréal, QC' },
-        { id: 'pubquartierlatinmtl', name: 'Pub Quartier Latin', address: 'Montréal, QC' },
-        { id: 'chezserge', name: 'Chez Serge', address: 'Montréal, QC' },
-        { id: 'bistrolemythos', name: 'Bistro Le Mythos', address: 'Montréal, QC' },
-        { id: 'pubstpatrick', name: 'Pub St-Patrick', address: 'Montréal, QC' },
-        { id: 'loupgaron', name: 'Loup Garou', address: 'Québec, QC' },
-        { id: 'chezmaurice', name: 'Chez Maurice', address: 'Québec, QC' },
-        { id: 'korrigannpub', name: 'Korrigann Pub', address: 'Québec, QC' },
-        { id: 'pubdufaubourg', name: 'Pub du Faubourg', address: 'Québec, QC' },
-        { id: 'sacrecoeurpub', name: 'Sacré-Coeur Pub', address: 'Québec, QC' },
+        { id: 'bordelcomedie', name: 'Le Bordel Comédie Club', address: 'Montréal, QC', category: 'Club de comédie', type: 'page' },
+        { id: 'lebordel', name: 'Le Bordel', address: 'Montréal, QC', category: 'Bar', type: 'page' },
+        { id: 'lefoutoir', name: 'Le Foutoir', address: 'Montréal, QC', category: 'Bar/Restaurant', type: 'page' },
+        { id: 'comedynesttwo', name: 'Comedy Nest', address: 'Montréal, QC', category: 'Club de comédie', type: 'page' },
+        { id: 'comedyworksmontreal', name: 'Comedy Works', address: 'Montréal, QC', category: 'Club de comédie', type: 'page' },
+        { id: 'barleraymond', name: 'Bar Le Raymond', address: 'Montréal, QC', category: 'Bar', type: 'page' },
+        { id: 'saintbock', name: 'Saint-Bock', address: 'Montréal, QC', category: 'Brasserie', type: 'page' },
+        { id: 'lereservoir', name: 'Le Réservoir', address: 'Montréal, QC', category: 'Brasserie', type: 'page' },
+        { id: 'ledieuducielmontreal', name: 'Le Dieu du Ciel', address: 'Montréal, QC', category: 'Brasserie', type: 'page' },
+        { id: 'unibroue', name: 'Unibroue', address: 'Chambly, QC', category: 'Brasserie', type: 'page' },
+        { id: 'brutopia', name: 'Brutopia', address: 'Montréal, QC', category: 'Brasserie', type: 'page' },
+        { id: 'pubquartierlatinmtl', name: 'Pub Quartier Latin', address: 'Montréal, QC', category: 'Pub', type: 'page' },
+        { id: 'chezserge', name: 'Chez Serge', address: 'Montréal, QC', category: 'Restaurant', type: 'page' },
+        { id: 'bistrolemythos', name: 'Bistro Le Mythos', address: 'Montréal, QC', category: 'Restaurant', type: 'page' },
+        { id: 'pubstpatrick', name: 'Pub St-Patrick', address: 'Montréal, QC', category: 'Pub', type: 'page' },
+        { id: 'loupgaron', name: 'Loup Garou', address: 'Québec, QC', category: 'Bar', type: 'page' },
+        { id: 'chezmaurice', name: 'Chez Maurice', address: 'Québec, QC', category: 'Restaurant', type: 'page' },
+        { id: 'korrigannpub', name: 'Korrigann Pub', address: 'Québec, QC', category: 'Pub', type: 'page' },
+        { id: 'pubdufaubourg', name: 'Pub du Faubourg', address: 'Québec, QC', category: 'Pub', type: 'page' },
+        { id: 'sacrecoeurpub', name: 'Sacré-Coeur Pub', address: 'Québec, QC', category: 'Pub', type: 'page' },
+        // Sample events (these would normally come from a real API)
+        { id: 'event-stand-up-bordeL', name: 'Soirée Stand-up au Bordel', address: 'Montréal, QC', category: 'Spectacle', type: 'event', description: 'Soirée de stand-up avec des humoristes locaux' },
+        { id: 'event-comedy-night', name: 'Comedy Night Montréal', address: 'Montréal, QC', category: 'Comédie', type: 'event', description: 'Nuit de la comédie avec plusieurs artistes' },
+        { id: 'event-open-mic', name: 'Open Mic Comedy', address: 'Montréal, QC', category: 'Open Mic', type: 'event', description: 'Micro ouvert pour humoristes débutants' },
       ];
       
       // Normalize search query for better matching
@@ -174,34 +180,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return { ...venue, score };
       });
       
+      // Filter venues based on search type
+      let filteredItems = quebecVenues;
+      if (searchType === 'page') {
+        filteredItems = quebecVenues.filter(item => item.type === 'page');
+      } else if (searchType === 'event') {
+        filteredItems = quebecVenues.filter(item => item.type === 'event');
+      }
+      
+      // Score venues based on name similarity
+      const scoredItems = filteredItems.map(item => {
+        const normalizedItemName = normalizeText(item.name);
+        const itemWords = normalizedItemName.split(' ').filter(word => word.length > 1);
+        
+        let score = 0;
+        
+        // Exact name match
+        if (normalizedItemName.includes(normalizedQuery)) {
+          score += 100;
+        }
+        
+        // Word matching
+        let matchedWords = 0;
+        queryWords.forEach(queryWord => {
+          itemWords.forEach(itemWord => {
+            if (itemWord.includes(queryWord) || queryWord.includes(itemWord)) {
+              matchedWords++;
+              score += 20;
+            }
+            // Partial word matching
+            if (itemWord.length > 3 && queryWord.length > 3) {
+              const commonLength = Math.min(itemWord.length, queryWord.length);
+              const similarity = queryWord.substring(0, commonLength) === itemWord.substring(0, commonLength);
+              if (similarity) {
+                score += 10;
+              }
+            }
+          });
+        });
+        
+        // Bonus for matching most words
+        if (matchedWords >= queryWords.length * 0.7) {
+          score += 30;
+        }
+        
+        // Check if query matches Facebook ID
+        if (item.id.includes(normalizedQuery.replace(/\s+/g, ''))) {
+          score += 50;
+        }
+        
+        return { ...item, score };
+      });
+      
       // Filter and sort by score
-      const filteredVenues = scoredVenues
-        .filter(venue => venue.score > 0)
+      const filteredResults = scoredItems
+        .filter(item => item.score > 0)
         .sort((a, b) => b.score - a.score)
         .slice(0, 10);
       
-      // Verify which pages actually exist and add their profile pictures
+      // Build results with proper formatting
       const results = [];
-      for (const venue of filteredVenues) {
-        const facebookUrl = `https://www.facebook.com/${venue.id}`;
-        const profilePictureUrl = `https://graph.facebook.com/${venue.id}/picture?type=large`;
+      for (const item of filteredResults) {
+        const facebookUrl = item.type === 'event' 
+          ? `https://www.facebook.com/events/${item.id}`
+          : `https://www.facebook.com/${item.id}`;
+        const profilePictureUrl = item.type === 'page' 
+          ? `https://graph.facebook.com/${item.id}/picture?type=large`
+          : undefined;
         
-        try {
-          const response = await fetch(profilePictureUrl, { method: 'HEAD' });
-          const isValid = response.ok && response.headers.get('content-type')?.startsWith('image/');
-          
-          if (isValid) {
-            results.push({
-              id: venue.id,
-              name: venue.name,
-              url: facebookUrl,
-              profilePicture: profilePictureUrl,
-              verified: true
-            });
+        // For pages, verify the profile picture exists
+        let isValidProfilePicture = false;
+        if (item.type === 'page' && profilePictureUrl) {
+          try {
+            const response = await fetch(profilePictureUrl, { method: 'HEAD' });
+            const contentType = response.headers.get('content-type');
+            isValidProfilePicture = response.ok && (contentType?.startsWith('image/') || false);
+          } catch (error) {
+            // Profile picture doesn't exist
+            isValidProfilePicture = false;
           }
-        } catch (error) {
-          // Page doesn't exist, skip it
         }
+        
+        results.push({
+          id: item.id,
+          name: item.name,
+          url: facebookUrl,
+          type: item.type,
+          profilePicture: isValidProfilePicture ? profilePictureUrl : undefined,
+          description: item.description || undefined,
+          location: item.address,
+          category: item.category,
+          verified: true
+        });
       }
       
       res.json({ data: results });
