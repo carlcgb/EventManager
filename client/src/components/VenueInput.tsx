@@ -149,6 +149,13 @@ export function VenueInput({ value, onChange, placeholder, onVenueNameExtracted 
     if (onVenueNameExtracted && event.venue) {
       onVenueNameExtracted(event.venue);
     }
+    
+    // Copy Facebook URL to clipboard
+    if (event.facebookUrl) {
+      navigator.clipboard.writeText(event.facebookUrl).catch(() => {
+        // Silently fail if clipboard access is not available
+      });
+    }
   };
 
   const formatDate = (dateString: string) => {

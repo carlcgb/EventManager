@@ -137,6 +137,11 @@ Preferred communication style: Simple, everyday language.
 - **Facebook page auto-detection** - Automatically searches for venue Facebook pages and website links when address is selected, with visual loading indicator
 - **Manual Facebook ID input** - Added field to manually enter Facebook page ID with automatic URL construction (facebook.com/ID)
 - **Smart URL preview** - Replaced iframe preview with card-based preview system that works with Facebook's security restrictions
+- **Facebook page and event search** - Added comprehensive search functionality for real Facebook pages and events with verification
+- **Real Facebook page verification** - System only returns Facebook pages that actually exist by checking profile pictures
+- **Copy-to-clipboard integration** - Facebook links are automatically copied to clipboard when selected for easy addition to events
+- **Dual search modes** - Users can toggle between searching for venue pages and Facebook events in venue input fields
+- **Quebec venue database** - Curated list of real Quebec entertainment venues with verified Facebook pages
 
 ### Build and Bundling
 - **esbuild** - Fast JavaScript bundler for production

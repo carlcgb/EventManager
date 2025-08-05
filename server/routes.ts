@@ -91,28 +91,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ data: [] });
       }
       
-      // Define known Quebec venues with their Facebook IDs and real names
+      // Define known Quebec venues with their real Facebook IDs
       const quebecVenues = [
         { id: 'bordelcomedie', name: 'Le Bordel Comédie Club', address: 'Montréal, QC' },
         { id: 'lebordel', name: 'Le Bordel', address: 'Montréal, QC' },
-        { id: 'lefoutoir', name: 'Le Foutoir', address: 'Montréal, QC' },
-        { id: 'comedynesttwo', name: 'Comedy Nest', address: 'Montréal, QC' },
-        { id: 'comedyworksmontreal', name: 'Comedy Works', address: 'Montréal, QC' },
-        { id: 'barleraymond', name: 'Bar Le Raymond', address: 'Montréal, QC' },
-        { id: 'saintbock', name: 'Saint-Bock', address: 'Montréal, QC' },
-        { id: 'lereservoir', name: 'Le Réservoir', address: 'Montréal, QC' },
-        { id: 'ledieuducielmontreal', name: 'Le Dieu du Ciel', address: 'Montréal, QC' },
-        { id: 'unibroue', name: 'Unibroue', address: 'Chambly, QC' },
+        { id: 'centrebell', name: 'Centre Bell', address: 'Montréal, QC' },
+        { id: 'comedynest', name: 'Comedy Nest', address: 'Montréal, QC' },
+        { id: 'comedyworks', name: 'Comedy Works', address: 'Montréal, QC' },
+        { id: 'olympiamontreal', name: 'Olympia de Montréal', address: 'Montréal, QC' },
+        { id: 'metropolismontreal', name: 'Métropolis', address: 'Montréal, QC' },
+        { id: 'coronatheatre', name: 'Corona Theatre', address: 'Montréal, QC' },
+        { id: 'theatreoutremont', name: 'Théâtre Outremont', address: 'Montréal, QC' },
+        { id: 'maisontheatre', name: 'Maison Théâtre', address: 'Montréal, QC' },
         { id: 'brutopia', name: 'Brutopia', address: 'Montréal, QC' },
-        { id: 'pubquartierlatinmtl', name: 'Pub Quartier Latin', address: 'Montréal, QC' },
-        { id: 'chezserge', name: 'Chez Serge', address: 'Montréal, QC' },
-        { id: 'bistrolemythos', name: 'Bistro Le Mythos', address: 'Montréal, QC' },
-        { id: 'pubstpatrick', name: 'Pub St-Patrick', address: 'Montréal, QC' },
-        { id: 'loupgaron', name: 'Loup Garou', address: 'Québec, QC' },
-        { id: 'chezmaurice', name: 'Chez Maurice', address: 'Québec, QC' },
-        { id: 'korrigannpub', name: 'Korrigann Pub', address: 'Québec, QC' },
-        { id: 'pubdufaubourg', name: 'Pub du Faubourg', address: 'Québec, QC' },
-        { id: 'sacrecoeurpub', name: 'Sacré-Coeur Pub', address: 'Québec, QC' },
+        { id: 'upstairsjazzbar', name: 'Upstairs Jazz Bar & Grill', address: 'Montréal, QC' },
+        { id: 'lereservoir', name: 'Le Réservoir', address: 'Montréal, QC' },
+        { id: 'saintbock', name: 'Saint-Bock', address: 'Montréal, QC' },
+        { id: 'ledieuducielmontreal', name: 'Le Dieu du Ciel!', address: 'Montréal, QC' },
+        { id: 'unibroue', name: 'Unibroue', address: 'Chambly, QC' },
+        { id: 'centrevideotron', name: 'Centre Vidéotron', address: 'Québec, QC' },
+        { id: 'lecapitolequebec', name: 'Le Capitole de Québec', address: 'Québec, QC' },
+        { id: 'palaisgrandtheatre', name: 'Palais Montcalm', address: 'Québec, QC' },
+        { id: 'casinolacleamy', name: 'Casino du Lac-Leamy', address: 'Gatineau, QC' },
       ];
       
       // Define known Quebec events with their Facebook event IDs
@@ -247,29 +247,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .sort((a, b) => b.score - a.score)
           .slice(0, 10);
         
-        // Include all matched venues, with verification status
+        // Only include venues that actually exist on Facebook
         results = [];
         for (const venue of filteredVenues) {
           const facebookUrl = `https://www.facebook.com/${venue.id}`;
           const profilePictureUrl = `https://graph.facebook.com/${venue.id}/picture?type=large`;
           
-          let verified = false;
           try {
             const response = await fetch(profilePictureUrl, { method: 'HEAD' });
-            verified = response.ok && response.headers.get('content-type')?.startsWith('image/');
+            const isValid = response.ok && response.headers.get('content-type')?.startsWith('image/');
+            
+            if (isValid) {
+              results.push({
+                id: venue.id,
+                name: venue.name,
+                url: facebookUrl,
+                profilePicture: profilePictureUrl,
+                verified: true,
+                searchType: 'venue'
+              });
+            }
           } catch (error) {
-            verified = false;
+            // Page doesn't exist, skip it
           }
-          
-          // Include all venues, but mark verification status
-          results.push({
-            id: venue.id,
-            name: venue.name,
-            url: facebookUrl,
-            profilePicture: verified ? profilePictureUrl : null,
-            verified: verified,
-            searchType: 'venue'
-          });
         }
       }
       

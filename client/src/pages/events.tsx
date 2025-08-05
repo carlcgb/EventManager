@@ -162,11 +162,18 @@ export default function Events() {
                 value=""
                 onChange={() => {}}
                 onEventSelected={(event) => {
-                  toast({
-                    title: "Événement trouvé",
-                    description: `${event.name} au ${event.venue}`,
+                  navigator.clipboard.writeText(event.facebookUrl).then(() => {
+                    toast({
+                      title: "Lien copié",
+                      description: `Lien de l'événement "${event.name}" copié dans le presse-papiers`,
+                    });
+                  }).catch(() => {
+                    toast({
+                      title: "Événement trouvé",
+                      description: `${event.name} au ${event.venue}`,
+                    });
+                    window.open(event.facebookUrl, '_blank');
                   });
-                  window.open(event.facebookUrl, '_blank');
                 }}
                 placeholder="Rechercher des événements (ex: comédie montréal, concert jazz, etc.)"
               />
