@@ -842,15 +842,12 @@ export default function Home() {
                                           size="sm"
                                           className="text-xs h-7 px-3"
                                           onClick={() => {
-                                            const facebookId = form.getValues('facebookId');
-                                            if (facebookId) {
-                                              const searchUrl = `https://www.facebook.com/search/pages/?q=${encodeURIComponent(facebookId)}`;
-                                              window.open(searchUrl, '_blank');
-                                            }
+                                            // Open the actual Facebook page/event URL
+                                            window.open(previewUrl, '_blank');
                                           }}
                                         >
-                                          <i className="fas fa-search mr-1"></i>
-                                          Rechercher
+                                          <i className="fab fa-facebook mr-1"></i>
+                                          Voir sur Facebook
                                         </Button>
                                       )}
                                     </div>
