@@ -2,10 +2,6 @@ import {
   users,
   events,
   calendarIntegrations,
-  badges,
-  userBadges,
-  eventShares,
-  userStats,
   type User,
   type UpsertUser,
   type LoginUser,
@@ -15,13 +11,9 @@ import {
   type UpdateEvent,
   type CalendarIntegration,
   type InsertCalendarIntegration,
-  type Badge,
-  type UserBadge,
-  type EventShare,
-  type UserStats,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, count } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
 // Interface for storage operations
@@ -55,13 +47,7 @@ export interface IStorage {
   deleteCalendarIntegration(id: string, userId: string): Promise<boolean>;
   getActiveCalendarIntegration(userId: string, provider: string): Promise<CalendarIntegration | undefined>;
 
-  // Social features operations
-  getUserBadges(userId: string): Promise<UserBadge[]>;
-  getAllBadges(): Promise<Badge[]>;
-  getUserStats(userId: string): Promise<UserStats>;
-  createEventShare(share: { eventId: string; userId: string; platform: string }): Promise<EventShare>;
-  updateUserStats(userId: string): Promise<void>;
-  checkAndAwardBadges(userId: string): Promise<void>;
+
 }
 
 export class DatabaseStorage implements IStorage {
@@ -166,6 +152,7 @@ export class DatabaseStorage implements IStorage {
       .insert(events)
       .values({
         ...eventData,
+        date: eventData.date.toISOString().split('T')[0], // Convert Date to string format
         status: eventData.publishToWebsite ? "published" : "draft",
       })
       .returning();
@@ -177,6 +164,7 @@ export class DatabaseStorage implements IStorage {
       .update(events)
       .set({
         ...eventData,
+        date: eventData.date ? eventData.date.toISOString().split('T')[0] : undefined,
         updatedAt: new Date(),
       })
       .where(and(eq(events.id, id), eq(events.userId, userId)))
@@ -205,9 +193,10 @@ export class DatabaseStorage implements IStorage {
       .from(events)
       .where(eq(events.userId, userId));
 
-    const monthlyEvents = userEvents.filter(event => 
-      event.date >= startOfMonth && event.date <= endOfMonth
-    ).length;
+    const monthlyEvents = userEvents.filter(event => {
+      const eventDate = new Date(event.date);
+      return eventDate >= startOfMonth && eventDate <= endOfMonth;
+    }).length;
 
     const publishedEvents = userEvents.filter(event => 
       event.status === "published"
@@ -290,131 +279,7 @@ export class DatabaseStorage implements IStorage {
     return integration;
   }
 
-  // Social features operations
-  async getUserBadges(userId: string): Promise<UserBadge[]> {
-    return await db
-      .select()
-      .from(userBadges)
-      .where(eq(userBadges.userId, userId));
-  }
 
-  async getAllBadges(): Promise<Badge[]> {
-    return await db.select().from(badges);
-  }
-
-  async getUserStats(userId: string): Promise<UserStats> {
-    const [stats] = await db
-      .select()
-      .from(userStats)
-      .where(eq(userStats.userId, userId));
-    
-    if (!stats) {
-      // Create initial stats if they don't exist
-      const newStats = {
-        userId,
-        eventsCreated: "0",
-        eventsPublished: "0",
-        eventsShared: "0",
-        calendarIntegrations: "0",
-        totalShares: "0",
-        streakDays: "0"
-      };
-      
-      const [createdStats] = await db
-        .insert(userStats)
-        .values(newStats)
-        .returning();
-      
-      return createdStats;
-    }
-    
-    return stats;
-  }
-
-  async createEventShare(share: { eventId: string; userId: string; platform: string }): Promise<EventShare> {
-    const [newShare] = await db
-      .insert(eventShares)
-      .values({
-        eventId: share.eventId,
-        userId: share.userId,
-        platform: share.platform as any
-      })
-      .returning();
-    return newShare;
-  }
-
-  async updateUserStats(userId: string): Promise<void> {
-    // Get current counts
-    const eventsCreated = await db
-      .select({ count: count(events.id) })
-      .from(events)
-      .where(eq(events.userId, userId));
-
-    const eventsShared = await db
-      .select({ count: count(eventShares.id) })
-      .from(eventShares)
-      .where(eq(eventShares.userId, userId));
-
-    const badgesEarned = await db
-      .select({ count: count(userBadges.id) })
-      .from(userBadges)
-      .where(eq(userBadges.userId, userId));
-
-    // Update or insert stats
-    const existingStats = await db
-      .select()
-      .from(userStats)
-      .where(eq(userStats.userId, userId));
-
-    if (existingStats.length > 0) {
-      await db
-        .update(userStats)
-        .set({
-          eventsCreated: eventsCreated[0].count.toString(),
-          eventsShared: eventsShared[0].count.toString(),
-          totalShares: eventsShared[0].count.toString(),
-          updatedAt: new Date()
-        })
-        .where(eq(userStats.userId, userId));
-    } else {
-      await db
-        .insert(userStats)
-        .values({
-          userId,
-          eventsCreated: eventsCreated[0].count.toString(),
-          eventsShared: eventsShared[0].count.toString(),
-          totalShares: eventsShared[0].count.toString()
-        });
-    }
-  }
-
-  async checkAndAwardBadges(userId: string): Promise<void> {
-    const stats = await this.getUserStats(userId);
-    const currentBadges = await this.getUserBadges(userId);
-    const currentBadgeIds = currentBadges.map(b => b.badgeId);
-
-    const eventsCreated = parseInt(stats.eventsCreated || "0");
-    const eventsShared = parseInt(stats.eventsShared || "0");
-
-    // Define badge conditions
-    const badgeConditions = [
-      { id: 'first-event', condition: eventsCreated >= 1 },
-      { id: 'event-master', condition: eventsCreated >= 10 },
-      { id: 'social-butterfly', condition: eventsShared >= 5 }
-    ];
-
-    // Award new badges
-    for (const { id, condition } of badgeConditions) {
-      if (condition && !currentBadgeIds.includes(id)) {
-        await db
-          .insert(userBadges)
-          .values({
-            userId,
-            badgeId: id
-          });
-      }
-    }
-  }
 }
 
 export const storage = new DatabaseStorage();

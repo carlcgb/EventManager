@@ -12,7 +12,7 @@ import Home from "@/pages/home";
 import Events from "@/pages/events";
 import CalendarIntegrations from "@/pages/calendar-integrations";
 import CalendarSettings from "@/pages/calendar-settings";
-import SocialBadges from "@/pages/social-badges";
+
 import PublicEvent from "@/pages/public-event";
 
 function Router() {
@@ -33,7 +33,7 @@ function Router() {
           <Route path="/events" component={Events} />
           <Route path="/calendar-integrations" component={CalendarIntegrations} />
           <Route path="/calendar-settings" component={CalendarSettings} />
-          <Route path="/badges" component={SocialBadges} />
+
           <Route path="/event/:id" component={PublicEvent} />
         </>
       )}

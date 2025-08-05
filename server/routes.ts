@@ -9,7 +9,7 @@ import { insertEventSchema, updateEventSchema, insertCalendarIntegrationSchema, 
 import { CalendarIntegrationService } from "./calendarService";
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, and } from 'drizzle-orm';
 import { db } from './db';
 
 // Helper function to format dates in French
@@ -215,7 +215,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get saved venues for current user
   app.get('/api/venues/saved', isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user?.id;
+      const userId = (req as any).user?.id;
       if (!userId) {
         return res.status(401).json({ error: 'User not authenticated' });
       }
@@ -236,7 +236,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Save or update a venue
   app.post('/api/venues/save', isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user?.id;
+      const userId = (req as any).user?.id;
       if (!userId) {
         return res.status(401).json({ error: 'User not authenticated' });
       }
@@ -247,8 +247,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const existingVenue = await db
         .select()
         .from(savedVenues)
-        .where(eq(savedVenues.userId, userId))
-        .where(eq(savedVenues.facebookId, venueData.facebookId || ''))
+        .where(and(
+          eq(savedVenues.userId, userId),
+          eq(savedVenues.facebookId, venueData.facebookId || '')
+        ))
         .limit(1);
 
       if (existingVenue.length > 0) {
@@ -256,7 +258,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const [updated] = await db
           .update(savedVenues)
           .set({
-            useCount: existingVenue[0].useCount + 1,
+            useCount: (existingVenue[0].useCount || 0) + 1,
             lastUsed: new Date(),
             venueName: venueData.venueName, // Update in case venue name changed
             venueAddress: venueData.venueAddress,
@@ -575,7 +577,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/events", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user.id;
       const events = await storage.getUserEvents(userId);
       
       // Transform dates to French format for display
@@ -595,7 +597,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/events/stats", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user.id;
       const stats = await storage.getEventStats(userId);
       res.json(stats);
     } catch (error) {
@@ -608,7 +610,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("POST /api/events - req.user:", req.user);
       
-      const userId = req.user.id;
+      const userId = (req as any).user.id;
       const eventData = insertEventSchema.parse(req.body);
       
       let calendarEventId = null;
@@ -692,7 +694,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/events/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user.id;
       const eventId = req.params.id;
       const eventData = updateEventSchema.parse(req.body);
 
@@ -783,7 +785,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/events/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user.id;
       const eventId = req.params.id;
 
       const success = await storage.deleteEvent(eventId, userId);
@@ -889,7 +891,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/calendar/integrations", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user.id;
       const integrationData = insertCalendarIntegrationSchema.parse(req.body);
 
       const integration = await storage.createCalendarIntegration({
@@ -910,7 +912,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Legacy support for calendar-integrations routes
   app.post("/api/calendar-integrations", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user.id;
       const integrationData = insertCalendarIntegrationSchema.parse(req.body);
 
       const integration = await storage.createCalendarIntegration({
@@ -930,7 +932,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/calendar-integrations/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user.id;
       const integrationId = req.params.id;
       const updates = req.body;
 
@@ -952,7 +954,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/calendar-integrations/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = (req as any).user.id;
       const integrationId = req.params.id;
 
       const success = await storage.deleteCalendarIntegration(integrationId, userId);
@@ -975,7 +977,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const callbackUrl = `https://evenements.replit.app/api/auth/google/callback`;
       
       console.log("Initiating Google OAuth with callback:", callbackUrl);
-      console.log("User ID:", (req.user as any).claims.sub);
+      console.log("User ID:", ((req as any).user as any).claims.sub);
       
       const oauth2Client = new google.auth.OAuth2(
         process.env.GOOGLE_CLIENT_ID,
@@ -987,7 +989,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const url = oauth2Client.generateAuthUrl({
         access_type: 'offline',
         scope: scopes,
-        state: (req.user as any).claims.sub, // ID utilisateur pour associer le token
+        state: ((req as any).user as any).claims.sub, // ID utilisateur pour associer le token
         prompt: 'consent', // Force consent screen pour obtenir refresh token
         include_granted_scopes: true, // For mobile compatibility
       });
@@ -1090,76 +1092,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   const httpServer = createServer(app);
   
-  // Social sharing and badges API routes
-  app.get("/api/user/badges", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.id;
-      const badges = await storage.getUserBadges(userId);
-      res.json(badges);
-    } catch (error) {
-      console.error("Erreur récupération badges utilisateur:", error);
-      res.status(500).json({ message: "Erreur lors de la récupération des badges" });
-    }
-  });
 
-  app.get("/api/badges", isAuthenticated, async (req: any, res) => {
-    try {
-      const badges = await storage.getAllBadges();
-      res.json(badges);
-    } catch (error) {
-      console.error("Erreur récupération badges:", error);
-      res.status(500).json({ message: "Erreur lors de la récupération des badges" });
-    }
-  });
-
-  app.get("/api/user/stats", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.id;
-      const stats = await storage.getUserStats(userId);
-      res.json(stats);
-    } catch (error) {
-      console.error("Erreur récupération statistiques utilisateur:", error);
-      res.status(500).json({ message: "Erreur lors de la récupération des statistiques" });
-    }
-  });
-
-  app.post("/api/events/share", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.id;
-      const { eventId, platform } = req.body;
-      
-      if (!eventId || !platform) {
-        return res.status(400).json({ message: "eventId et platform sont requis" });
-      }
-
-      // Verify event exists and belongs to user
-      const event = await storage.getEvent(eventId, userId);
-      if (!event) {
-        return res.status(404).json({ message: "Événement non trouvé" });
-      }
-
-      // Record the share
-      const share = await storage.createEventShare({
-        eventId,
-        userId,
-        platform
-      });
-
-      // Update user stats
-      await storage.updateUserStats(userId);
-
-      // Check and award badges
-      await storage.checkAndAwardBadges(userId);
-
-      res.json({ 
-        share,
-        message: "Partage enregistré avec succès" 
-      });
-    } catch (error) {
-      console.error("Erreur enregistrement partage:", error);
-      res.status(500).json({ message: "Erreur lors de l'enregistrement du partage" });
-    }
-  });
 
   return httpServer;
 }

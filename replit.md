@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a comprehensive event management web application built with a modern tech stack. The system allows users to create, manage, and publish events with advanced customization features and interactive social functionalities. Key features include Google Calendar integration, Google Maps location services, real-time notifications, user badge system, and social sharing capabilities. The application is designed with a Western theme and supports French localization.
+This is a comprehensive event management web application built with a modern tech stack. The system allows users to create, manage, and publish events with advanced customization features. Key features include Google Calendar integration, Google Maps location services, venue management with Facebook page integration, and real-time notifications. The application is designed with a modern purple/violet theme and supports French localization.
 
 ## User Preferences
 
@@ -29,7 +29,7 @@ Preferred communication style: Simple, everyday language.
 ### Database Design
 - **PostgreSQL** as the primary database
 - **Drizzle migrations** for schema versioning
-- Core tables: users, events, calendar_integrations, badges, user_badges, event_shares, user_stats, sessions
+- Core tables: users, events, calendar_integrations, saved_venues, sessions
 - **Session storage** table required for Replit Auth integration
 
 ### Authentication Strategy
@@ -115,6 +115,9 @@ Preferred communication style: Simple, everyday language.
 - **@replit/vite-plugin-runtime-error-modal** - Error handling in development
 
 ### Recent Changes
+- **Badge and stats system removal** - Removed all badge-related features, user_badges, user_stats, and event_shares tables to simplify the application
+- **Code cleanup** - Cleaned up unused imports, routes, and components related to social features
+- **Database optimization** - Streamlined database schema to focus on core event management functionality
 - **Modern color scheme** - Updated to purple/violet theme with improved contrast and readability
 - **French date format** - Updated to display dates as "17 NOVEMBRE 2025" throughout the application
 - **Date-only format** - Changed from timestamp to date-only for simplified user experience
