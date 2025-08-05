@@ -33,6 +33,7 @@ export function extractVenueName(description: string): string {
   const knownVenues = [
     // Comedy clubs
     { pattern: /le bordel com[eé]die club/i, name: 'Le Bordel Comédie Club' },
+    { pattern: /bordel com[eé]die club/i, name: 'Le Bordel Comédie Club' },
     { pattern: /le bordel/i, name: 'Le Bordel' },
     { pattern: /le foutoir/i, name: 'Le Foutoir' },
     { pattern: /comedy nest/i, name: 'Comedy Nest' },
@@ -81,6 +82,10 @@ export function extractVenueName(description: string): string {
     { pattern: /brasserie harricana/i, name: 'Brasserie Harricana' },
     { pattern: /brasserie pit caribou/i, name: 'Brasserie Pit Caribou' },
     
+    // Granby venues
+    { pattern: /la soir[eé]e du rire de granby/i, name: 'La Soirée du Rire de Granby' },
+    { pattern: /soir[eé]e du rire de granby/i, name: 'Soirée du Rire de Granby' },
+    
     // Music venues
     { pattern: /club soda/i, name: 'Club Soda' },
     { pattern: /house of targ/i, name: 'House of Targ' },
@@ -96,9 +101,10 @@ export function extractVenueName(description: string): string {
     { pattern: /vieux[- ]?port steakhouse/i, name: 'Vieux-Port Steakhouse' },
   ];
 
-  // First check known venues
+  // First check known venues (most specific patterns first)
   for (const venue of knownVenues) {
     if (venue.pattern.test(description)) {
+      console.log(`Found known venue: ${venue.name} from "${description}"`);
       return venue.name;
     }
   }
@@ -155,8 +161,13 @@ export function extractVenueName(description: string): string {
                      !/^\d+/.test(name); // doesn't start with number
       
       if (isValid) {
-        // Capitalize first letter of each word
-        return name.replace(/\b\w/g, l => l.toUpperCase());
+        console.log(`Extracted venue name: "${name}" from "${description}"`);
+        // Preserve original casing to avoid issues with accented characters
+        // Only capitalize first letter if the whole thing is lowercase
+        if (name === name.toLowerCase()) {
+          return name.replace(/\b\w/g, l => l.toUpperCase());
+        }
+        return name;
       }
     }
   }
