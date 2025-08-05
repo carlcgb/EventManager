@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { MapPin } from "lucide-react";
+import { extractVenueName } from "@/lib/utils";
 
 interface VenueInputProps {
   value: string;
@@ -16,54 +17,6 @@ interface PlacePrediction {
     main_text: string;
     secondary_text: string;
   };
-}
-
-// Enhanced venue name extraction function
-function extractVenueName(address: string): string {
-  // Common venue patterns to extract meaningful names
-  const venuePatterns = [
-    // Bars and restaurants
-    /^(Bar|Restaurant|Café|Club|Pub|Bistro|Brasserie)\s+(.+?),/i,
-    /^(.+?)\s+(Bar|Restaurant|Café|Club|Pub|Bistro|Brasserie),/i,
-    
-    // Entertainment venues
-    /^(Centre|Theater|Theatre|Théâtre|Salle|Arena|Auditorium)\s+(.+?),/i,
-    /^(.+?)\s+(Centre|Theater|Theatre|Théâtre|Salle|Arena|Auditorium),/i,
-    
-    // Hotels
-    /^(Hotel|Hôtel)\s+(.+?),/i,
-    /^(.+?)\s+(Hotel|Hôtel),/i,
-    
-    // Generic business name extraction (before first comma)
-    /^([^,0-9]+?),/,
-  ];
-
-  for (const pattern of venuePatterns) {
-    const match = address.match(pattern);
-    if (match) {
-      // Return the most meaningful part (usually group 2 for prefix patterns, group 1 for others)
-      const result = match[2] ? match[2].trim() : match[1].trim();
-      if (result && result.length > 2 && !result.match(/^\d/)) {
-        return result;
-      }
-    }
-  }
-
-  return "";
-}
-
-// Fallback venue name extraction from place prediction
-function extractVenueNameFromAddress(suggestion: PlacePrediction): string {
-  if (suggestion.structured_formatting?.main_text) {
-    const mainText = suggestion.structured_formatting.main_text;
-    // Don't use main text if it's just a number (street address)
-    if (!mainText.match(/^\d/) && mainText.length > 2) {
-      return mainText;
-    }
-  }
-  
-  // Extract from full description
-  return extractVenueName(suggestion.description);
 }
 
 export function VenueInput({ value, onChange, placeholder, onVenueNameExtracted }: VenueInputProps) {
@@ -114,7 +67,7 @@ export function VenueInput({ value, onChange, placeholder, onVenueNameExtracted 
     onChange(newValue);
     setShowSuggestions(true);
 
-    // Debounce search
+    // Debounce the search
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -145,6 +98,55 @@ export function VenueInput({ value, onChange, placeholder, onVenueNameExtracted 
     }
   };
 
+  // Helper function to extract venue name from suggestion
+  const extractVenueNameFromAddress = (suggestion: PlacePrediction): string => {
+    // Priority 1: Use structured formatting main text if available
+    if (suggestion.structured_formatting?.main_text) {
+      const mainText = suggestion.structured_formatting.main_text;
+      
+      // Skip if it's just a generic location (city, province, etc.)
+      if (isGenericLocation(mainText)) {
+        return '';
+      }
+      
+      return mainText;
+    }
+    
+    // Priority 2: Extract from the description string
+    const parts = suggestion.description.split(',');
+    if (parts.length > 1) {
+      const potentialVenueName = parts[0].trim();
+      
+      // Check if it looks like a venue name
+      if (isValidVenueName(potentialVenueName)) {
+        return potentialVenueName;
+      }
+    }
+    
+    return '';
+  };
+
+  // Helper to check if text is a generic location
+  const isGenericLocation = (text: string): boolean => {
+    const genericTerms = [
+      'montréal', 'québec', 'laval', 'gatineau', 'longueuil', 'sherbrooke',
+      'trois-rivières', 'chambly', 'granby', 'terrebonne', 'montreal', 'quebec'
+    ];
+    return genericTerms.some(term => text.toLowerCase().includes(term));
+  };
+
+  // Helper to validate if text looks like a venue name
+  const isValidVenueName = (text: string): boolean => {
+    return Boolean(text && 
+           !text.match(/^\d/) && // Doesn't start with a number
+           text.length > 3 && // Reasonable length
+           !text.toLowerCase().includes('rue ') &&
+           !text.toLowerCase().includes('avenue ') &&
+           !text.toLowerCase().includes('boulevard ') &&
+           !text.toLowerCase().includes('chemin ') &&
+           !isGenericLocation(text));
+  };
+
   const handleBlur = () => {
     // Delay hiding suggestions to allow clicking
     setTimeout(() => {
@@ -161,7 +163,7 @@ export function VenueInput({ value, onChange, placeholder, onVenueNameExtracted 
   }, []);
 
   return (
-    <div className="relative w-full">
+    <div className="relative">
       <div className="relative">
         <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
         <Input
@@ -170,8 +172,8 @@ export function VenueInput({ value, onChange, placeholder, onVenueNameExtracted 
           onChange={handleInputChange}
           onBlur={handleBlur}
           onFocus={() => setShowSuggestions(true)}
-          placeholder={placeholder || "Commencer à taper l'adresse du lieu..."}
-          className="pl-10 focus:ring-purple-500 focus:border-purple-500"
+          placeholder={placeholder || "Entrez l'adresse du lieu"}
+          className="pl-10 focus:ring-western-brown focus:border-western-brown"
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="off"
@@ -183,7 +185,7 @@ export function VenueInput({ value, onChange, placeholder, onVenueNameExtracted 
         <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
           {isLoading ? (
             <div className="p-3 text-sm text-gray-500 text-center flex items-center justify-center">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-500 mr-2"></div>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-western-brown mr-2"></div>
               Recherche en cours...
             </div>
           ) : suggestions.length === 0 ? (
@@ -193,28 +195,28 @@ export function VenueInput({ value, onChange, placeholder, onVenueNameExtracted 
           ) : (
             suggestions.map((suggestion) => (
               <button
-                key={suggestion.place_id}
-                type="button"
-                className="w-full px-4 py-3 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none border-b border-gray-100 last:border-b-0 transition-colors"
-                onClick={() => handleSuggestionClick(suggestion)}
-              >
-                <div className="flex items-center">
-                  <MapPin className="w-4 h-4 text-gray-400 mr-3 flex-shrink-0" />
-                  <div className="flex-1">
-                    {suggestion.structured_formatting ? (
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {suggestion.structured_formatting.main_text}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {suggestion.structured_formatting.secondary_text}
-                        </div>
+              key={suggestion.place_id}
+              type="button"
+              className="w-full px-4 py-3 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none border-b border-gray-100 last:border-b-0"
+              onClick={() => handleSuggestionClick(suggestion)}
+            >
+              <div className="flex items-center">
+                <MapPin className="w-4 h-4 text-gray-400 mr-3 flex-shrink-0" />
+                <div className="flex-1">
+                  {suggestion.structured_formatting ? (
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {suggestion.structured_formatting.main_text}
                       </div>
-                    ) : (
-                      <span className="text-sm text-gray-700">{suggestion.description}</span>
-                    )}
-                  </div>
+                      <div className="text-xs text-gray-500">
+                        {suggestion.structured_formatting.secondary_text}
+                      </div>
+                    </div>
+                  ) : (
+                    <span className="text-sm text-gray-700">{suggestion.description}</span>
+                  )}
                 </div>
+              </div>
               </button>
             ))
           )}

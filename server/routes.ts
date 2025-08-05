@@ -85,37 +85,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/facebook/search', async (req, res) => {
     try {
       const query = req.query.q as string;
-      const searchType = 'venues'; // Only search for venues
-      
       if (!query || query.length < 2) {
         return res.json({ data: [] });
       }
       
-      // Define known Quebec venues with their real Facebook IDs
+      // Define known Quebec venues with their Facebook IDs and real names
       const quebecVenues = [
         { id: 'bordelcomedie', name: 'Le Bordel Comédie Club', address: 'Montréal, QC' },
         { id: 'lebordel', name: 'Le Bordel', address: 'Montréal, QC' },
-        { id: 'centrebell', name: 'Centre Bell', address: 'Montréal, QC' },
-        { id: 'comedynest', name: 'Comedy Nest', address: 'Montréal, QC' },
-        { id: 'comedyworks', name: 'Comedy Works', address: 'Montréal, QC' },
-        { id: 'olympiamontreal', name: 'Olympia de Montréal', address: 'Montréal, QC' },
-        { id: 'metropolismontreal', name: 'Métropolis', address: 'Montréal, QC' },
-        { id: 'coronatheatre', name: 'Corona Theatre', address: 'Montréal, QC' },
-        { id: 'theatreoutremont', name: 'Théâtre Outremont', address: 'Montréal, QC' },
-        { id: 'maisontheatre', name: 'Maison Théâtre', address: 'Montréal, QC' },
-        { id: 'brutopia', name: 'Brutopia', address: 'Montréal, QC' },
-        { id: 'upstairsjazzbar', name: 'Upstairs Jazz Bar & Grill', address: 'Montréal, QC' },
-        { id: 'lereservoir', name: 'Le Réservoir', address: 'Montréal, QC' },
+        { id: 'lefoutoir', name: 'Le Foutoir', address: 'Montréal, QC' },
+        { id: 'comedynesttwo', name: 'Comedy Nest', address: 'Montréal, QC' },
+        { id: 'comedyworksmontreal', name: 'Comedy Works', address: 'Montréal, QC' },
+        { id: 'barleraymond', name: 'Bar Le Raymond', address: 'Montréal, QC' },
         { id: 'saintbock', name: 'Saint-Bock', address: 'Montréal, QC' },
-        { id: 'ledieuducielmontreal', name: 'Le Dieu du Ciel!', address: 'Montréal, QC' },
+        { id: 'lereservoir', name: 'Le Réservoir', address: 'Montréal, QC' },
+        { id: 'ledieuducielmontreal', name: 'Le Dieu du Ciel', address: 'Montréal, QC' },
         { id: 'unibroue', name: 'Unibroue', address: 'Chambly, QC' },
-        { id: 'centrevideotron', name: 'Centre Vidéotron', address: 'Québec, QC' },
-        { id: 'lecapitolequebec', name: 'Le Capitole de Québec', address: 'Québec, QC' },
-        { id: 'palaisgrandtheatre', name: 'Palais Montcalm', address: 'Québec, QC' },
-        { id: 'casinolacleamy', name: 'Casino du Lac-Leamy', address: 'Gatineau, QC' },
+        { id: 'brutopia', name: 'Brutopia', address: 'Montréal, QC' },
+        { id: 'pubquartierlatinmtl', name: 'Pub Quartier Latin', address: 'Montréal, QC' },
+        { id: 'chezserge', name: 'Chez Serge', address: 'Montréal, QC' },
+        { id: 'bistrolemythos', name: 'Bistro Le Mythos', address: 'Montréal, QC' },
+        { id: 'pubstpatrick', name: 'Pub St-Patrick', address: 'Montréal, QC' },
+        { id: 'loupgaron', name: 'Loup Garou', address: 'Québec, QC' },
+        { id: 'chezmaurice', name: 'Chez Maurice', address: 'Québec, QC' },
+        { id: 'korrigannpub', name: 'Korrigann Pub', address: 'Québec, QC' },
+        { id: 'pubdufaubourg', name: 'Pub du Faubourg', address: 'Québec, QC' },
+        { id: 'sacrecoeurpub', name: 'Sacré-Coeur Pub', address: 'Québec, QC' },
       ];
-      
-
       
       // Normalize search query for better matching
       const normalizeText = (text: string) => {
@@ -134,82 +130,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const normalizedQuery = normalizeText(query);
       const queryWords = normalizedQuery.split(' ').filter(word => word.length > 1);
       
-      let results = [];
-      
       // Score venues based on name similarity
-        const scoredVenues = quebecVenues.map(venue => {
-          const normalizedVenueName = normalizeText(venue.name);
-          const venueWords = normalizedVenueName.split(' ').filter(word => word.length > 1);
-          
-          let score = 0;
-          
-          // Exact name match
-          if (normalizedVenueName.includes(normalizedQuery)) {
-            score += 100;
-          }
-          
-          // Word matching
-          let matchedWords = 0;
-          queryWords.forEach(queryWord => {
-            venueWords.forEach(venueWord => {
-              if (venueWord.includes(queryWord) || queryWord.includes(venueWord)) {
-                matchedWords++;
-                score += 20;
+      const scoredVenues = quebecVenues.map(venue => {
+        const normalizedVenueName = normalizeText(venue.name);
+        const venueWords = normalizedVenueName.split(' ').filter(word => word.length > 1);
+        
+        let score = 0;
+        
+        // Exact name match
+        if (normalizedVenueName.includes(normalizedQuery)) {
+          score += 100;
+        }
+        
+        // Word matching
+        let matchedWords = 0;
+        queryWords.forEach(queryWord => {
+          venueWords.forEach(venueWord => {
+            if (venueWord.includes(queryWord) || queryWord.includes(venueWord)) {
+              matchedWords++;
+              score += 20;
+            }
+            // Partial word matching
+            if (venueWord.length > 3 && queryWord.length > 3) {
+              const commonLength = Math.min(venueWord.length, queryWord.length);
+              const similarity = queryWord.substring(0, commonLength) === venueWord.substring(0, commonLength);
+              if (similarity) {
+                score += 10;
               }
-              // Partial word matching
-              if (venueWord.length > 3 && queryWord.length > 3) {
-                const commonLength = Math.min(venueWord.length, queryWord.length);
-                const similarity = queryWord.substring(0, commonLength) === venueWord.substring(0, commonLength);
-                if (similarity) {
-                  score += 10;
-                }
-              }
-            });
+            }
           });
-          
-          // Bonus for matching most words
-          if (matchedWords >= queryWords.length * 0.7) {
-            score += 30;
-          }
-          
-          // Check if query matches Facebook ID
-          if (venue.id.includes(normalizedQuery.replace(/\s+/g, ''))) {
-            score += 50;
-          }
-          
-          return { ...venue, score };
         });
         
-        // Filter and sort by score
-        const filteredVenues = scoredVenues
-          .filter(venue => venue.score > 0)
-          .sort((a, b) => b.score - a.score)
-          .slice(0, 10);
-        
-        // Only include venues that actually exist on Facebook
-        results = [];
-        for (const venue of filteredVenues) {
-          const facebookUrl = `https://www.facebook.com/${venue.id}`;
-          const profilePictureUrl = `https://graph.facebook.com/${venue.id}/picture?type=large`;
-          
-          try {
-            const response = await fetch(profilePictureUrl, { method: 'HEAD' });
-            const isValid = response.ok && response.headers.get('content-type')?.startsWith('image/');
-            
-            if (isValid) {
-              results.push({
-                id: venue.id,
-                name: venue.name,
-                url: facebookUrl,
-                profilePicture: profilePictureUrl,
-                verified: true,
-                searchType: 'venue'
-              });
-            }
-          } catch (error) {
-            // Page doesn't exist, skip it
-          }
+        // Bonus for matching most words
+        if (matchedWords >= queryWords.length * 0.7) {
+          score += 30;
         }
+        
+        // Check if query matches Facebook ID
+        if (venue.id.includes(normalizedQuery.replace(/\s+/g, ''))) {
+          score += 50;
+        }
+        
+        return { ...venue, score };
+      });
+      
+      // Filter and sort by score
+      const filteredVenues = scoredVenues
+        .filter(venue => venue.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10);
+      
+      // Verify which pages actually exist and add their profile pictures
+      const results = [];
+      for (const venue of filteredVenues) {
+        const facebookUrl = `https://www.facebook.com/${venue.id}`;
+        const profilePictureUrl = `https://graph.facebook.com/${venue.id}/picture?type=large`;
+        
+        try {
+          const response = await fetch(profilePictureUrl, { method: 'HEAD' });
+          const isValid = response.ok && response.headers.get('content-type')?.startsWith('image/');
+          
+          if (isValid) {
+            results.push({
+              id: venue.id,
+              name: venue.name,
+              url: facebookUrl,
+              profilePicture: profilePictureUrl,
+              verified: true
+            });
+          }
+        } catch (error) {
+          // Page doesn't exist, skip it
+        }
+      }
       
       res.json({ data: results });
       
