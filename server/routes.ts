@@ -113,10 +113,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { id: 'korrigannpub', name: 'Korrigann Pub', address: 'Québec, QC', category: 'Pub', type: 'page' },
         { id: 'pubdufaubourg', name: 'Pub du Faubourg', address: 'Québec, QC', category: 'Pub', type: 'page' },
         { id: 'sacrecoeurpub', name: 'Sacré-Coeur Pub', address: 'Québec, QC', category: 'Pub', type: 'page' },
+        // Granby venues
+        { id: 'theatregranby', name: 'Théâtre Palace Granby', address: 'Granby, QC', category: 'Théâtre', type: 'page' },
+        { id: 'centreculturelgranby', name: 'Centre culturel France Arbour', address: 'Granby, QC', category: 'Centre culturel', type: 'page' },
+        { id: 'casinogranby', name: 'Casino de Granby', address: 'Granby, QC', category: 'Casino', type: 'page' },
+        { id: 'pubgranby', name: 'Pub Granby', address: 'Granby, QC', category: 'Pub', type: 'page' },
+        { id: 'sallegranby', name: 'Salle de spectacle Granby', address: 'Granby, QC', category: 'Salle de spectacle', type: 'page' },
         // Sample events (these would normally come from a real API)
         { id: 'event-stand-up-bordeL', name: 'Soirée Stand-up au Bordel', address: 'Montréal, QC', category: 'Spectacle', type: 'event', description: 'Soirée de stand-up avec des humoristes locaux' },
         { id: 'event-comedy-night', name: 'Comedy Night Montréal', address: 'Montréal, QC', category: 'Comédie', type: 'event', description: 'Nuit de la comédie avec plusieurs artistes' },
         { id: 'event-open-mic', name: 'Open Mic Comedy', address: 'Montréal, QC', category: 'Open Mic', type: 'event', description: 'Micro ouvert pour humoristes débutants' },
+        { id: 'event-soiree-rire-granby', name: 'La soirée du rire de Granby', address: 'Granby, QC', category: 'Spectacle d\'humour', type: 'event', description: 'Soirée humoristique à Granby avec des artistes locaux' },
+        { id: 'event-20sept-rire-granby', name: '20 septembre - La soirée du rire de Granby', address: 'Granby, QC', category: 'Spectacle d\'humour', type: 'event', description: 'Spectacle du 20 septembre à Granby' },
+        { id: 'event-granby-comedy', name: 'Granby Comedy Show', address: 'Granby, QC', category: 'Comédie', type: 'event', description: 'Spectacle de comédie à Granby' },
+        { id: 'event-rire-granby-automne', name: 'Soirée du rire Granby - Automne', address: 'Granby, QC', category: 'Humour', type: 'event', description: 'Soirée humoristique d\'automne à Granby' },
       ];
       
       // Normalize search query for better matching
