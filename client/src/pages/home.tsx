@@ -234,7 +234,7 @@ export default function Home() {
         if (data.data && Array.isArray(data.data)) {
           // Filter out pages that are already saved
           const savedIds = savedVenues.map(v => v.facebookId).filter(Boolean);
-          newPages = data.data.filter(page => !savedIds.includes(page.id));
+          newPages = data.data.filter((page: any) => !savedIds.includes(page.id));
         }
       }
 
@@ -871,7 +871,7 @@ export default function Home() {
                                       {previewUrl.includes('facebook.com') ? (
                                         <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
                                           <img
-                                            src={getFacebookProfilePicture(form.getValues('facebookId'))}
+                                            src={getFacebookProfilePicture(form.getValues('facebookId') || '')}
                                             alt="Photo de profil Facebook"
                                             className="w-full h-full object-cover"
                                             onError={(e) => {
